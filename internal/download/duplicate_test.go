@@ -14,6 +14,7 @@ func TestDropDuplicateInterruptedKeepsMostProgress(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer st.Close()
 	now := int64(1000)
 	oldTask := types.Task{
 		ID: "old", URL: "https://example.com/file.mkv", Engine: "aria2", Kind: "file",
@@ -50,6 +51,7 @@ func TestAddReturnsExistingQueuedDuplicate(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer st.Close()
 	now := int64(1000)
 	existing := types.Task{
 		ID: "existing", URL: "https://example.com/file.zip", Title: "file.zip",
@@ -100,6 +102,7 @@ func TestAddCheckedAllowDuplicateCreatesNewTask(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer st.Close()
 	existing := types.Task{
 		ID: "existing", URL: "https://example.com/file.zip", Title: "file.zip",
 		Engine: "http", Kind: "file", Quality: "best", Status: types.StatusQueued,

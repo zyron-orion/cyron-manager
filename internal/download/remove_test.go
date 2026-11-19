@@ -15,6 +15,7 @@ func TestRemoveWithFileDeletesTaskFilesAndSidecars(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer st.Close()
 	dataDir := filepath.Join(dir, "downloads")
 	if err := os.MkdirAll(dataDir, 0o755); err != nil {
 		t.Fatal(err)
@@ -54,6 +55,7 @@ func TestRemoveWithFileNeverDeletesOutsideTaskDir(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer st.Close()
 	dataDir := filepath.Join(dir, "downloads")
 	if err := os.MkdirAll(dataDir, 0o755); err != nil {
 		t.Fatal(err)
