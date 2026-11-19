@@ -32,10 +32,6 @@ if ($missing -and $NoFetch) {
 }
 
 $arguments = @("build", "-clean")
-if ($Nsis) {
-    $arguments += "-nsis"
-}
-
 & $wails @arguments
 if ($LASTEXITCODE -ne 0) {
     throw "wails build failed with exit code $LASTEXITCODE"
@@ -67,3 +63,60 @@ Copy-Item -Path (Join-Path $fontLicenses "OFL-*.txt") -Destination $assetLicense
 Copy-Item -LiteralPath (Join-Path $root "frontend\dist\assets\gentleface-LICENSE.txt") -Destination $assetLicenses -Force
 
 Write-Host "Build ready: $output\CYRON.exe"
+
+if ($Nsis) {
+    $missing = $required | Where-Object { -not (Test-Path -LiteralPath (Join-Path $target $_)) }
+    if ($missing) {
+        throw "Installer requires runtime tools in build\bin\bin: $($missing -join ', ')"
+    }
+
+    $makensis = (Get-Command makensis -ErrorAction SilentlyContinue).Source
+    if (-not $makensis) {
+        $candidates = @()
+        if (${env:ProgramFiles(x86)}) {
+            $candidates += Join-Path ${env:ProgramFiles(x86)} "NSIS\makensis.exe"
+        }
+        if ($env:ProgramFiles) {
+            $candidates += Join-Path $env:ProgramFiles "NSIS\makensis.exe"
+        }
+        $makensis = $candidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+    }
+    if (-not $makensis) {
+        throw "makensis was not found. Install NSIS and add it to PATH."
+    }
+
+    $config = Get-Content -LiteralPath (Join-Path $root "wails.json") -Raw | ConvertFrom-Json
+    $version = $config.info.productVersion
+    $stage = Join-Path $root "build\installer-stage"
+    $installerDir = Join-Path $root "build\installer"
+    $webviewSetup = Join-Path $installerDir "MicrosoftEdgeWebview2Setup.exe"
+    $installer = Join-Path $root "build\CYRON-Setup-$version.exe"
+
+    Remove-Item -LiteralPath $stage -Recurse -Force -ErrorAction SilentlyContinue
+    New-Item -ItemType Directory -Force -Path $stage | Out-Null
+    New-Item -ItemType Directory -Force -Path $installerDir | Out-Null
+    Copy-Item -LiteralPath (Join-Path $output "CYRON.exe") -Destination $stage -Force
+    Copy-Item -Path (Join-Path $output "bin") -Destination $stage -Recurse -Force
+    Copy-Item -Path (Join-Path $output "licenses") -Destination $stage -Recurse -Force
+    Copy-Item -LiteralPath (Join-Path $output "LICENSE.txt"), (Join-Path $output "README.md"), (Join-Path $output "THIRD_PARTY_NOTICES.md") -Destination $stage -Force
+
+    if (-not (Test-Path -LiteralPath $webviewSetup)) {
+        Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?LinkId=2124703" -OutFile $webviewSetup -UseBasicParsing
+    }
+
+    Remove-Item -LiteralPath $installer -Force -ErrorAction SilentlyContinue
+    $installerArgs = @(
+        "-DSTAGE_DIR=$stage",
+        "-DOUTFILE=$installer",
+        "-DWEBVIEW2_SETUP=$webviewSetup",
+        "-DICON_FILE=$(Join-Path $root 'build\windows\icon.ico')",
+        "-DLICENSE_FILE=$(Join-Path $root 'LICENSE')",
+        "-DAPP_VERSION=$version",
+        (Join-Path $root "scripts\CYRON.nsi")
+    )
+    & $makensis @installerArgs
+    if ($LASTEXITCODE -ne 0) {
+        throw "makensis failed with exit code $LASTEXITCODE"
+    }
+    Write-Host "Installer ready: $installer"
+}

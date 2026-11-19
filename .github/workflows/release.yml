@@ -28,13 +28,17 @@ jobs:
         shell: pwsh
         run: '"$(go env GOPATH)\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append'
 
+      - name: Install NSIS
+        shell: pwsh
+        run: choco install nsis -y --no-progress
+
       - name: Fetch runtime tools
         shell: pwsh
         run: ./scripts/fetch-tools.ps1
 
       - name: Build release
         shell: pwsh
-        run: ./scripts/build.ps1 -NoFetch
+        run: ./scripts/build.ps1 -NoFetch -Nsis
 
       - name: Package release
         shell: pwsh
@@ -48,4 +52,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $asset = "CYRON-${{ github.ref_name }}-windows-amd64.zip"
-          gh release create "${{ github.ref_name }}" $asset --generate-notes --title "CYRON Manager ${{ github.ref_name }}"
+          $installer = Get-ChildItem -LiteralPath build -Filter "CYRON-Setup-*.exe" | Select-Object -First 1
+          if (-not $installer) {
+            throw "Installer was not created"
+          }
+          gh release create "${{ github.ref_name }}" $asset $installer.FullName --generate-notes --title "CYRON Manager ${{ github.ref_name }}"

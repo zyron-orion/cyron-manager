@@ -28,7 +28,7 @@ The repository does not store runtime binaries. `scripts/fetch-tools.ps1` downlo
 
 FFmpeg builds include their own dependencies. Review the bundled `LICENSE.txt` before redistributing the full package.
 
-The release archive contains these GPL binaries. Their corresponding source is available from the upstream projects linked above. Keep those source links with any redistribution.
+The release archive and the Windows installer contain these GPL binaries. Their corresponding source is available from the upstream projects linked above. Keep those source links with any redistribution.
 
 ## Go modules
 
@@ -48,4 +48,4 @@ Transitive modules are listed in `go.mod` and `go.sum`. Their license files are 
 
 ## Microsoft WebView2
 
-The app uses the WebView2 Runtime that is installed with Windows or provided by Microsoft. The runtime is not redistributed in this repository or in the release archive.
+The app uses the WebView2 Runtime that is installed with Windows or provided by Microsoft. The Windows installer includes Microsoft's WebView2 bootstrapper and runs it only when the runtime is missing. The runtime itself is not redistributed in this repository or in the release archive. The bootstrapper is subject to Microsoft's terms.

@@ -30,7 +30,7 @@ CYRON Manager یک برنامه مدیریت دانلود برای ویندوز 
 
 ### دانلود و اجرا
 
-بسته ویندوز را از صفحه Releases بگیر. داخل بسته `CYRON.exe`، ابزارهای زمان اجرا در `bin/` و فایل‌های لایسنس قرار دارند. کل بسته را استخراج کن؛ `CYRON.exe` انتظار دارد پوشه `bin/` کنارش باشد. در اولین اجرا از تنظیمات، پوشه دانلود را انتخاب کن.
+از صفحه Releases نسخه نصب‌شدنی `CYRON-Setup-*.exe` را بگیر. نصب‌کننده به‌صورت per-user نصب می‌کند و به Administrator نیاز ندارد. ابزارهای زمان اجرا داخل نصب‌کننده هستند، Shortcut دسکتاپ و Start Menu ساخته می‌شود و در صورت نبود WebView2 نصب‌کننده آن را نصب می‌کند. نسخه پرتابل ZIP هم برای اجرای بدون نصب موجود است؛ در آن حالت کل بسته را استخراج کن، چون `CYRON.exe` انتظار دارد پوشه `bin/` کنارش باشد. در اولین اجرا از تنظیمات، پوشه دانلود را انتخاب کن.
 
 ### ساخت از سورس
 
@@ -41,7 +41,7 @@ powershell -ExecutionPolicy Bypass -File scripts/fetch-tools.ps1
 powershell -ExecutionPolicy Bypass -File scripts/build.ps1
 ```
 
-خروجی در `build/bin/CYRON.exe` ساخته می‌شود. برای ساخت نصب‌کننده NSIS، پس از نصب NSIS دستور `scripts/build.ps1 -Nsis` را اجرا کن.
+خروجی در `build/bin/CYRON.exe` ساخته می‌شود. برای ساخت نصب‌کننده NSIS، پس از نصب NSIS دستور `scripts/build.ps1 -Nsis` را اجرا کن. نصب‌کننده در `build/CYRON-Setup-1.0.0.exe` ساخته می‌شود و ابزارهای runtime، لایسنس‌ها، Shortcutها و uninstaller را داخل خود دارد.
 
 ### داده و امنیت
 
@@ -59,6 +59,7 @@ powershell -ExecutionPolicy Bypass -File scripts/build.ps1
 - فقط ویندوز.
 - به‌روزرسانی خودکار ندارد.
 - ساخت نصب‌کننده NSIS به نصب NSIS نیاز دارد.
+- نصب‌کننده و فایل‌های اجرایی امضای دیجیتال ندارند؛ Windows SmartScreen ممکن است هشدار بدهد.
 - افزونه مرورگر به‌صورت unpacked بارگذاری می‌شود و در Chrome Web Store یا Edge Add-ons منتشر نشده.
 - پل مرورگر از پورت ثابت `17872` استفاده می‌کند. اگر برنامه دیگری این پورت را بگیرد، پل تا آزاد شدن پورت خطا می‌دهد.
 - FFmpeg حجیم است. با `fetch-tools.ps1 -SkipFFmpeg` می‌توانی از دانلود آن صرف‌نظر کنی، اما ادغام ویدیو و استخراج صدا از کار می‌افتد. برای نگه‌داشتن این حالت، `build.ps1` را با `-NoFetch` اجرا کن.
@@ -73,9 +74,9 @@ The English documentation follows.
 
 ## Download
 
-Use the repository's Releases page. The Windows archive contains `CYRON.exe`, the runtime tools under `bin/`, `LICENSE.txt`, `README.md`, and `THIRD_PARTY_NOTICES.md`.
+Use the repository's Releases page. `CYRON-Setup-*.exe` is the per-user Windows installer. It bundles the runtime tools, creates Start Menu and desktop shortcuts, registers an uninstaller, and installs WebView2 when it is missing. It does not require Administrator.
 
-Extract the complete archive before running the app. `CYRON.exe` expects the `bin/` folder next to it.
+The portable ZIP contains `CYRON.exe`, the runtime tools under `bin/`, `LICENSE.txt`, `README.md`, and `THIRD_PARTY_NOTICES.md`. Extract the complete archive before running the app. `CYRON.exe` expects the `bin/` folder next to it.
 
 On first launch, open Settings and choose a download folder.
 
@@ -125,13 +126,13 @@ build/bin/bin/ffprobe.exe
 build/bin/bin/licenses/
 ```
 
-To create an NSIS installer, install NSIS and run:
+To create a per-user NSIS installer, install NSIS and run:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/build.ps1 -Nsis
 ```
 
-The installer is optional and is not built by default.
+The installer is written to `build/CYRON-Setup-1.0.0.exe`. It contains the runtime tools, the WebView2 bootstrapper, Start Menu and desktop shortcuts, and an uninstaller. The installer is optional and is not built by default.
 
 ## Development
 
@@ -191,6 +192,7 @@ See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) before redistributing a bun
 - Windows only.
 - No automatic updates.
 - NSIS installer generation requires NSIS.
+- The installer and executables are not code-signed, so Windows SmartScreen may warn.
 - The browser extension is loaded unpacked. It is not published to the Chrome Web Store or Edge Add-ons.
 - The browser bridge uses the fixed local port `17872`. If another process holds it, the bridge reports an error until the port is free.
 - FFmpeg is large. `fetch-tools.ps1 -SkipFFmpeg` skips it, but video merging and audio extraction will not be available. Pass `-NoFetch` to `build.ps1` to keep it skipped.

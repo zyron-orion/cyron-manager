@@ -1,5 +1,7 @@
 # Build output
 /build/bin/
+/build/installer/
+/build/installer-stage/
 /build/windows/*.syso
 /build/windows/*.dll
 /build/windows/*.old.ico
