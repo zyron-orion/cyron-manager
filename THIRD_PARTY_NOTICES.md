@@ -28,7 +28,7 @@ The repository does not store runtime binaries. `scripts/fetch-tools.ps1` downlo
 
 FFmpeg builds include their own dependencies. Review the bundled `LICENSE.txt` before redistributing the full package.
 
-The release archive and the Windows installer contain these GPL binaries. Their corresponding source is available from the upstream projects linked above. Keep those source links with any redistribution.
+The Windows installer contains these GPL binaries. Their corresponding source is available from the upstream projects linked above. Keep those source links with any redistribution.
 
 ## Go modules
 
@@ -43,9 +43,9 @@ Transitive modules are listed in `go.mod` and `go.sum`. Their license files are 
 
 ## Bundled fonts and icons
 
-- Estedad, Inter, and Space Grotesk: SIL Open Font License 1.1. License files are in `frontend/dist/assets/fonts/` in the repository and `licenses/` in the release archive.
-- Gentleface icon set: MIT. License file is `frontend/dist/assets/gentleface-LICENSE.txt` in the repository and `licenses/` in the release archive.
+- Estedad, Inter, and Space Grotesk: SIL Open Font License 1.1. License files are in `frontend/dist/assets/fonts/` in the repository and `licenses/` in the installer.
+- Gentleface icon set: MIT. License file is `frontend/dist/assets/gentleface-LICENSE.txt` in the repository and `licenses/` in the installer.
 
 ## Microsoft WebView2
 
-The app uses the WebView2 Runtime that is installed with Windows or provided by Microsoft. The Windows installer includes Microsoft's WebView2 bootstrapper and runs it only when the runtime is missing. The runtime itself is not redistributed in this repository or in the release archive. The bootstrapper is subject to Microsoft's terms.
+The app uses the WebView2 Runtime that is installed with Windows or provided by Microsoft. The Windows installer includes Microsoft's WebView2 bootstrapper and runs it only when the runtime is missing. The runtime itself is not redistributed in this repository or in the installer. The bootstrapper is subject to Microsoft's terms.

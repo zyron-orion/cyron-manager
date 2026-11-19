@@ -30,7 +30,7 @@ CYRON Manager یک برنامه مدیریت دانلود برای ویندوز 
 
 ### دانلود و اجرا
 
-از صفحه Releases نسخه نصب‌شدنی `CYRON-Setup-*.exe` را بگیر. نصب‌کننده به‌صورت per-user نصب می‌کند و به Administrator نیاز ندارد. ابزارهای زمان اجرا داخل نصب‌کننده هستند، Shortcut دسکتاپ و Start Menu ساخته می‌شود و در صورت نبود WebView2 نصب‌کننده آن را نصب می‌کند. نسخه پرتابل ZIP هم برای اجرای بدون نصب موجود است؛ در آن حالت کل بسته را استخراج کن، چون `CYRON.exe` انتظار دارد پوشه `bin/` کنارش باشد. در اولین اجرا از تنظیمات، پوشه دانلود را انتخاب کن.
+از صفحه Releases فایل `CYRON-Setup-*.exe` را بگیر. نصب‌کننده به‌صورت per-user نصب می‌کند و به Administrator نیاز ندارد. ابزارهای زمان اجرا داخل نصب‌کننده هستند، Shortcut دسکتاپ و Start Menu ساخته می‌شود و در صورت نبود WebView2 نصب‌کننده آن را نصب می‌کند. در اولین اجرا از تنظیمات، پوشه دانلود را انتخاب کن.
 
 ### ساخت از سورس
 
@@ -75,8 +75,6 @@ The English documentation follows.
 ## Download
 
 Use the repository's Releases page. `CYRON-Setup-*.exe` is the per-user Windows installer. It bundles the runtime tools, creates Start Menu and desktop shortcuts, registers an uninstaller, and installs WebView2 when it is missing. It does not require Administrator.
-
-The portable ZIP contains `CYRON.exe`, the runtime tools under `bin/`, `LICENSE.txt`, `README.md`, and `THIRD_PARTY_NOTICES.md`. Extract the complete archive before running the app. `CYRON.exe` expects the `bin/` folder next to it.
 
 On first launch, open Settings and choose a download folder.
 
