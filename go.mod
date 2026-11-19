@@ -5,7 +5,7 @@ go 1.26.0
 require (
 	git.sr.ht/~jackmordaunt/go-toast/v2 v2.0.3
 	github.com/wailsapp/wails/v2 v2.17.1
-	golang.org/x/sys v0.48.0
+	golang.org/x/sys v0.50.0
 	modernc.org/sqlite v1.39.1
 )
 
