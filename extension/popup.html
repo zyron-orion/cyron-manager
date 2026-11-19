@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ارسال به CYRON</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body class="popup">
+  <header class="top">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M16.59 5.45A8 8 0 1 0 16.59 18.55"/>
+        <path d="M12 7.2v6"/>
+        <path d="M9.5 10.7 12 13.2l2.5-2.5"/>
+        <path d="M9 16.3h6"/>
+      </svg>
+      <span>CYRON</span>
+    </div>
+    <div class="status" id="bridge-status" data-state="checking">
+      <span class="dot" aria-hidden="true"></span>
+      <span id="bridge-status-text">در حال بررسی پل</span>
+    </div>
+  </header>
+
+  <main>
+    <h1>ارسال لینک به صف</h1>
+    <form id="send-form">
+      <label for="download-url">لینک</label>
+      <input id="download-url" type="text" dir="ltr" inputmode="url" autocomplete="url" spellcheck="false" placeholder="https://example.com/file">
+      <label for="download-engine">نوع</label>
+      <select id="download-engine">
+        <option value="auto">تشخیص خودکار</option>
+        <option value="ytdlp">ویدیو از سایت</option>
+        <option value="http">لینک مستقیم</option>
+      </select>
+      <button type="submit" id="send-button">افزودن به صف</button>
+    </form>
+    <p class="feedback" id="feedback" role="status" aria-live="polite" hidden></p>
+  </main>
+
+  <footer>
+    <button type="button" class="quiet" id="open-options">تنظیمات اتصال</button>
+    <span>پورت 17872</span>
+  </footer>
+
+  <script src="shared.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

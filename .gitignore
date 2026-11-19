@@ -1,0 +1,51 @@
+# Build output
+/build/bin/
+/build/windows/*.syso
+/build/windows/*.dll
+/build/windows/*.old.ico
+/build/*.exe
+/build/*.zip
+/build/*.log
+/CYRON-*.zip
+
+# Downloaded runtime tools
+/bin/*.exe
+/bin/*.dll
+/bin/licenses/
+/.cache-tools/
+
+# Generated Wails bindings
+/frontend/wailsjs/
+
+# Local data and logs
+*.db
+*.db-shm
+*.db-wal
+*.log
+/downloads/
+*.part
+*.part.meta
+*.part.multi
+coverage.out
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.pfx
+/secrets.*
+
+# Editors and OS files
+.vscode/
+.idea/
+*.suo
+*.user
+.DS_Store
+Thumbs.db
+desktop.ini
+*.tmp
+*.bak
+*~

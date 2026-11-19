@@ -1,0 +1,19 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "CYRON Manager",
+  "outputfilename": "CYRON",
+  "frontend:install": "",
+  "frontend:build": "",
+  "frontend:dev:watcher": "",
+  "info": {
+    "productName": "CYRON Manager",
+    "productVersion": "1.0.0",
+    "copyright": "Copyright (c) 2026 CYRON Manager contributors",
+    "companyName": "CYRON",
+    "comments": "Download Smarter"
+  },
+  "author": {
+    "name": "CYRON",
+    "email": ""
+  }
+}

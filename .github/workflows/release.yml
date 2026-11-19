@@ -1,0 +1,51 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Install Wails
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@v2.17.1
+
+      - name: Add Go bin to PATH
+        shell: pwsh
+        run: '"$(go env GOPATH)\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append'
+
+      - name: Fetch runtime tools
+        shell: pwsh
+        run: ./scripts/fetch-tools.ps1
+
+      - name: Build release
+        shell: pwsh
+        run: ./scripts/build.ps1 -NoFetch
+
+      - name: Package release
+        shell: pwsh
+        run: |
+          $asset = "CYRON-${{ github.ref_name }}-windows-amd64.zip"
+          Compress-Archive -Path build/bin/* -DestinationPath $asset -Force
+
+      - name: Publish release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $asset = "CYRON-${{ github.ref_name }}-windows-amd64.zip"
+          gh release create "${{ github.ref_name }}" $asset --generate-notes --title "CYRON Manager ${{ github.ref_name }}"

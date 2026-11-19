@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="fa" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#0e1116">
+  <meta name="description" content="مدیریت دانلود مستقیم، ویدیو، تورنت و GitHub با صف، ادامه دانلود و آمار زنده.">
+  <title>CYRON Manager | نمای کلی دانلودها</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%233ddc97'/%3E%3Cg fill='none' stroke='%2306130d' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22.1 7.3A10.7 10.7 0 1 0 22.1 24.7'/%3E%3Cpath d='M16 9.6v8'/%3E%3Cpath d='M12.7 14.3l3.3 3.3 3.3-3.3'/%3E%3Cpath d='M12 21.7h8'/%3E%3C/g%3E%3C/svg%3E">
+  <script>
+    (() => {
+      try {
+        document.documentElement.dataset.theme = localStorage.getItem("dm-theme") === "light" ? "light" : "dark";
+        document.querySelector('meta[name="theme-color"]').setAttribute("content", document.documentElement.dataset.theme === "light" ? "#f2f5f8" : "#0E1116");
+        if (localStorage.getItem("dm-lang") === "en") {
+          document.documentElement.lang = "en";
+          document.documentElement.dir = "ltr";
+        }
+      } catch {}
+    })();
+  </script>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main" data-i18n="skip">رفتن به محتوای اصلی</a>
+  <div class="atmosphere" aria-hidden="true"></div>
+
+  <svg class="icon-sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-user" viewBox="0 0 16 16" fill="currentColor">
+      <path d="M5.879 1.879C6.172 1.586 6.511 1.363 6.896 1.211C7.25 1.07 7.619 1 8 1C8.381 1 8.75 1.07 9.104 1.211C9.489 1.363 9.828 1.586 10.121 1.879C10.414 2.172 10.637 2.511 10.789 2.896C10.93 3.25 11 3.619 11 4C11 4.381 10.93 4.75 10.789 5.104C10.637 5.489 10.414 5.828 10.121 6.121C9.828 6.414 9.489 6.637 9.104 6.789C8.75 6.93 8.381 7 8 7C7.619 7 7.25 6.93 6.896 6.789C6.511 6.637 6.172 6.414 5.879 6.121C5.586 5.828 5.363 5.489 5.211 5.104C5.07 4.75 5 4.381 5 4C5 3.619 5.07 3.25 5.211 2.896C5.363 2.511 5.586 2.172 5.879 1.879ZM6.586 5.414C6.781 5.609 7.007 5.758 7.264 5.86C7.5 5.953 7.746 6 8 6C8.254 6 8.5 5.953 8.736 5.86C8.993 5.758 9.219 5.609 9.414 5.414C9.609 5.219 9.758 4.993 9.86 4.736C9.953 4.5 10 4.254 10 4C10 3.746 9.953 3.5 9.86 3.264C9.758 3.007 9.609 2.781 9.414 2.586C9.219 2.391 8.993 2.242 8.736 2.14C8.5 2.047 8.254 2 8 2C7.746 2 7.5 2.047 7.264 2.14C7.007 2.242 6.781 2.391 6.586 2.586C6.391 2.781 6.242 3.007 6.14 3.264C6.047 3.5 6 3.746 6 4C6 4.254 6.047 4.5 6.14 4.736C6.242 4.993 6.391 5.219 6.586 5.414ZM2.447 11.789C2.762 11.209 3.219 10.702 3.817 10.267C4.401 9.842 5.075 9.52 5.837 9.3C6.533 9.1 7.254 9 8 9C8.746 9 9.467 9.1 10.163 9.3C10.925 9.52 11.599 9.842 12.183 10.267C12.781 10.702 13.238 11.209 13.553 11.789C13.851 12.336 14 12.907 14 13.5L14 14.5C14 14.641 13.952 14.759 13.856 14.856C13.759 14.952 13.641 15 13.5 15C13.359 15 13.241 14.952 13.144 14.856C13.048 14.759 13 14.641 13 14.5L13 13.5C13 13.076 12.892 12.665 12.675 12.267C12.431 11.819 12.071 11.422 11.595 11.076C11.105 10.72 10.536 10.448 9.886 10.261C9.281 10.087 8.652 10 8 10C7.348 10 6.719 10.087 6.114 10.261C5.464 10.448 4.895 10.72 4.405 11.076C3.929 11.422 3.569 11.819 3.325 12.267C3.108 12.665 3 13.076 3 13.5L3 14.5C3 14.641 2.952 14.759 2.856 14.856C2.759 14.952 2.641 15 2.5 15C2.359 15 2.241 14.952 2.144 14.856C2.048 14.759 2 14.641 2 14.5L2 13.5C2 12.907 2.149 12.336 2.447 11.789Z"/>
+    </symbol>
+    <symbol id="i-gauge" viewBox="0 0 16 16" fill="currentColor">
+      <path d="M1.112 10.699C0.966 9.924 0.962 9.148 1.099 8.371C1.236 7.595 1.505 6.867 1.907 6.188C2.284 5.552 2.755 4.996 3.322 4.521C3.888 4.045 4.518 3.677 5.21 3.417C5.948 3.139 6.711 3 7.5 3C8.289 3 9.052 3.139 9.79 3.417C10.482 3.677 11.112 4.045 11.678 4.521C12.245 4.996 12.716 5.552 13.093 6.188C13.495 6.867 13.764 7.595 13.901 8.371C14.038 9.148 14.034 9.924 13.888 10.699C13.752 11.426 13.499 12.109 13.129 12.75C13.06 12.87 12.959 12.947 12.826 12.983C12.692 13.019 12.566 13.002 12.446 12.933C12.327 12.864 12.249 12.763 12.213 12.629C12.177 12.496 12.194 12.37 12.263 12.25C12.576 11.708 12.79 11.129 12.906 10.514C13.029 9.859 13.032 9.202 12.916 8.545C12.801 7.888 12.573 7.272 12.233 6.698C11.914 6.159 11.515 5.689 11.035 5.287C10.556 4.884 10.023 4.573 9.438 4.353C8.813 4.118 8.167 4 7.5 4C6.833 4 6.187 4.118 5.562 4.353C4.977 4.573 4.444 4.884 3.965 5.287C3.485 5.689 3.086 6.159 2.767 6.698C2.427 7.272 2.199 7.888 2.084 8.545C1.968 9.202 1.971 9.859 2.094 10.514C2.21 11.129 2.424 11.708 2.737 12.25C2.806 12.37 2.823 12.496 2.787 12.629C2.751 12.763 2.673 12.864 2.554 12.933C2.434 13.002 2.308 13.019 2.174 12.983C2.041 12.947 1.94 12.87 1.871 12.75C1.501 12.109 1.248 11.426 1.112 10.699ZM10.146 6.146C10.246 6.047 10.364 5.997 10.5 5.997C10.636 5.997 10.754 6.047 10.854 6.146C10.951 6.244 11 6.362 11 6.5C11 6.638 10.951 6.756 10.854 6.854L8.854 8.854C8.951 9.058 9 9.273 9 9.5C9 9.914 8.854 10.268 8.561 10.561C8.268 10.854 7.914 11 7.5 11C7.086 11 6.732 10.854 6.439 10.561C6.146 10.268 6 9.914 6 9.5C6 9.086 6.146 8.732 6.439 8.439C6.732 8.146 7.086 8 7.5 8C7.727 8 7.942 8.049 8.146 8.146L10.146 6.146Z"/>
+    </symbol>
+    <symbol id="i-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></symbol>
+    <symbol id="i-storage" viewBox="0 0 16 16" fill="currentColor">
+      <path d="M14.5 6.382C14.833 7.049 15 7.755 15 8.5L15 11C15 11.254 14.953 11.5 14.86 11.736C14.758 11.993 14.609 12.219 14.414 12.414C14.219 12.609 13.993 12.758 13.736 12.86C13.5 12.953 13.254 13 13 13L3 13C2.746 13 2.5 12.953 2.264 12.86C2.007 12.758 1.781 12.609 1.586 12.414C1.391 12.219 1.242 11.993 1.14 11.736C1.047 11.5 1 11.254 1 11L1 8.5C1 7.755 1.167 7.049 1.5 6.382L2.638 4.106C2.808 3.767 3.053 3.498 3.376 3.299C3.698 3.1 4.048 3 4.427 3L11.573 3C11.952 3 12.302 3.1 12.624 3.299C12.947 3.498 13.192 3.767 13.362 4.106L14.5 6.382ZM2.394 6.829C2.366 6.886 2.339 6.943 2.314 7L13.686 7C13.661 6.943 13.634 6.886 13.606 6.829L12.467 4.553C12.383 4.383 12.26 4.249 12.099 4.149C11.938 4.05 11.762 4 11.573 4L4.427 4C4.238 4 4.062 4.05 3.901 4.149C3.74 4.249 3.617 4.383 3.533 4.553L2.394 6.829ZM2.293 11.707C2.488 11.902 2.724 12 3 12L13 12C13.276 12 13.512 11.902 13.707 11.707C13.902 11.512 14 11.276 14 11L14 8.5C14 8.331 13.989 8.164 13.967 8L2.033 8C2.011 8.164 2 8.331 2 8.5L2 11C2 11.276 2.098 11.512 2.293 11.707ZM11.293 9.293C11.488 9.098 11.724 9 12 9C12.276 9 12.512 9.098 12.707 9.293C12.902 9.488 13 9.724 13 10C13 10.276 12.902 10.512 12.707 10.707C12.512 10.902 12.276 11 12 11C11.724 11 11.488 10.902 11.293 10.707C11.098 10.512 11 10.276 11 10C11 9.724 11.098 9.488 11.293 9.293Z"/>
+    </symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17h.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0l-4-4m4 4l4-4M5 20h14"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 11-3-6.2M20 4v5h-5"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 16 16" fill="currentColor">
+      <path d="M6.707 2.293C6.902 2.488 7 2.724 7 3L7 6C7 6.276 6.902 6.512 6.707 6.707C6.512 6.902 6.276 7 6 7L3 7C2.724 7 2.488 6.902 2.293 6.707C2.098 6.512 2 6.276 2 6L2 3C2 2.724 2.098 2.488 2.293 2.293C2.488 2.098 2.724 2 3 2L6 2C6.276 2 6.512 2.098 6.707 2.293ZM13.707 6.707C13.512 6.902 13.276 7 13 7L10 7C9.724 7 9.488 6.902 9.293 6.707C9.098 6.512 9 6.276 9 6L9 3C9 2.724 9.098 2.488 9.293 2.293C9.488 2.098 9.724 2 10 2L13 2C13.276 2 13.512 2.098 13.707 2.293C13.902 2.488 14 2.724 14 3L14 6C14 6.276 13.902 6.512 13.707 6.707ZM3 6L6 6L6 3L3 3L3 6ZM13 6L13 3L10 3L10 6L13 6ZM6.707 9.293C6.902 9.488 7 9.724 7 10L7 13C7 13.276 6.902 13.512 6.707 13.707C6.512 13.902 6.276 14 6 14L3 14C2.724 14 2.488 13.902 2.293 13.707C2.098 13.512 2 13.276 2 13L2 10C2 9.724 2.098 9.488 2.293 9.293C2.488 9.098 2.724 9 3 9L6 9C6.276 9 6.512 9.098 6.707 9.293ZM13.707 13.707C13.512 13.902 13.276 14 13 14L10 14C9.724 14 9.488 13.902 9.293 13.707C9.098 13.512 9 13.276 9 13L9 10C9 9.724 9.098 9.488 9.293 9.293C9.488 9.098 9.724 9 10 9L13 9C13.276 9 13.512 9.098 13.707 9.293C13.902 9.488 14 9.724 14 10L14 13C14 13.276 13.902 13.512 13.707 13.707ZM3 13L6 13L6 10L3 10L3 13ZM13 13L13 10L10 10L10 13L13 13Z"/>
+    </symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.2" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 16 16" fill="currentColor">
+      <path d="M5.929 1.744C6 1.862 6.019 1.988 5.985 2.122C5.726 3.149 5.718 4.178 5.962 5.209C6.098 5.784 6.309 6.331 6.594 6.849C6.89 7.387 7.256 7.874 7.691 8.309C8.126 8.744 8.613 9.11 9.151 9.406C9.669 9.691 10.216 9.902 10.791 10.038C11.822 10.282 12.851 10.274 13.878 10.015C13.985 9.988 14.09 9.996 14.192 10.038C14.322 10.093 14.413 10.183 14.465 10.308C14.517 10.434 14.516 10.562 14.462 10.692C14.042 11.699 13.422 12.56 12.6 13.277C12.146 13.672 11.65 14.003 11.112 14.27C10.554 14.547 9.969 14.746 9.358 14.867C8.747 14.988 8.131 15.026 7.51 14.983C6.91 14.941 6.325 14.823 5.756 14.63C4.723 14.281 3.821 13.721 3.05 12.95C2.279 12.179 1.719 11.277 1.37 10.244C1.177 9.675 1.059 9.09 1.017 8.49C0.974 7.869 1.012 7.253 1.133 6.642C1.254 6.031 1.453 5.446 1.73 4.888C1.997 4.35 2.328 3.854 2.723 3.4C3.44 2.578 4.301 1.958 5.308 1.538C5.41 1.496 5.515 1.488 5.622 1.515C5.756 1.549 5.859 1.625 5.929 1.744ZM2.114 6.836C1.907 7.883 1.974 8.912 2.317 9.924C2.616 10.809 3.097 11.582 3.757 12.243C4.418 12.903 5.191 13.384 6.076 13.683C7.088 14.026 8.117 14.093 9.164 13.886C10.212 13.679 11.138 13.224 11.943 12.523C12.4 12.125 12.784 11.674 13.096 11.171C12.252 11.265 11.407 11.211 10.561 11.011C9.897 10.854 9.266 10.611 8.669 10.282C8.047 9.94 7.486 9.518 6.984 9.016C6.482 8.514 6.06 7.953 5.718 7.331C5.389 6.734 5.146 6.103 4.989 5.439C4.789 4.593 4.735 3.748 4.829 2.904C4.326 3.216 3.875 3.6 3.477 4.057C2.776 4.862 2.321 5.788 2.114 6.836Z"/>
+    </symbol>
+    <symbol id="i-sun" viewBox="0 0 16 16" fill="currentColor">
+      <path d="M7.5 1C7.641 1 7.759 1.048 7.856 1.144C7.952 1.241 8 1.359 8 1.5L8 2.5C8 2.641 7.952 2.759 7.856 2.856C7.759 2.952 7.641 3 7.5 3C7.359 3 7.241 2.952 7.144 2.856C7.048 2.759 7 2.641 7 2.5L7 1.5C7 1.359 7.048 1.241 7.144 1.144C7.241 1.048 7.359 1 7.5 1ZM12.5 1.997C12.636 1.997 12.754 2.047 12.854 2.146C12.951 2.244 13 2.362 13 2.5C13 2.638 12.951 2.756 12.854 2.854L11.854 3.854C11.754 3.953 11.636 4.003 11.5 4.003C11.364 4.003 11.246 3.953 11.146 3.854C11.049 3.756 11 3.638 11 3.5C11 3.362 11.049 3.244 11.146 3.146L12.146 2.146C12.246 2.047 12.364 1.997 12.5 1.997ZM2 2.5C2 2.362 2.049 2.244 2.146 2.146C2.244 2.049 2.362 2 2.5 2C2.638 2 2.756 2.049 2.854 2.146L3.854 3.146C3.953 3.246 4.003 3.364 4.003 3.5C4.003 3.636 3.953 3.754 3.854 3.854C3.754 3.953 3.636 4.003 3.5 4.003C3.364 4.003 3.246 3.953 3.146 3.854L2.146 2.854C2.049 2.756 2 2.638 2 2.5ZM5.025 5.025C5.367 4.683 5.762 4.424 6.212 4.246C6.625 4.082 7.055 4 7.5 4C7.945 4 8.375 4.082 8.788 4.246C9.238 4.424 9.633 4.683 9.975 5.025C10.317 5.367 10.576 5.762 10.754 6.212C10.918 6.625 11 7.055 11 7.5C11 7.945 10.918 8.375 10.754 8.788C10.576 9.238 10.317 9.633 9.975 9.975C9.633 10.317 9.238 10.576 8.788 10.754C8.375 10.918 7.945 11 7.5 11C7.055 11 6.625 10.918 6.212 10.754C5.762 10.576 5.367 10.317 5.025 9.975C4.683 9.633 4.424 9.238 4.246 8.788C4.082 8.375 4 7.945 4 7.5C4 7.055 4.082 6.625 4.246 6.212C4.424 5.762 4.683 5.367 5.025 5.025ZM5.732 9.268C5.976 9.512 6.259 9.697 6.58 9.824C6.875 9.941 7.182 10 7.5 10C7.818 10 8.125 9.941 8.42 9.824C8.741 9.697 9.024 9.512 9.268 9.268C9.512 9.024 9.697 8.741 9.824 8.42C9.941 8.125 10 7.818 10 7.5C10 7.182 9.941 6.875 9.824 6.58C9.697 6.259 9.512 5.976 9.268 5.732C9.024 5.488 8.741 5.303 8.42 5.176C8.125 5.059 7.818 5 7.5 5C7.182 5 6.875 5.059 6.58 5.176C6.259 5.303 5.976 5.488 5.732 5.732C5.488 5.976 5.303 6.259 5.176 6.58C5.059 6.875 5 7.182 5 7.5C5 7.818 5.059 8.125 5.176 8.42C5.303 8.741 5.488 9.024 5.732 9.268ZM2.856 7.144C2.952 7.241 3 7.359 3 7.5C3 7.641 2.952 7.759 2.856 7.856C2.759 7.952 2.641 8 2.5 8L1.5 8C1.359 8 1.241 7.952 1.144 7.856C1.048 7.759 1 7.641 1 7.5C1 7.359 1.048 7.241 1.144 7.144C1.241 7.048 1.359 7 1.5 7L2.5 7C2.641 7 2.759 7.048 2.856 7.144ZM12 7.5C12 7.359 12.048 7.241 12.144 7.144C12.241 7.048 12.359 7 12.5 7L13.5 7C13.641 7 13.759 7.048 13.856 7.144C13.952 7.241 14 7.359 14 7.5C14 7.641 13.952 7.759 13.856 7.856C13.759 7.952 13.641 8 13.5 8L12.5 8C12.359 8 12.241 7.952 12.144 7.856C12.048 7.759 12 7.641 12 7.5ZM11.146 11.146C11.246 11.047 11.364 10.997 11.5 10.997C11.636 10.997 11.754 11.047 11.854 11.146L12.854 12.146C12.953 12.246 13.003 12.364 13.003 12.5C13.003 12.636 12.953 12.754 12.854 12.854C12.754 12.953 12.636 13.003 12.5 13.003C12.364 13.003 12.246 12.953 12.146 12.854L11.146 11.854C11.047 11.754 10.997 11.636 10.997 11.5C10.997 11.364 11.047 11.246 11.146 11.146ZM2.854 12.854C2.756 12.951 2.638 13 2.5 13C2.362 13 2.244 12.951 2.146 12.854C2.047 12.754 1.997 12.636 1.997 12.5C1.997 12.364 2.047 12.246 2.146 12.146L3.146 11.146C3.244 11.049 3.362 11 3.5 11C3.638 11 3.756 11.049 3.854 11.146C3.953 11.246 4.003 11.364 4.003 11.5C4.003 11.636 3.953 11.754 3.854 11.854L2.854 12.854ZM7.5 12C7.641 12 7.759 12.048 7.856 12.144C7.952 12.241 8 12.359 8 12.5L8 13.5C8 13.641 7.952 13.759 7.856 13.856C7.759 13.952 7.641 14 7.5 14C7.359 14 7.241 13.952 7.144 13.856C7.048 13.759 7 13.641 7 13.5L7 12.5C7 12.359 7.048 12.241 7.144 12.144C7.241 12.048 7.359 12 7.5 12Z"/>
+    </symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 008.6 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 8.6a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 008.6 4.6 1.65 1.65 0 009.09 3.09V3a2 2 0 114 0v.09A1.65 1.65 0 0015.4 4.6a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 8.6c.14.4.4.75.73 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5v14M16 5v14"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5l12 7-12 7z"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></symbol>
+    <symbol id="i-cyron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M16.59 5.45A8 8 0 1 0 16.59 18.55"/>
+      <path d="M12 7.2v6"/>
+      <path d="M9.5 10.7 12 13.2l2.5-2.5"/>
+      <path d="M9 16.3h6"/>
+    </symbol>
+    <symbol id="i-github" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2C6.48 2 2 6.58 2 12.26c0 4.52 2.87 8.35 6.84 9.7.5.1.68-.22.68-.49v-1.9c-2.78.62-3.37-1.2-3.37-1.2-.45-1.18-1.1-1.5-1.1-1.5-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.88 1.55 2.3 1.1 2.86.84.09-.65.35-1.1.63-1.35-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.7 0 0 .84-.28 2.75 1.05A9.3 9.3 0 0 1 12 6.86c.85 0 1.7.12 2.5.35 1.9-1.33 2.74-1.05 2.74-1.05.55 1.4.2 2.44.1 2.7.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.8-4.57 5.05.36.32.68.95.68 1.92v2.84c0 .27.18.6.69.49A10.27 10.27 0 0 0 22 12.26C22 6.58 17.52 2 12 2Z"></path>
+    </symbol>
+      <symbol id="i-film" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="14" height="12" rx="2"/><path d="M17 10l4-2v8l-4-2z"/></symbol>
+    <symbol id="i-music" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V6l10-2v12"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="16" r="2"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M12 4v10M10 8h4"/></symbol>
+    <symbol id="i-app" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M8 9h8M8 13h5"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></symbol>
+  </svg>
+
+  <p id="prefs-status" class="sr-only" role="status" aria-live="polite"></p>
+  <p id="table-status" class="sr-only" role="status" aria-live="polite"></p>
+
+  <div class="shell">
+    <aside class="side">
+      <div class="side-brand">
+        <span class="brand-mark" aria-hidden="true"><svg class="icon"><use href="#i-download"></use></svg></span>
+        <span class="brand-text"><strong data-i18n="brand">CYRON Manager</strong><span data-i18n="brand.slogan">Download Smarter</span></span>
+      </div>
+
+      <button type="button" class="new-dl" data-open-download data-i18n-aria-label="action.newDownload" aria-label="دانلود جدید">
+        <svg class="icon" aria-hidden="true"><use href="#i-plus"></use></svg>
+        <span data-i18n="action.newDownload">دانلود جدید</span>
+      </button>
+      <button type="button" class="side-github" id="github-entry" data-i18n-aria-label="dialog.github" aria-label="از GitHub">
+        <svg class="icon" aria-hidden="true"><use href="#i-github"></use></svg>
+        <span data-i18n="dialog.github">از GitHub</span>
+      </button>
+
+      <p class="side-sec" data-i18n="side.library">کتابخانه</p>
+      <nav class="side-nav" aria-label="کتابخانه دانلودها" data-i18n-aria-label="side.libraryAria">
+        <button type="button" class="side-link is-active" data-filter="all"><svg class="icon" aria-hidden="true"><use href="#i-download"></use></svg><span data-i18n="filter.all">همه دانلودها</span><b id="count-all">0</b></button>
+        <button type="button" class="side-link" data-filter="active"><svg class="icon" aria-hidden="true"><use href="#i-play"></use></svg><span data-i18n="filter.active">در حال دانلود</span><b id="count-active">0</b></button>
+        <button type="button" class="side-link" data-filter="queued"><svg class="icon" aria-hidden="true"><use href="#i-clock"></use></svg><span data-i18n="filter.queued">در صف</span><b id="count-queued">0</b></button>
+        <button type="button" class="side-link" data-filter="done"><svg class="icon" aria-hidden="true"><use href="#i-check"></use></svg><span data-i18n="filter.done">تکمیل‌شده</span><b id="count-done">0</b></button>
+        <button type="button" class="side-link" data-filter="error"><svg class="icon" aria-hidden="true"><use href="#i-alert"></use></svg><span data-i18n="filter.error">خطا</span><b id="count-error">0</b></button>
+      </nav>
+
+      <p class="side-sec" data-i18n="side.categories">دسته‌بندی</p>
+      <nav class="side-nav" aria-label="دسته‌بندی فایل‌ها" data-i18n-aria-label="side.categoriesAria">
+        <button type="button" class="side-link" data-category="video"><span class="dot cat-video" aria-hidden="true"></span><span data-i18n="cat.video">ویدیو</span><b id="count-video">0</b></button>
+        <button type="button" class="side-link" data-category="audio"><span class="dot cat-audio" aria-hidden="true"></span><span data-i18n="cat.audio">صدا</span><b id="count-audio">0</b></button>
+        <button type="button" class="side-link" data-category="archive"><span class="dot cat-archive" aria-hidden="true"></span><span data-i18n="cat.archive">آرشیو</span><b id="count-archive">0</b></button>
+        <button type="button" class="side-link" data-category="program"><span class="dot cat-program" aria-hidden="true"></span><span data-i18n="cat.program">برنامه</span><b id="count-program">0</b></button>
+        <button type="button" class="side-link" data-category="other"><span class="dot cat-other" aria-hidden="true"></span><span data-i18n="cat.other">سایر</span><b id="count-other">0</b></button>
+      </nav>
+
+      <div class="side-store">
+        <div class="store-head"><span data-i18n="side.storage">فضای ذخیره</span><span id="store-percent">۰٪</span></div>
+        <div class="bar" aria-hidden="true"><i id="store-bar" style="width:0%"></i></div>
+        <p class="store-text" id="store-free">در حال خواندن فضای دیسک</p>
+      </div>
+
+      <div class="side-foot">
+        <button type="button" class="side-tool theme-toggle" id="theme-toggle" aria-label="تغییر به حالت روز" title="تغییر به حالت روز">
+          <svg class="icon icon-to-dark" aria-hidden="true"><use href="#i-moon"></use></svg>
+          <svg class="icon icon-to-light" aria-hidden="true"><use href="#i-sun"></use></svg>
+        </button>
+        <button type="button" class="side-tool lang-toggle" id="language-toggle" aria-label="تغییر زبان به انگلیسی" title="تغییر زبان به انگلیسی">
+          <span id="language-code" dir="ltr">EN</span>
+        </button>
+        <button type="button" class="side-tool" id="settings-toggle" aria-label="تنظیمات" title="تنظیمات">
+          <svg class="icon" aria-hidden="true"><use href="#i-settings"></use></svg>
+        </button>
+      </div>
+    </aside>
+
+    <main class="main" id="main">
+      <header class="page">
+        <div>
+          <h1 id="downloads-title" data-i18n="page.titleShort">دانلودها</h1>
+          <p class="page-sub" id="page-sub" data-i18n="app.starting">در حال آماده‌سازی...</p>
+        </div>
+        <div class="page-tools">
+          <form class="search" id="search-form" role="search" aria-label="جستجوی دانلودها" data-i18n-aria-label="search.aria">
+            <svg class="icon" aria-hidden="true"><use href="#i-search"></use></svg>
+            <label class="sr-only" for="search-input" data-i18n="search.label">جستجو</label>
+            <input id="search-input" name="search" type="search" placeholder="جستجوی دانلودها" data-i18n-placeholder="search.placeholder" autocomplete="off" spellcheck="false">
+          </form>
+          <button type="button" class="ghost icon-only" id="settings-header" aria-label="تنظیمات" data-i18n-aria-label="settings.title">
+            <svg class="icon" aria-hidden="true"><use href="#i-settings"></use></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="clipboard-banner" id="clipboard-banner" hidden>
+        <div class="clipboard-copy">
+          <span class="clipboard-label" data-i18n="clipboard.found">لینک در کلیپ‌بورد پیدا شد</span>
+          <span class="clipboard-url" id="clipboard-url" dir="ltr"></span>
+        </div>
+        <div class="clipboard-actions">
+          <button type="button" class="btn btn-primary btn-small" id="clipboard-add" data-i18n="clipboard.add">افزودن</button>
+          <button type="button" class="icon-btn" id="clipboard-dismiss" aria-label="بستن" data-i18n-aria-label="clipboard.dismiss">
+            <svg class="icon" aria-hidden="true"><use href="#i-close"></use></svg>
+          </button>
+        </div>
+      </div>
+
+      <section class="stat-row" aria-label="خلاصه وضعیت" data-i18n-aria-label="stats.aria">
+        <article class="stat-card stat-speed">
+          <div class="stat-copy">
+            <p class="stat-lbl"><span class="live-dot" aria-hidden="true"></span><span data-i18n="stat.speed">سرعت فعلی</span></p>
+            <p class="stat-big"><span id="stat-speed">۰</span><span class="stat-unit">MB/s</span></p>
+          </div>
+          <svg class="live-trace" id="live-trace" viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"><path class="trace-fill" id="live-trace-area" d="M0 30 L100 30 Z"></path><path class="trace-line" id="live-trace-line" d="M0 30 L100 30"></path></svg>
+        </article>
+        <article class="stat-card">
+          <p class="stat-lbl" data-i18n="stat.activeNow">فعال</p>
+          <p class="stat-big"><span id="stat-active">۰</span><span class="stat-unit"><span data-i18n="stat.of">از</span> <span id="stat-slots">۲</span> <span data-i18n="stat.slots">جایگاه</span></span></p>
+        </article>
+        <article class="stat-card">
+          <p class="stat-lbl" data-i18n="stat.today">امروز دانلود شد</p>
+          <p class="stat-big"><span id="stat-today">۰</span><span class="stat-unit" id="stat-today-unit">GB</span></p>
+        </article>
+      </section>
+
+      <section class="speed-card" aria-labelledby="speed-title">
+        <div class="speed-head">
+          <div class="speed-copy">
+            <h2 id="speed-title" data-i18n="chart.titleWeek">سرعت دانلود در این هفته</h2>
+            <p class="speed-caption" id="speed-caption"></p>
+          </div>
+          <div class="speed-tools">
+            <div class="speed-peak">
+              <span class="speed-peak-label" data-i18n="chart.peak">بیشترین سرعت</span>
+              <strong id="speed-peak">—</strong>
+              <span class="speed-peak-day" id="speed-peak-day"></span>
+            </div>
+            <div class="speed-toggle" role="group" aria-label="بازه" data-i18n-aria-label="period.label">
+              <button type="button" class="speed-period is-active" data-period="week" aria-pressed="true" data-i18n="period.week">این هفته</button>
+              <button type="button" class="speed-period" data-period="last" aria-pressed="false" data-i18n="period.last">هفته گذشته</button>
+            </div>
+          </div>
+        </div>
+        <div class="speed-chart">
+          <div class="speed-y" aria-hidden="true"><span>20</span><span>15</span><span>10</span><span>5</span><span>0</span></div>
+          <div class="speed-main">
+            <div class="speed-plot" id="speed-plot" role="img" aria-label="نمودار سرعت دانلود">
+              <div class="speed-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+              <div class="speed-bars" id="speed-bars"></div>
+              <p class="speed-empty" id="speed-empty" hidden data-i18n="chart.empty">هنوز نمونه‌ای از سرعت ثبت نشده است.</p>
+            </div>
+            <div class="speed-days" id="speed-days" aria-hidden="true"></div>
+          </div>
+        </div>
+        <dl class="speed-quick" aria-label="آمار زنده و مصرف" data-i18n-aria-label="quick.aria">
+          <div class="speed-quick-item"><dt data-i18n="quick.active">در حال دانلود</dt><dd id="quick-active">۰</dd></div>
+          <div class="speed-quick-item"><dt data-i18n="quick.completed">تکمیل‌شده</dt><dd id="quick-completed">۰</dd></div>
+          <div class="speed-quick-item"><dt data-i18n="quick.volume">کل حجم</dt><dd id="quick-volume">—</dd></div>
+          <div class="speed-quick-item"><dt data-i18n="quick.daily">امروز</dt><dd id="quick-daily">—</dd></div>
+          <div class="speed-quick-item"><dt data-i18n="quick.monthly">این ماه</dt><dd id="quick-monthly">—</dd></div>
+          <div class="speed-quick-item"><dt data-i18n="quick.avg">میانگین سرعت</dt><dd id="quick-avg">—</dd></div>
+          <div class="speed-quick-item"><dt data-i18n="quick.peak">اوج سرعت</dt><dd id="quick-peak">—</dd></div>
+          <div class="speed-quick-item"><dt data-i18n="quick.internet">اینترنت</dt><dd id="quick-internet">—</dd></div>
+        </dl>
+      </section>
+
+      <div class="list-bar">
+        <div class="tabs" role="group" aria-label="فیلتر وضعیت" data-i18n-aria-label="downloads.filtersAria">
+          <button type="button" class="tab filter is-active" data-filter="all" aria-pressed="true" data-i18n="filter.allShort">همه</button>
+          <button type="button" class="tab filter" data-filter="active" aria-pressed="false" data-i18n="filter.active">در حال دانلود</button>
+          <button type="button" class="tab filter" data-filter="queued" aria-pressed="false" data-i18n="filter.queued">در صف</button>
+          <button type="button" class="tab filter" data-filter="done" aria-pressed="false" data-i18n="filter.done">تکمیل‌شده</button>
+          <button type="button" class="tab filter" data-filter="error" aria-pressed="false" data-i18n="filter.error">خطا</button>
+        </div>
+        <div class="list-tools">
+          <button type="button" class="ghost" id="select-all-toggle" aria-pressed="false" aria-label="انتخاب همه دانلودها" data-i18n-aria-label="bulk.selectAllRows">
+            <svg class="icon" aria-hidden="true"><use href="#i-check"></use></svg>
+            <span data-i18n="bulk.select">انتخاب همه</span>
+          </button>
+          <button type="button" class="ghost" id="resume-all" aria-label="ادامه همه" data-i18n-aria-label="list.resumeAll">
+            <svg class="icon" aria-hidden="true"><use href="#i-play"></use></svg>
+            <span data-i18n="list.resumeAll">ادامه همه</span>
+          </button>
+          <button type="button" class="ghost" id="pause-all" aria-label="توقف همه" data-i18n-aria-label="list.pauseAll">
+            <svg class="icon" aria-hidden="true"><use href="#i-pause"></use></svg>
+            <span data-i18n="list.pauseAll">توقف همه</span>
+          </button>
+          <button type="button" class="ghost" id="sort-toggle" data-i18n="sort.recent">ترتیب: جدیدترین</button>
+        </div>
+      </div>
+
+      <div class="bulk-bar" id="bulk-bar" hidden>
+        <span class="bulk-count"><b id="bulk-count">۰</b><span data-i18n="bulk.selected">انتخاب‌شده</span></span>
+        <div class="bulk-actions">
+          <button type="button" class="bulk-btn" data-bulk="pause"><svg class="icon" aria-hidden="true"><use href="#i-pause"></use></svg><span data-i18n="bulk.pause">توقف</span></button>
+          <button type="button" class="bulk-btn" data-bulk="resume"><svg class="icon" aria-hidden="true"><use href="#i-play"></use></svg><span data-i18n="bulk.resume">ادامه</span></button>
+          <button type="button" class="bulk-btn" data-bulk="delete"><svg class="icon" aria-hidden="true"><use href="#i-trash"></use></svg><span data-i18n="bulk.delete">حذف از فهرست</span></button>
+          <button type="button" class="bulk-btn bulk-btn-danger" data-bulk="delete-file"><svg class="icon" aria-hidden="true"><use href="#i-trash"></use></svg><span data-i18n="bulk.deleteFile">حذف فایل</span></button>
+          <button type="button" class="bulk-btn" data-bulk="clear"><svg class="icon" aria-hidden="true"><use href="#i-close"></use></svg><span data-i18n="bulk.clear">لغو انتخاب</span></button>
+        </div>
+      </div>
+
+      <section class="list-card" id="list" aria-label="دانلودهای اخیر">
+        <div class="list-head" id="list-head">
+          <span class="head-file"><input type="checkbox" id="select-all" aria-label="انتخاب همه دانلودها" data-i18n-aria-label="bulk.selectAllRows"><span data-i18n="table.file">فایل</span></span>
+          <span data-i18n="table.progress">پیشرفت</span>
+          <span data-i18n="table.speed">سرعت</span>
+          <span data-i18n="table.eta">زمان باقی‌مانده</span>
+          <span></span>
+        </div>
+        <div class="rows" id="downloads-body"></div>
+
+        <div class="table-state" id="table-state" hidden>
+          <div class="state" id="state-loading" hidden>
+            <div class="skeleton-list" aria-hidden="true">
+              <div class="skeleton-row"><span class="skeleton skeleton-badge"></span><span class="skeleton skeleton-line"></span></div>
+              <div class="skeleton-row"><span class="skeleton skeleton-badge"></span><span class="skeleton skeleton-line skeleton-line-short"></span></div>
+              <div class="skeleton-row"><span class="skeleton skeleton-badge"></span><span class="skeleton skeleton-line"></span></div>
+            </div>
+            <p class="state-text" data-i18n="state.loadingText">در حال دریافت فهرست دانلودها...</p>
+          </div>
+
+          <div class="state" id="state-empty" hidden>
+            <span class="state-icon" aria-hidden="true"><svg class="icon"><use href="#i-folder"></use></svg></span>
+            <h3 id="empty-title" data-i18n="state.emptyTitle">هنوز دانلودی ثبت نشده</h3>
+            <p id="empty-text" data-i18n="state.emptyText">با «دانلود جدید» اولین لینک را اضافه کن تا اینجا نشان داده شود.</p>
+            <button type="button" class="btn btn-primary" id="empty-action" data-action="new">دانلود جدید</button>
+          </div>
+
+          <div class="state" id="state-error" hidden>
+            <span class="state-icon state-icon-error" aria-hidden="true"><svg class="icon"><use href="#i-alert"></use></svg></span>
+            <h3 data-i18n="state.errorTitle">فهرست دانلودها دریافت نشد</h3>
+            <p data-i18n="state.errorText">اتصال شبکه را بررسی کن و دوباره تلاش کن.</p>
+            <button type="button" class="btn btn-ghost" id="retry-button">
+              <svg class="icon" aria-hidden="true"><use href="#i-refresh"></use></svg>
+              <span data-i18n="state.retry">تلاش دوباره</span>
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog class="dialog" id="download-dialog" aria-labelledby="dialog-title" aria-describedby="dialog-note">
+    <form id="download-form" novalidate>
+      <div class="dialog-head">
+        <h2 id="dialog-title" data-i18n="dialog.title">دانلود جدید</h2>
+        <button type="button" class="icon-btn" id="close-dialog" aria-label="بستن پنجره" data-i18n-aria-label="dialog.close">
+          <svg class="icon" aria-hidden="true"><use href="#i-close"></use></svg>
+        </button>
+      </div>
+
+      <p class="dialog-note" id="dialog-note" data-i18n="dialog.note">لینک مستقیم، صفحه ویدیو یا Magnet را وارد کن. موتور مناسب خودکار انتخاب می‌شود.</p>
+
+      <div class="field">
+        <label for="download-url" data-i18n="dialog.link">لینک</label>
+        <input id="download-url" name="url" type="text" dir="ltr" inputmode="url" autocomplete="url" aria-describedby="url-error" placeholder="https://example.com/video">
+        <p class="field-error" id="url-error" role="alert" hidden data-i18n="dialog.urlError">یک لینک معتبر با http یا https وارد کن.</p>
+      </div>
+
+      <div class="field">
+        <label for="download-engine" data-i18n="dialog.engine">نوع دانلود</label>
+        <div class="select-wrap select-wrap-block">
+          <select id="download-engine" name="engine">
+            <option value="auto" data-i18n="dialog.auto">تشخیص خودکار</option>
+            <option value="ytdlp" data-i18n="dialog.video">ویدیو از سایت</option>
+            <option value="aria2" data-i18n="dialog.direct">لینک مستقیم / فایل</option>
+            <option value="torrent" data-i18n="dialog.torrent">تورنت یا Magnet</option>
+          </select>
+          <svg class="icon select-chevron" aria-hidden="true"><use href="#i-chevron"></use></svg>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="download-category" data-i18n="dialog.category">دسته‌بندی</label>
+        <div class="select-wrap select-wrap-block">
+          <select id="download-category" name="category">
+            <option value="" data-i18n="dialog.categoryAuto">تشخیص خودکار</option>
+            <option value="video" data-i18n="cat.video">ویدیو</option>
+            <option value="audio" data-i18n="cat.audio">صدا</option>
+            <option value="archive" data-i18n="cat.archive">فایل فشرده</option>
+            <option value="program" data-i18n="cat.program">برنامه</option>
+            <option value="other" data-i18n="cat.other">سایر</option>
+          </select>
+          <svg class="icon select-chevron" aria-hidden="true"><use href="#i-chevron"></use></svg>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="download-quality" data-i18n="dialog.quality">کیفیت</label>
+        <div class="select-wrap select-wrap-block">
+          <select id="download-quality" name="quality">
+            <option value="best" data-i18n="dialog.best">بهترین کیفیت موجود</option>
+            <option value="2160" data-i18n="dialog.2160">۲۱۶۰p</option>
+            <option value="1440" data-i18n="dialog.1440">۱۴۴۰p</option>
+            <option value="1080" data-i18n="dialog.1080">۱۰۸۰p</option>
+            <option value="720" data-i18n="dialog.720">۷۲۰p</option>
+            <option value="480" data-i18n="dialog.480">۴۸۰p</option>
+            <option value="360" data-i18n="dialog.360">۳۶۰p</option>
+            <option value="audio" data-i18n="dialog.audio">فقط صدا</option>
+          </select>
+          <svg class="icon select-chevron" aria-hidden="true"><use href="#i-chevron"></use></svg>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="download-container" data-i18n="dialog.container">فرمت خروجی</label>
+        <div class="select-wrap select-wrap-block">
+          <select id="download-container" name="container">
+            <option value="mp4">MP4</option>
+            <option value="mkv">MKV</option>
+            <option value="mp3">MP3</option>
+          </select>
+          <svg class="icon select-chevron" aria-hidden="true"><use href="#i-chevron"></use></svg>
+        </div>
+        <p class="field-hint" data-i18n="dialog.containerHint">MP4 برای پخش همه‌جا H.264/AAC می‌سازد؛ MKV برای 2K و 4K.</p>
+      </div>
+
+      <label class="check-row"><input type="checkbox" id="download-subtitles"> <span data-i18n="dialog.subtitles">زیرنویس فارسی/انگلیسی</span></label>
+      <label class="check-row"><input type="checkbox" id="download-playlist"> <span data-i18n="dialog.playlist">دانلود کل Playlist</span></label>
+
+      <p class="field-sec-label" data-i18n="dialog.authTitle">احراز هویت و کوکی (اختیاری)</p>
+      <div class="field">
+        <label for="download-username" data-i18n="dialog.username">نام کاربری</label>
+        <input id="download-username" name="username" type="text" dir="ltr" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="field">
+        <label for="download-password" data-i18n="dialog.password">رمز عبور</label>
+        <input id="download-password" name="password" type="password" dir="ltr" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="download-cookies" data-i18n="dialog.cookies">کوکی‌ها</label>
+        <input id="download-cookies" name="cookies" type="text" dir="ltr" autocomplete="off" spellcheck="false" placeholder="name=value; name2=value2">
+        <p class="field-hint" data-i18n="dialog.cookiesHint">برای سایت‌های نیازمند ورود؛ به شکل name=value جدا با نقطه‌ویرگول.</p>
+      </div>
+
+      <div class="dialog-actions">
+        <button type="submit" class="btn btn-primary" id="download-submit" data-i18n="dialog.submit">شروع دانلود</button>
+        <button type="button" class="btn btn-ghost" id="pick-torrent" data-i18n="dialog.torrentFile">فایل .torrent</button>
+        <button type="button" class="btn btn-ghost" id="open-github" data-i18n="dialog.github">از GitHub</button>
+        <button type="button" class="btn btn-ghost" id="cancel-dialog" data-i18n="dialog.cancel">انصراف</button>
+      </div>
+      <p class="form-feedback" id="form-feedback" role="status" hidden></p>
+    </form>
+  </dialog>
+
+  <dialog class="dialog dialog-wide" id="settings-dialog" aria-labelledby="settings-title">
+    <form id="settings-form" novalidate>
+      <div class="dialog-head">
+        <h2 id="settings-title" data-i18n="settings.title">تنظیمات</h2>
+        <button type="button" class="icon-btn" id="close-settings" aria-label="بستن" data-i18n-aria-label="dialog.close">
+          <svg class="icon" aria-hidden="true"><use href="#i-close"></use></svg>
+        </button>
+      </div>
+      <p class="dialog-note" data-i18n="settings.note">مقصد، هم‌زمانی، پروکسی، زمان‌بندی، پل مرورگر و رفتار کلیپ‌بورد را اینجا تنظیم کن.</p>
+      <div class="field field-wide">
+        <span class="field-label" data-i18n="settings.theme">حالت نمایش</span>
+        <div class="theme-choice" role="group" aria-label="حالت نمایش" data-i18n-aria-label="settings.theme">
+          <button type="button" class="theme-option is-active" data-theme-choice="dark" aria-pressed="true">
+            <svg class="icon" aria-hidden="true"><use href="#i-moon"></use></svg>
+            <span data-i18n="theme.dark">تیره</span>
+          </button>
+          <button type="button" class="theme-option" data-theme-choice="light" aria-pressed="false">
+            <svg class="icon" aria-hidden="true"><use href="#i-sun"></use></svg>
+            <span data-i18n="theme.light">روشن</span>
+          </button>
+        </div>
+      </div>
+      <div class="settings-grid">
+        <div class="field field-wide">
+          <label for="settings-folder" data-i18n="settings.folder">پوشه دانلود</label>
+          <div class="field-row">
+            <input id="settings-folder" name="folder" type="text" dir="ltr" readonly>
+            <button type="button" class="btn btn-ghost btn-small" id="choose-folder" data-i18n="settings.choose">انتخاب</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="settings-concurrent" data-i18n="settings.concurrent">دانلود هم‌زمان</label>
+          <input id="settings-concurrent" name="concurrent" type="number" min="1" max="8" step="1" inputmode="numeric">
+        </div>
+        <div class="field">
+          <label for="settings-connections" data-i18n="settings.connections">اتصال هر فایل</label>
+          <input id="settings-connections" name="connections" type="number" min="1" max="16" step="1" inputmode="numeric">
+        </div>
+        <div class="field field-wide">
+          <label for="settings-proxy" data-i18n="settings.proxy">پروکسی (اختیاری)</label>
+          <input id="settings-proxy" name="proxy" type="text" dir="ltr" autocomplete="off" spellcheck="false" placeholder="http://127.0.0.1:8888">
+          <p class="field-hint" data-i18n="settings.proxyHint">برای همه دانلودها اعمال می‌شود؛ مثل http://127.0.0.1:8888 یا socks5://127.0.0.1:1080. خالی یعنی بدون پروکسی.</p>
+        </div>
+        <div class="field field-wide">
+          <span class="field-label" id="schedule-label" data-i18n="settings.schedule">زمان‌بندی دانلود</span>
+          <label class="check-row"><input type="checkbox" id="settings-schedule"> <span data-i18n="settings.scheduleEnable">فعال‌سازی بازه دانلود</span></label>
+          <div class="field-row schedule-row">
+            <span class="schedule-tick" data-i18n="settings.scheduleStart">شروع</span>
+            <input id="settings-schedule-start" type="time" aria-labelledby="schedule-label">
+            <span class="schedule-tick" data-i18n="settings.scheduleStop">توقف</span>
+            <input id="settings-schedule-stop" type="time" aria-labelledby="schedule-label">
+          </div>
+          <p class="field-hint" data-i18n="settings.scheduleHint">خارج از این بازه دانلودها خودکار توقف و در شروع بازه ادامه می‌یابند. بازه می‌تواند از نیمه‌شب بگذرد.</p>
+        </div>
+        <div class="field">
+          <label for="settings-accent" data-i18n="settings.accent">رنگ لهجه</label>
+          <div class="field-row">
+            <input id="settings-accent" name="accent" type="color" value="#090c0e">
+            <button type="button" class="btn btn-ghost btn-small" id="reset-accent" data-i18n="settings.accentReset">پیش‌فرض</button>
+          </div>
+        </div>
+        <div class="field field-wide">
+          <span class="field-label" id="settings-palette-label" data-i18n="settings.palette">پالت رنگ</span>
+          <div class="palette-presets" id="palette-presets" role="group" aria-labelledby="settings-palette-label">
+            <button type="button" class="palette-option" data-palette="ember" aria-pressed="true">
+              <span class="palette-swatch" data-swatch="ember" aria-hidden="true"></span>
+              <span data-i18n="palette.ember">امبر</span>
+            </button>
+            <button type="button" class="palette-option" data-palette="forest" aria-pressed="false">
+              <span class="palette-swatch" data-swatch="forest" aria-hidden="true"></span>
+              <span data-i18n="palette.forest">جنگل</span>
+            </button>
+            <button type="button" class="palette-option" data-palette="ocean" aria-pressed="false">
+              <span class="palette-swatch" data-swatch="ocean" aria-hidden="true"></span>
+              <span data-i18n="palette.ocean">اقیانوس</span>
+            </button>
+            <button type="button" class="palette-option" data-palette="clay" aria-pressed="false">
+              <span class="palette-swatch" data-swatch="clay" aria-hidden="true"></span>
+              <span data-i18n="palette.clay">خاک رس</span>
+            </button>
+            <button type="button" class="palette-option" data-palette="sand" aria-pressed="false">
+              <span class="palette-swatch" data-swatch="sand" aria-hidden="true"></span>
+              <span data-i18n="palette.sand">خاکی</span>
+            </button>
+          </div>
+          <p class="field-hint" data-i18n="settings.paletteHint">پالت پس‌زمینه و رنگ لهجه را با هم عوض می‌کند؛ انتخاب رنگ دستی فقط لهجه را تغییر می‌دهد.</p>
+        </div>
+        <div class="field">
+          <label for="settings-token" data-i18n="settings.token">توکن GitHub (اختیاری)</label>
+          <input id="settings-token" name="token" type="password" dir="ltr" autocomplete="off">
+        </div>
+        <label class="check-row field-wide"><input type="checkbox" id="settings-notify"> <span data-i18n="settings.notify">اعلان ویندوز بعد از کامل شدن دانلود</span></label>
+        <div class="field field-wide bridge-block">
+          <div class="bridge-heading">
+            <span class="field-label" data-i18n="settings.bridge">پل مرورگر</span>
+            <span class="bridge-state" id="bridge-status" data-state="checking" aria-live="polite">
+              <span class="bridge-dot" aria-hidden="true"></span>
+              <span id="bridge-status-text">در حال بررسی</span>
+            </span>
+          </div>
+          <label class="check-row"><input type="checkbox" id="settings-bridge"> <span data-i18n="settings.bridgeEnable">فعال‌سازی افزونه مرورگر</span></label>
+          <p class="field-hint" data-i18n="settings.bridgeHint">افزونه Chrome یا Edge از این پل برای فرستادن لینک‌ها استفاده می‌کند. پل فقط روی همین کامپیوتر فعال است.</p>
+          <div class="field">
+            <label for="settings-bridge-token" data-i18n="settings.bridgeToken">توکن پل</label>
+            <div class="field-row">
+              <input id="settings-bridge-token" type="text" dir="ltr" readonly autocomplete="off" spellcheck="false" aria-describedby="bridge-token-hint">
+              <button type="button" class="btn btn-ghost btn-small" id="copy-bridge-token" data-i18n="settings.bridgeCopy">کپی توکن</button>
+            </div>
+            <p class="field-hint" id="bridge-token-hint" data-i18n="settings.bridgeTokenHint">این توکن را در تنظیمات افزونه وارد کن.</p>
+          </div>
+          <div class="bridge-meta">
+            <code dir="ltr">http://127.0.0.1:17872</code>
+            <button type="button" class="btn btn-ghost btn-small" id="open-extension" data-i18n="settings.openExtension">پوشه افزونه</button>
+          </div>
+          <p class="bridge-error" id="bridge-error" role="alert" hidden></p>
+        </div>
+        <label class="check-row field-wide"><input type="checkbox" id="settings-clipboard"> <span data-i18n="settings.clipboard">پایش کلیپ‌بورد</span></label>
+        <label class="check-row field-wide"><input type="checkbox" id="settings-auto-clipboard"> <span data-i18n="settings.autoClipboard">افزودن خودکار لینک کلیپ‌بورد</span></label>
+        <label class="check-row field-wide"><input type="checkbox" id="settings-autostart"> <span data-i18n="settings.autoStart">ادامه دانلودهای نیمه‌کاره در اجرای بعدی</span></label>
+        <label class="check-row field-wide"><input type="checkbox" id="settings-autoretry"> <span data-i18n="settings.autoRetry">تلاش مجدد خودکار برای دانلودهای خطاخورده</span></label>
+        <label class="check-row field-wide"><input type="checkbox" id="settings-shutdown"> <span data-i18n="settings.shutdown">خاموش کردن کامپیوتر بعد از تمام شدن همه دانلودها</span></label>
+      </div>
+      <div class="tools-line">
+        <span id="tools-status">در حال بررسی ابزارها...</span>
+        <button type="button" class="btn btn-ghost btn-small" id="open-tools" data-i18n="settings.tools">پوشه ابزارها</button>
+      </div>
+      <div class="dialog-actions">
+        <button type="submit" class="btn btn-primary" data-i18n="settings.save">ذخیره تنظیمات</button>
+        <button type="button" class="btn btn-ghost" id="cancel-settings" data-i18n="dialog.cancel">انصراف</button>
+      </div>
+      <p class="form-feedback" id="settings-feedback" role="status" hidden></p>
+    </form>
+  </dialog>
+
+  <dialog class="dialog dialog-wide" id="github-dialog" aria-labelledby="github-title">
+    <div class="dialog-head">
+      <h2 id="github-title" data-i18n="github.title">جست‌وجوی GitHub</h2>
+      <button type="button" class="icon-btn" id="close-github" aria-label="بستن" data-i18n-aria-label="dialog.close">
+        <svg class="icon" aria-hidden="true"><use href="#i-close"></use></svg>
+      </button>
+    </div>
+    <p class="dialog-note" data-i18n="github.note">مخزن پیدا کن، ZIP شاخه پیش‌فرض یا فایل‌های Release را دانلود کن.</p>
+    <form class="github-search" id="github-search-form" role="search">
+      <input id="github-query" type="search" dir="ltr" autocomplete="off" placeholder="yt-dlp" aria-label="جست‌وجوی مخزن GitHub" data-i18n-aria-label="github.searchAria">
+      <button type="submit" class="btn btn-primary btn-small" data-i18n="github.search">جست‌وجو</button>
+    </form>
+    <details class="gh-token" id="gh-token">
+      <summary><span data-i18n="github.addToken">افزودن توکن</span></summary>
+      <form class="gh-token-form" id="gh-token-form">
+        <input id="gh-token-input" type="password" dir="ltr" autocomplete="off" placeholder="ghp_..." aria-label="GitHub token" data-i18n-aria-label="github.tokenAria">
+        <button type="submit" class="btn btn-primary btn-small" data-i18n="github.saveToken">ذخیره</button>
+        <button type="button" class="btn btn-ghost btn-small" id="gh-token-help" data-i18n="github.getToken">دریافت توکن</button>
+      </form>
+      <p class="gh-token-hint" data-i18n="github.tokenHint">بدون توکن ۱۰ جست‌وجو در دقیقه؛ با توکن ۳۰ جست‌وجو در دقیقه و ۵۰۰۰ درخواست در ساعت.</p>
+    </details>
+    <div class="github-results" id="github-results">
+      <p class="github-hint" data-i18n="github.hint">یک عبارت مثل نام پروژه یا ابزار وارد کن.</p>
+    </div>
+    <p class="form-feedback" id="github-feedback" role="status" hidden></p>
+  </dialog>
+
+  <dialog class="dialog dialog-wide" id="details-dialog" aria-labelledby="details-title">
+    <div class="dialog-head">
+      <h2 id="details-title" data-i18n="details.title">جزئیات دانلود</h2>
+      <button type="button" class="icon-btn" id="close-details" aria-label="بستن" data-i18n-aria-label="dialog.close">
+        <svg class="icon" aria-hidden="true"><use href="#i-close"></use></svg>
+      </button>
+    </div>
+    <div class="details-body" id="details-body"></div>
+  </dialog>
+
+  <div class="field-menu" id="field-menu" role="menu" aria-label="Text actions" hidden>
+    <button type="button" role="menuitem" data-field-action="cut"><span data-i18n="fieldMenu.cut">برش</span><kbd>Ctrl+X</kbd></button>
+    <button type="button" role="menuitem" data-field-action="copy"><span data-i18n="fieldMenu.copy">کپی</span><kbd>Ctrl+C</kbd></button>
+    <button type="button" role="menuitem" data-field-action="paste"><span data-i18n="fieldMenu.paste">چسباندن</span><kbd>Ctrl+V</kbd></button>
+    <button type="button" role="menuitem" data-field-action="selectAll"><span data-i18n="fieldMenu.selectAll">انتخاب همه</span><kbd>Ctrl+A</kbd></button>
+  </div>
+
+  <div class="drop-overlay" id="drop-overlay" aria-hidden="true" hidden>
+    <div class="drop-card">
+      <span class="drop-mark" aria-hidden="true">
+        <svg class="icon"><use href="#i-download"></use></svg>
+      </span>
+      <strong data-i18n="drop.title">فایل یا لینک را رها کن</strong>
+      <span data-i18n="drop.hint">فایل .torrent یا لینک دانلود را اینجا بگذار.</span>
+    </div>
+  </div>
+
+  <div class="toast-stack" id="toast-stack" role="status" aria-live="polite"></div>
+
+</body>
+</html>

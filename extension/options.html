@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>تنظیمات CYRON Download Bridge</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body class="options">
+  <main class="panel">
+    <header class="page-head">
+      <div class="brand">
+        <svg class="mark" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M16.59 5.45A8 8 0 1 0 16.59 18.55"/>
+          <path d="M12 7.2v6"/>
+          <path d="M9.5 10.7 12 13.2l2.5-2.5"/>
+          <path d="M9 16.3h6"/>
+        </svg>
+        <span>CYRON</span>
+      </div>
+      <h1>اتصال افزونه به برنامه</h1>
+      <p>در CYRON، تنظیمات را باز کن، پل مرورگر را روشن بگذار و توکن را از همان بخش کپی کن.</p>
+    </header>
+
+    <form id="options-form">
+      <label for="server-url">آدرس پل</label>
+      <input id="server-url" type="text" dir="ltr" spellcheck="false" value="http://127.0.0.1:17872" readonly>
+      <p class="hint">پل فقط روی همین کامپیوتر و پورت 17872 اجرا می‌شود.</p>
+
+      <label for="bridge-token">توکن پل</label>
+      <input id="bridge-token" type="password" dir="ltr" autocomplete="off" spellcheck="false" placeholder="توکن را از تنظیمات CYRON کپی کن">
+      <p class="hint">توکن در حافظه محلی همین افزونه ذخیره می‌شود و فقط به پل همین کامپیوتر فرستاده می‌شود.</p>
+
+      <div class="actions">
+        <button type="submit">ذخیره</button>
+        <button type="button" class="secondary" id="test-button">بررسی اتصال</button>
+      </div>
+      <p class="feedback" id="feedback" role="status" aria-live="polite" hidden></p>
+    </form>
+  </main>
+
+  <script src="shared.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>

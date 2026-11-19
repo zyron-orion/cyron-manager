@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "CYRON Download Bridge",
+  "version": "1.0.0",
+  "description": "لینک صفحه یا فایل را به CYRON Manager بفرست.",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "contextMenus"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1:17872/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "ارسال به CYRON",
+    "default_popup": "popup.html"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  }
+}
