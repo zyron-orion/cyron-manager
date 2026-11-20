@@ -6904,13 +6904,22 @@ body {
 
 .bridge-heading {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 10px;
 }
 
+.bridge-heading-copy {
+  min-width: 0;
+}
+
 .bridge-heading .field-label {
+  display: block;
+  margin: 0 0 3px;
+}
+
+.bridge-heading .field-hint {
   margin: 0;
 }
 
@@ -6958,23 +6967,89 @@ body {
   margin-top: 5px;
 }
 
-.bridge-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+.bridge-config {
+  display: grid;
+  grid-template-columns: minmax(0, 160px) minmax(0, 1fr);
+  gap: 0 12px;
+  margin-top: 10px;
+}
+
+.bridge-config .field {
+  margin: 0;
+}
+
+.bridge-categories {
+  min-width: 0;
+  margin: 12px 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.bridge-categories legend {
+  margin-bottom: 6px;
+  padding: 0;
+  color: var(--ink-2);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.category-picks {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px 10px;
+}
+
+.category-picks .check-row {
+  margin: 0;
+}
+
+.bridge-cookie-row {
   margin-top: 12px;
 }
 
+.bridge-facts {
+  display: grid;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.bridge-fact {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  align-items: baseline;
+  gap: 8px;
+}
+
+.bridge-fact > span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.bridge-fact code,
 .bridge-meta code {
-  padding: 5px 8px;
+  padding: 4px 7px;
   border: 1px solid var(--line);
   border-radius: 7px;
   background: var(--surface);
   color: var(--muted);
   font-family: var(--font-ui);
-  font-size: 11.5px;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.bridge-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.bridge-install {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.8;
 }
 
 .bridge-error {
@@ -7047,6 +7122,19 @@ body {
     align-items: flex-start;
     flex-direction: column;
     gap: 5px;
+  }
+
+  .bridge-config {
+    grid-template-columns: 1fr;
+  }
+
+  .category-picks {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bridge-fact {
+    grid-template-columns: 1fr;
+    gap: 2px;
   }
 
   .drop-overlay {

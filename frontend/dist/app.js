@@ -150,7 +150,7 @@ const translations = {
     "dialog.added": "دانلود به صف اضافه شد.",
     "dialog.startError": "افزودن دانلود ممکن نشد.",
     "settings.title": "تنظیمات",
-    "settings.note": "مقصد، هم‌زمانی، پروکسی، زمان‌بندی، پل مرورگر و رفتار کلیپ‌بورد را اینجا تنظیم کن.",
+    "settings.note": "مقصد، هم‌زمانی، پروکسی، زمان‌بندی، اتصال مرورگر و رفتار کلیپ‌بورد را اینجا تنظیم کن.",
     "settings.folder": "پوشه دانلود",
     "settings.choose": "انتخاب",
     "settings.concurrent": "دانلود هم‌زمان",
@@ -332,17 +332,33 @@ const translations = {
     "drop.error": "افزودن مورد رهاشده ممکن نشد.",
     "details.category": "دسته‌بندی",
     "settings.notify": "اعلان ویندوز بعد از کامل شدن دانلود",
-    "settings.bridge": "پل مرورگر",
-    "settings.bridgeEnable": "فعال‌سازی افزونه مرورگر",
-    "settings.bridgeHint": "افزونه Chrome یا Edge از این پل برای فرستادن لینک‌ها استفاده می‌کند. پل فقط روی همین کامپیوتر فعال است.",
-    "settings.bridgeToken": "توکن پل",
-    "settings.bridgeTokenHint": "این توکن را در تنظیمات افزونه وارد کن.",
-    "settings.bridgeCopy": "کپی توکن",
-    "settings.bridgeCopied": "توکن پل کپی شد.",
+    "settings.bridge": "اتصال مرورگر",
+    "settings.bridgeEnable": "دریافت لینک از افزونه",
+    "settings.bridgeHint": "افزونه Chrome یا Edge لینک‌ها را به این برنامه می‌فرستد. پل فقط روی همین کامپیوتر فعال است.",
+    "settings.browserPort": "پورت پل",
+    "settings.browserPortHint": "بین 1024 تا 65535. بعد از تغییر، همین نشانی را در تنظیمات افزونه هم عوض کن.",
+    "settings.browserPortError": "پورت پل باید عددی بین 1024 تا 65535 باشد.",
+    "settings.browserMode": "رفتار دریافت",
+    "settings.browserModeAuto": "افزودن خودکار",
+    "settings.browserModeAsk": "پرسیدن قبل از افزودن",
+    "settings.browserModeOff": "فقط با کلیک روی افزونه",
+    "settings.browserModeHint": "حالت «پرسیدن» برای لینک‌های مشکوک امن‌تر است.",
+    "settings.browserCategories": "دسته‌های مجاز",
+    "settings.browserCategoriesError": "حداقل یک دسته را انتخاب کن.",
+    "settings.browserCookies": "ارسال کوکی‌های مرورگر",
+    "settings.browserCookiesHint": "برای سایت‌هایی که ورود لازم دارند. کوکی‌ها رمزنگاری می‌شوند و بعد از کامل شدن دانلود پاک می‌شوند.",
+    "settings.bridgeAddress": "نشانی",
+    "settings.bridgeExtensionId": "شناسه افزونه",
+    "settings.bridgeVersion": "نسخه افزونه",
+    "settings.bridgeFolder": "پوشه",
     "settings.bridgeRunning": "پل فعال است",
     "settings.bridgeStopped": "پل خاموش است",
+    "settings.bridgeOffline": "پل در دسترس نیست",
     "settings.bridgeError": "پل راه‌اندازی نشد",
     "settings.openExtension": "پوشه افزونه",
+    "settings.copyExtensionPath": "کپی مسیر",
+    "settings.pathCopied": "مسیر پوشه افزونه کپی شد.",
+    "settings.bridgeInstall": "در Chrome یا Edge صفحه chrome://extensions را باز کن، حالت توسعه‌دهنده را روشن کن، Load unpacked را بزن و پوشه بالا را انتخاب کن.",
     "settings.extensionError": "باز کردن پوشه افزونه ممکن نشد.",
     "prefs.themeLight": "حالت روز فعال شد.",
     "list.resumeAll": "ادامه همه",
@@ -516,7 +532,7 @@ const translations = {
     "dialog.added": "Download added to the queue.",
     "dialog.startError": "Could not add the download.",
     "settings.title": "Settings",
-    "settings.note": "Set the destination, concurrency, proxy, schedule, browser bridge, and clipboard behavior.",
+    "settings.note": "Set the destination, concurrency, proxy, schedule, browser connection, and clipboard behavior.",
     "settings.folder": "Download folder",
     "settings.choose": "Choose",
     "settings.concurrent": "Concurrent downloads",
@@ -698,17 +714,33 @@ const translations = {
     "drop.error": "Could not add the dropped item.",
     "details.category": "Category",
     "settings.notify": "Windows notification when a download finishes",
-    "settings.bridge": "Browser bridge",
-    "settings.bridgeEnable": "Enable the browser extension",
-    "settings.bridgeHint": "The Chrome or Edge extension uses this bridge to send links. The bridge listens only on this computer.",
-    "settings.bridgeToken": "Bridge token",
-    "settings.bridgeTokenHint": "Paste this token into the extension settings.",
-    "settings.bridgeCopy": "Copy token",
-    "settings.bridgeCopied": "Bridge token copied.",
+    "settings.bridge": "Browser connection",
+    "settings.bridgeEnable": "Accept links from the extension",
+    "settings.bridgeHint": "The Chrome or Edge extension sends links to this app. The bridge listens only on this computer.",
+    "settings.browserPort": "Bridge port",
+    "settings.browserPortHint": "Between 1024 and 65535. After changing it, update the same address in the extension settings.",
+    "settings.browserPortError": "The bridge port must be a number between 1024 and 65535.",
+    "settings.browserMode": "Capture behavior",
+    "settings.browserModeAuto": "Add automatically",
+    "settings.browserModeAsk": "Ask before adding",
+    "settings.browserModeOff": "Only from the extension button",
+    "settings.browserModeHint": "Ask is safer for links you do not recognize.",
+    "settings.browserCategories": "Allowed categories",
+    "settings.browserCategoriesError": "Pick at least one category.",
+    "settings.browserCookies": "Send browser cookies",
+    "settings.browserCookiesHint": "For sites that require a login. Cookies are encrypted and cleared when the download completes.",
+    "settings.bridgeAddress": "Address",
+    "settings.bridgeExtensionId": "Extension ID",
+    "settings.bridgeVersion": "Extension version",
+    "settings.bridgeFolder": "Folder",
     "settings.bridgeRunning": "Bridge running",
     "settings.bridgeStopped": "Bridge off",
+    "settings.bridgeOffline": "Bridge unavailable",
     "settings.bridgeError": "Bridge failed to start",
     "settings.openExtension": "Extension folder",
+    "settings.copyExtensionPath": "Copy path",
+    "settings.pathCopied": "Extension folder path copied.",
+    "settings.bridgeInstall": "Open chrome://extensions in Chrome or Edge, turn on Developer mode, click Load unpacked, then choose the folder above.",
     "settings.extensionError": "Could not open the extension folder.",
     "prefs.themeLight": "Light mode enabled.",
     "list.resumeAll": "Resume all",
@@ -1790,6 +1822,7 @@ function applyLanguage(nextLang) {
   renderConnectionStatus();
   renderAll();
   updateSortLabel();
+  if (Object.keys(state.bridge || {}).length) renderBridgeInfo(state.bridge);
 }
 
 function applyTheme() {
@@ -1916,11 +1949,19 @@ function renderBridgeInfo(info) {
   } else if (error) {
     status = "error";
     key = "settings.bridgeError";
+  } else {
+    key = "settings.bridgeOffline";
   }
   bridgeStatus.dataset.state = status;
   bridgeStatusText.textContent = t(key);
   bridgeError.textContent = error;
   bridgeError.hidden = !error;
+  const port = Number(info?.port || state.settings?.browserPort || 17872);
+  const address = String(info?.address || (port ? `http://127.0.0.1:${port}` : "")).trim();
+  $("#bridge-address").textContent = address;
+  $("#bridge-extension-id").textContent = String(info?.extensionId || "").trim();
+  $("#bridge-extension-version").textContent = String(info?.extensionVersion || "").trim();
+  $("#bridge-extension-folder").textContent = String(info?.extensionFolder || "").trim();
 }
 
 async function refreshBridgeInfo() {
@@ -1932,10 +1973,13 @@ async function refreshBridgeInfo() {
   }
 }
 
-async function copyBridgeToken() {
-  const token = $("#settings-bridge-token").value.trim();
-  if (!token) return;
-  if (await copyText(token)) showToast(t("settings.bridgeCopied"), "success");
+async function copyExtensionPath() {
+  const path = String(state.bridge?.extensionFolder || $("#bridge-extension-folder").textContent || "").trim();
+  if (!path) {
+    showToast(t("settings.extensionError"), "error");
+    return;
+  }
+  if (await copyText(path)) showToast(t("settings.pathCopied"), "success");
   else showToast(t("task.copyError"), "error");
 }
 
@@ -1965,7 +2009,16 @@ function openSettingsDialog() {
   $("#settings-token").value = s.githubToken || "";
   $("#settings-notify").checked = s.notifyOnComplete !== false;
   $("#settings-bridge").checked = s.browserBridgeEnabled !== false;
-  $("#settings-bridge-token").value = s.browserToken || "";
+  $("#settings-browser-port").value = s.browserPort || 17872;
+  const captureMode = ["auto", "ask", "off"].includes(s.browserCaptureMode) ? s.browserCaptureMode : "auto";
+  $("#settings-browser-mode").value = captureMode;
+  const categories = Array.isArray(s.browserCaptureCategories) && s.browserCaptureCategories.length
+    ? s.browserCaptureCategories
+    : ["video", "audio", "archive", "program", "other"];
+  $$('[name="browser-category"]').forEach((input) => {
+    input.checked = categories.includes(input.value);
+  });
+  $("#settings-browser-forward-cookies").checked = s.browserForwardCookies === true;
   $("#settings-clipboard").checked = Boolean(s.clipboardWatch);
   $("#settings-auto-clipboard").checked = Boolean(s.autoAddClipboard);
   $("#settings-autostart").checked = Boolean(s.autoStart);
@@ -2369,6 +2422,20 @@ async function saveSettings(event) {
     settingsFeedback.hidden = false;
     return;
   }
+  const browserPort = Number($("#settings-browser-port").value);
+  if (!Number.isInteger(browserPort) || browserPort < 1024 || browserPort > 65535) {
+    settingsFeedback.textContent = t("settings.browserPortError");
+    settingsFeedback.hidden = false;
+    $("#settings-browser-port").focus();
+    return;
+  }
+  const browserCategories = $$('[name="browser-category"]:checked').map((input) => input.value);
+  if (!browserCategories.length) {
+    settingsFeedback.textContent = t("settings.browserCategoriesError");
+    settingsFeedback.hidden = false;
+    $('[name="browser-category"]').focus();
+    return;
+  }
   const settings = {
     ...state.settings,
     downloadDir: folder,
@@ -2382,7 +2449,10 @@ async function saveSettings(event) {
     shutdownOnComplete: $("#settings-shutdown").checked,
     notifyOnComplete: $("#settings-notify").checked,
     browserBridgeEnabled: $("#settings-bridge").checked,
-    browserToken: $("#settings-bridge-token").value.trim(),
+    browserPort,
+    browserCaptureMode: $("#settings-browser-mode").value,
+    browserCaptureCategories: browserCategories,
+    browserForwardCookies: $("#settings-browser-forward-cookies").checked,
     scheduleEnabled,
     scheduleStart: scheduleEnabled ? scheduleStart : "",
     scheduleStop: scheduleEnabled ? scheduleStop : "",
@@ -2390,7 +2460,7 @@ async function saveSettings(event) {
   };
   try {
     state.settings = await api().SaveSettings(settings);
-    $("#settings-bridge-token").value = state.settings.browserToken || "";
+    $("#settings-browser-port").value = state.settings.browserPort || browserPort;
     accent = $("#settings-accent").value;
     storage.set("dm-accent", accent);
     applyAccent(accent);
@@ -2821,7 +2891,7 @@ function bindEvents() {
   $("#close-settings").addEventListener("click", () => closeDialog(settingsDialog));
   $("#cancel-settings").addEventListener("click", () => closeDialog(settingsDialog));
   $("#choose-folder").addEventListener("click", chooseFolder);
-  $("#copy-bridge-token").addEventListener("click", copyBridgeToken);
+  $("#copy-extension-path").addEventListener("click", copyExtensionPath);
   $("#open-extension").addEventListener("click", openExtensionFolder);
   palettePresets.addEventListener("click", (event) => {
     const button = event.target.closest("[data-palette]");

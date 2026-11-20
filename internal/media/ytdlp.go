@@ -60,6 +60,8 @@ type Options struct {
 	Username    string
 	Password    string
 	Cookies     string
+	Referrer    string
+	UserAgent   string
 	Proxy       string
 }
 
@@ -189,6 +191,12 @@ func (d *Downloader) Download(ctx context.Context, task types.Task, opts Options
 	}
 	if cookies := strings.TrimSpace(opts.Cookies); cookies != "" {
 		args = append(args, "--add-headers", "Cookie: "+cookies)
+	}
+	if referrer := strings.TrimSpace(opts.Referrer); referrer != "" {
+		args = append(args, "--referer", referrer)
+	}
+	if userAgent := strings.TrimSpace(opts.UserAgent); userAgent != "" {
+		args = append(args, "--user-agent", userAgent)
 	}
 	args = append(args, task.URL)
 

@@ -64,6 +64,29 @@ Copy-Item -LiteralPath (Join-Path $root "frontend\dist\assets\gentleface-LICENSE
 
 Write-Host "Build ready: $output\CYRON.exe"
 
+$config = Get-Content -LiteralPath (Join-Path $root "wails.json") -Raw | ConvertFrom-Json
+$version = $config.info.productVersion
+$extensionZip = Join-Path $root "build\CYRON-Browser-Extension-$version.zip"
+$extensionStage = Join-Path ([System.IO.Path]::GetTempPath()) ("cyron-extension-" + [guid]::NewGuid().ToString("N"))
+New-Item -ItemType Directory -Force -Path $extensionStage | Out-Null
+Copy-Item -Path (Join-Path $root "browser-extension\*") -Destination $extensionStage -Recurse -Force
+Remove-Item -LiteralPath (Join-Path $extensionStage "tests") -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item -LiteralPath $extensionZip -Force -ErrorAction SilentlyContinue
+Add-Type -AssemblyName System.IO.Compression
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+$archive = [System.IO.Compression.ZipFile]::Open($extensionZip, [System.IO.Compression.ZipArchiveMode]::Create)
+try {
+    $files = Get-ChildItem -LiteralPath $extensionStage -Recurse -File
+    foreach ($file in $files) {
+        $entryName = $file.FullName.Substring($extensionStage.Length + 1).Replace('\', '/')
+        [void][System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive, $file.FullName, $entryName, [System.IO.Compression.CompressionLevel]::Optimal)
+    }
+} finally {
+    $archive.Dispose()
+    Remove-Item -LiteralPath $extensionStage -Recurse -Force -ErrorAction SilentlyContinue
+}
+Write-Host "Extension package ready: $extensionZip"
+
 if ($Nsis) {
     $missing = $required | Where-Object { -not (Test-Path -LiteralPath (Join-Path $target $_)) }
     if ($missing) {
@@ -85,8 +108,6 @@ if ($Nsis) {
         throw "makensis was not found. Install NSIS and add it to PATH."
     }
 
-    $config = Get-Content -LiteralPath (Join-Path $root "wails.json") -Raw | ConvertFrom-Json
-    $version = $config.info.productVersion
     $stage = Join-Path $root "build\installer-stage"
     $installerDir = Join-Path $root "build\installer"
     $webviewSetup = Join-Path $installerDir "MicrosoftEdgeWebview2Setup.exe"

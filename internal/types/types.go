@@ -16,39 +16,44 @@ const (
 )
 
 type Task struct {
-	ID          string  `json:"id"`
-	URL         string  `json:"url"`
-	Title       string  `json:"title"`
-	Engine      string  `json:"engine"`
-	Kind        string  `json:"kind"`
-	Status      string  `json:"status"`
-	Quality     string  `json:"quality"`
-	Category    string  `json:"category"`
-	Priority    int     `json:"priority"`
-	Source      string  `json:"source"`
-	GID         string  `json:"gid"`
-	FilePath    string  `json:"filePath"`
-	Dir         string  `json:"dir"`
-	Error       string  `json:"error"`
-	Progress    float64 `json:"progress"`
-	Downloaded  int64   `json:"downloaded"`
-	Total       int64   `json:"total"`
-	Speed       int64   `json:"speed"`
-	ETA         int64   `json:"eta"`
-	Container   string  `json:"container"`
-	Subtitles   bool    `json:"subtitles"`
-	Playlist    bool    `json:"playlist"`
-	Connections int     `json:"connections"`
-	Retries     int     `json:"retries"`
-	Username    string  `json:"username"`
-	Password    string  `json:"password"`
-	Cookies     string  `json:"cookies"`
-	SHA256      string  `json:"sha256"`
-	MD5         string  `json:"md5"`
-	CreatedAt   int64   `json:"createdAt"`
-	StartedAt   int64   `json:"startedAt"`
-	CompletedAt int64   `json:"completedAt"`
-	UpdatedAt   int64   `json:"updatedAt"`
+	ID             string  `json:"id"`
+	URL            string  `json:"url"`
+	Title          string  `json:"title"`
+	Engine         string  `json:"engine"`
+	Kind           string  `json:"kind"`
+	Status         string  `json:"status"`
+	Quality        string  `json:"quality"`
+	Category       string  `json:"category"`
+	Priority       int     `json:"priority"`
+	Source         string  `json:"source"`
+	GID            string  `json:"gid"`
+	FilePath       string  `json:"filePath"`
+	Dir            string  `json:"dir"`
+	Error          string  `json:"error"`
+	Progress       float64 `json:"progress"`
+	Downloaded     int64   `json:"downloaded"`
+	Total          int64   `json:"total"`
+	Speed          int64   `json:"speed"`
+	ETA            int64   `json:"eta"`
+	Container      string  `json:"container"`
+	Subtitles      bool    `json:"subtitles"`
+	Playlist       bool    `json:"playlist"`
+	Connections    int     `json:"connections"`
+	Retries        int     `json:"retries"`
+	Username       string  `json:"-"`
+	Password       string  `json:"-"`
+	Cookies        string  `json:"-"`
+	BrowserCookies string  `json:"-"`
+	Referrer       string  `json:"referrer,omitempty"`
+	UserAgent      string  `json:"userAgent,omitempty"`
+	MimeType       string  `json:"mimeType,omitempty"`
+	SuggestedName  string  `json:"suggestedName,omitempty"`
+	SHA256         string  `json:"sha256"`
+	MD5            string  `json:"md5"`
+	CreatedAt      int64   `json:"createdAt"`
+	StartedAt      int64   `json:"startedAt"`
+	CompletedAt    int64   `json:"completedAt"`
+	UpdatedAt      int64   `json:"updatedAt"`
 }
 
 type AddRequest struct {
@@ -64,7 +69,12 @@ type AddRequest struct {
 	Username       string `json:"username"`
 	Password       string `json:"password"`
 	Cookies        string `json:"cookies"`
+	Referrer       string `json:"referrer"`
+	UserAgent      string `json:"userAgent"`
+	MimeType       string `json:"mimeType"`
+	SuggestedName  string `json:"filename"`
 	AllowDuplicate bool   `json:"allowDuplicate"`
+	Browser        bool   `json:"-"`
 }
 
 type AddResult struct {
@@ -73,29 +83,49 @@ type AddResult struct {
 }
 
 type Settings struct {
-	DownloadDir          string `json:"downloadDir"`
-	MaxConcurrent        int    `json:"maxConcurrent"`
-	Connections          int    `json:"connections"`
-	Proxy                string `json:"proxy"`
-	ClipboardWatch       bool   `json:"clipboardWatch"`
-	AutoAddClipboard     bool   `json:"autoAddClipboard"`
-	AutoStart            bool   `json:"autoStart"`
-	AutoRetry            bool   `json:"autoRetry"`
-	ShutdownOnComplete   bool   `json:"shutdownOnComplete"`
-	ScheduleEnabled      bool   `json:"scheduleEnabled"`
-	ScheduleStart        string `json:"scheduleStart"`
-	ScheduleStop         string `json:"scheduleStop"`
-	GitHubToken          string `json:"githubToken"`
-	NotifyOnComplete     bool   `json:"notifyOnComplete"`
-	BrowserBridgeEnabled bool   `json:"browserBridgeEnabled"`
-	BrowserToken         string `json:"browserToken"`
+	DownloadDir              string   `json:"downloadDir"`
+	MaxConcurrent            int      `json:"maxConcurrent"`
+	Connections              int      `json:"connections"`
+	Proxy                    string   `json:"proxy"`
+	ClipboardWatch           bool     `json:"clipboardWatch"`
+	AutoAddClipboard         bool     `json:"autoAddClipboard"`
+	AutoStart                bool     `json:"autoStart"`
+	AutoRetry                bool     `json:"autoRetry"`
+	ShutdownOnComplete       bool     `json:"shutdownOnComplete"`
+	ScheduleEnabled          bool     `json:"scheduleEnabled"`
+	ScheduleStart            string   `json:"scheduleStart"`
+	ScheduleStop             string   `json:"scheduleStop"`
+	GitHubToken              string   `json:"githubToken"`
+	NotifyOnComplete         bool     `json:"notifyOnComplete"`
+	BrowserBridgeEnabled     bool     `json:"browserBridgeEnabled"`
+	BrowserPort              int      `json:"browserPort"`
+	BrowserCaptureMode       string   `json:"browserCaptureMode"`
+	BrowserCaptureCategories []string `json:"browserCaptureCategories"`
+	BrowserForwardCookies    bool     `json:"browserForwardCookies"`
 }
 
 type BridgeInfo struct {
-	Enabled bool   `json:"enabled"`
-	Running bool   `json:"running"`
-	Address string `json:"address"`
-	Error   string `json:"error,omitempty"`
+	Enabled          bool   `json:"enabled"`
+	Running          bool   `json:"running"`
+	Address          string `json:"address"`
+	Port             int    `json:"port"`
+	Error            string `json:"error,omitempty"`
+	ExtensionID      string `json:"extensionId"`
+	ExtensionVersion string `json:"extensionVersion"`
+	ExtensionFolder  string `json:"extensionFolder"`
+}
+
+type BrowserTaskStatus struct {
+	ID         string  `json:"id"`
+	Title      string  `json:"title"`
+	Status     string  `json:"status"`
+	Progress   float64 `json:"progress"`
+	Downloaded int64   `json:"downloaded"`
+	Total      int64   `json:"total"`
+	Speed      int64   `json:"speed"`
+	ETA        int64   `json:"eta"`
+	Category   string  `json:"category"`
+	Error      string  `json:"error,omitempty"`
 }
 
 type Stats struct {

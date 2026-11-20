@@ -5,6 +5,7 @@
 /build/windows/*.syso
 /build/windows/*.dll
 /build/windows/*.old.ico
+/build/extension-key/
 /build/*.exe
 /build/*.zip
 /build/*.log

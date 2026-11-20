@@ -1,0 +1,335 @@
+{
+  "extName": {
+    "message": "CYRON Browser Bridge"
+  },
+  "extDescription": {
+    "message": "Send downloads and links to CYRON Manager without leaving the browser."
+  },
+  "actionTitle": {
+    "message": "Send to CYRON"
+  },
+  "commandSend": {
+    "message": "Send the current page to CYRON"
+  },
+  "statusChecking": {
+    "message": "Checking connection"
+  },
+  "bridgeOn": {
+    "message": "CYRON is ready"
+  },
+  "bridgeOff": {
+    "message": "CYRON is offline"
+  },
+  "modeLabel": {
+    "message": "Capture mode"
+  },
+  "modeAuto": {
+    "message": "Automatic"
+  },
+  "modeAsk": {
+    "message": "Ask first"
+  },
+  "modeOff": {
+    "message": "Off"
+  },
+  "captureTitle": {
+    "message": "Download capture"
+  },
+  "captureHint": {
+    "message": "New downloads can be sent to CYRON automatically."
+  },
+  "excludeLabel": {
+    "message": "Do not capture this site"
+  },
+  "excludeHint": {
+    "message": "Manual sends still work on this site."
+  },
+  "sendTitle": {
+    "message": "Send a link"
+  },
+  "urlLabel": {
+    "message": "Link"
+  },
+  "engineLabel": {
+    "message": "Type"
+  },
+  "engineAuto": {
+    "message": "Detect automatically"
+  },
+  "engineVideo": {
+    "message": "Video page"
+  },
+  "engineDirect": {
+    "message": "Direct link"
+  },
+  "sendButton": {
+    "message": "Add to CYRON"
+  },
+  "sendingButton": {
+    "message": "Sending"
+  },
+  "recentTitle": {
+    "message": "Recent downloads"
+  },
+  "noRecent": {
+    "message": "No CYRON downloads yet."
+  },
+  "optionsButton": {
+    "message": "Extension settings"
+  },
+  "feedbackSent": {
+    "message": "Added to CYRON."
+  },
+  "feedbackDuplicate": {
+    "message": "This download is already in CYRON."
+  },
+  "feedbackInvalid": {
+    "message": "Enter a valid http or https link."
+  },
+  "errorOffline": {
+    "message": "CYRON is not running or the browser bridge is off."
+  },
+  "errorRejected": {
+    "message": "CYRON did not accept this link."
+  },
+  "errorGeneric": {
+    "message": "Could not reach CYRON."
+  },
+  "errorPermissions": {
+    "message": "Permission is required to read cookies for this site."
+  },
+  "statusQueued": {
+    "message": "Queued"
+  },
+  "statusActive": {
+    "message": "Downloading"
+  },
+  "statusPaused": {
+    "message": "Paused"
+  },
+  "statusCompleted": {
+    "message": "Completed"
+  },
+  "statusError": {
+    "message": "Failed"
+  },
+  "statusCanceled": {
+    "message": "Canceled"
+  },
+  "askTitle": {
+    "message": "Send this download to CYRON?"
+  },
+  "askMessage": {
+    "message": "The download is paused in the browser."
+  },
+  "askAdd": {
+    "message": "Send to CYRON"
+  },
+  "askKeep": {
+    "message": "Keep in browser"
+  },
+  "notifyAdded": {
+    "message": "Sent to CYRON"
+  },
+  "notifyAddedBody": {
+    "message": "The download is now in the CYRON queue."
+  },
+  "notifyKept": {
+    "message": "Kept in the browser"
+  },
+  "notifyKeptBody": {
+    "message": "The download continues in the browser."
+  },
+  "notifyErrorTitle": {
+    "message": "CYRON could not take the download"
+  },
+  "notifyErrorBody": {
+    "message": "The browser download was resumed."
+  },
+  "optionsTitle": {
+    "message": "CYRON Browser Bridge"
+  },
+  "optionsIntro": {
+    "message": "Connect Chrome or Edge to CYRON Manager. Links and downloads stay on this computer."
+  },
+  "serverLabel": {
+    "message": "CYRON address"
+  },
+  "serverHint": {
+    "message": "Keep the port equal to the Browser Integration port in CYRON."
+  },
+  "saveButton": {
+    "message": "Save"
+  },
+  "saved": {
+    "message": "Saved."
+  },
+  "testButton": {
+    "message": "Test connection"
+  },
+  "testingButton": {
+    "message": "Testing"
+  },
+  "connected": {
+    "message": "Connected to CYRON."
+  },
+  "disconnected": {
+    "message": "CYRON did not respond."
+  },
+  "captureModeLabel": {
+    "message": "Capture mode in CYRON"
+  },
+  "cookieLabel": {
+    "message": "Send site cookies"
+  },
+  "cookieHint": {
+    "message": "Only used when CYRON asks for cookies for a browser download. CYRON encrypts them on disk and clears them when the download completes."
+  },
+  "cookieGrant": {
+    "message": "Allow cookie access"
+  },
+  "cookieGranted": {
+    "message": "Cookie access allowed."
+  },
+  "cookieRevoke": {
+    "message": "Remove cookie access"
+  },
+  "cookieRevoked": {
+    "message": "Cookie access removed."
+  },
+  "cookiePermissionMissing": {
+    "message": "Cookie access is not allowed."
+  },
+  "cookieNotNeeded": {
+    "message": "Cookie forwarding is off in CYRON."
+  },
+  "cookiePermissionNeeded": {
+    "message": "CYRON asks for cookies, but this extension does not have permission."
+  },
+  "excludedTitle": {
+    "message": "Sites not captured"
+  },
+  "excludedEmpty": {
+    "message": "No sites are excluded."
+  },
+  "removeButton": {
+    "message": "Remove"
+  },
+  "reloadHint": {
+    "message": "After updating CYRON, open chrome://extensions and reload this extension."
+  },
+  "versionLabel": {
+    "message": "Version"
+  },
+  "statusOk": {
+    "message": "Extension connected"
+  },
+  "captureOff": {
+    "message": "CYRON capture is off"
+  },
+  "captureAsk": {
+    "message": "CYRON asks before every download"
+  },
+  "captureAuto": {
+    "message": "CYRON takes new downloads automatically"
+  },
+  "openOptions": {
+    "message": "Open settings"
+  },
+  "close": {
+    "message": "Close"
+  },
+  "errorServer": {
+    "message": "The CYRON address is not valid."
+  },
+  "errorForbidden": {
+    "message": "CYRON rejected this extension. Reload the extension and check the address."
+  },
+  "errorBusy": {
+    "message": "CYRON is receiving too many requests. Try again in a moment."
+  },
+  "menuLink": {
+    "message": "Send link to CYRON"
+  },
+  "menuPage": {
+    "message": "Send this page to CYRON"
+  },
+  "unknown": {
+    "message": "Unknown"
+  },
+  "retry": {
+    "message": "Try again"
+  },
+  "recentLoading": {
+    "message": "Reading downloads"
+  },
+  "recentError": {
+    "message": "Could not read the download list."
+  },
+  "bridgeRejected": {
+    "message": "CYRON rejected this extension"
+  },
+  "connectionStatusTitle": {
+    "message": "Connection status"
+  },
+  "connectionLoading": {
+    "message": "Reading CYRON settings."
+  },
+  "connectionOffline": {
+    "message": "Open CYRON and keep browser integration on."
+  },
+  "appVersionLabel": {
+    "message": "CYRON version"
+  },
+  "extensionVersionLabel": {
+    "message": "Extension version"
+  },
+  "siteUnavailable": {
+    "message": "This page has no web address."
+  },
+  "feedbackExcluded": {
+    "message": "Capture is off for this site."
+  },
+  "feedbackIncluded": {
+    "message": "Capture is on for this site."
+  },
+  "progressLabel": {
+    "message": "Download progress"
+  },
+  "captureModeHelp": {
+    "message": "This value comes from CYRON settings."
+  },
+  "cookieReady": {
+    "message": "Cookie access is on."
+  },
+  "cookiePermissionOn": {
+    "message": "Access granted"
+  },
+  "cookiePermissionOff": {
+    "message": "Access not granted"
+  },
+  "cookieHintOptions": {
+    "message": "Cookies are read only when CYRON asks for them while adding a browser download."
+  },
+  "excludedHint": {
+    "message": "Add or remove sites from the extension popup."
+  },
+  "siteRemoved": {
+    "message": "Site removed."
+  },
+  "untitled": {
+    "message": "Untitled"
+  },
+  "optionsHeading": {
+    "message": "Connect the extension to CYRON"
+  },
+  "connectionTitle": {
+    "message": "Connection"
+  },
+  "reloadTitle": {
+    "message": "After updating CYRON"
+  },
+  "testUnsaved": {
+    "message": "Connected. Save this address to keep using it."
+  }
+}

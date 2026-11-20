@@ -413,7 +413,7 @@
           <svg class="icon" aria-hidden="true"><use href="#i-close"></use></svg>
         </button>
       </div>
-      <p class="dialog-note" data-i18n="settings.note">مقصد، هم‌زمانی، پروکسی، زمان‌بندی، پل مرورگر و رفتار کلیپ‌بورد را اینجا تنظیم کن.</p>
+      <p class="dialog-note" data-i18n="settings.note">مقصد، هم‌زمانی، پروکسی، زمان‌بندی، اتصال مرورگر و رفتار کلیپ‌بورد را اینجا تنظیم کن.</p>
       <div class="field field-wide">
         <span class="field-label" data-i18n="settings.theme">حالت نمایش</span>
         <div class="theme-choice" role="group" aria-label="حالت نمایش" data-i18n-aria-label="settings.theme">
@@ -499,26 +499,55 @@
         <label class="check-row field-wide"><input type="checkbox" id="settings-notify"> <span data-i18n="settings.notify">اعلان ویندوز بعد از کامل شدن دانلود</span></label>
         <div class="field field-wide bridge-block">
           <div class="bridge-heading">
-            <span class="field-label" data-i18n="settings.bridge">پل مرورگر</span>
+            <div class="bridge-heading-copy">
+              <span class="field-label" data-i18n="settings.bridge">اتصال مرورگر</span>
+              <p class="field-hint" data-i18n="settings.bridgeHint">افزونه Chrome یا Edge لینک‌ها را به این برنامه می‌فرستد. پل فقط روی همین کامپیوتر فعال است.</p>
+            </div>
             <span class="bridge-state" id="bridge-status" data-state="checking" aria-live="polite">
               <span class="bridge-dot" aria-hidden="true"></span>
               <span id="bridge-status-text">در حال بررسی</span>
             </span>
           </div>
-          <label class="check-row"><input type="checkbox" id="settings-bridge"> <span data-i18n="settings.bridgeEnable">فعال‌سازی افزونه مرورگر</span></label>
-          <p class="field-hint" data-i18n="settings.bridgeHint">افزونه Chrome یا Edge از این پل برای فرستادن لینک‌ها استفاده می‌کند. پل فقط روی همین کامپیوتر فعال است.</p>
-          <div class="field">
-            <label for="settings-bridge-token" data-i18n="settings.bridgeToken">توکن پل</label>
-            <div class="field-row">
-              <input id="settings-bridge-token" type="text" dir="ltr" readonly autocomplete="off" spellcheck="false" aria-describedby="bridge-token-hint">
-              <button type="button" class="btn btn-ghost btn-small" id="copy-bridge-token" data-i18n="settings.bridgeCopy">کپی توکن</button>
+          <label class="check-row"><input type="checkbox" id="settings-bridge"> <span data-i18n="settings.bridgeEnable">دریافت لینک از افزونه</span></label>
+          <div class="bridge-config">
+            <div class="field">
+              <label for="settings-browser-port" data-i18n="settings.browserPort">پورت پل</label>
+              <input id="settings-browser-port" type="number" min="1024" max="65535" step="1" inputmode="numeric" dir="ltr" aria-describedby="browser-port-hint">
+              <p class="field-hint" id="browser-port-hint" data-i18n="settings.browserPortHint">بین 1024 تا 65535. بعد از تغییر، همین نشانی را در تنظیمات افزونه هم عوض کن.</p>
             </div>
-            <p class="field-hint" id="bridge-token-hint" data-i18n="settings.bridgeTokenHint">این توکن را در تنظیمات افزونه وارد کن.</p>
+            <div class="field">
+              <label for="settings-browser-mode" data-i18n="settings.browserMode">رفتار دریافت</label>
+              <select id="settings-browser-mode">
+                <option value="auto" data-i18n="settings.browserModeAuto">افزودن خودکار</option>
+                <option value="ask" data-i18n="settings.browserModeAsk">پرسیدن قبل از افزودن</option>
+                <option value="off" data-i18n="settings.browserModeOff">فقط با کلیک روی افزونه</option>
+              </select>
+              <p class="field-hint" data-i18n="settings.browserModeHint">حالت «پرسیدن» برای لینک‌های مشکوک امن‌تر است.</p>
+            </div>
+          </div>
+          <fieldset class="bridge-categories">
+            <legend data-i18n="settings.browserCategories">دسته‌های مجاز</legend>
+            <div class="category-picks">
+              <label class="check-row"><input type="checkbox" name="browser-category" value="video"> <span data-i18n="cat.video">ویدیو</span></label>
+              <label class="check-row"><input type="checkbox" name="browser-category" value="audio"> <span data-i18n="cat.audio">صدا</span></label>
+              <label class="check-row"><input type="checkbox" name="browser-category" value="archive"> <span data-i18n="cat.archive">آرشیو</span></label>
+              <label class="check-row"><input type="checkbox" name="browser-category" value="program"> <span data-i18n="cat.program">برنامه</span></label>
+              <label class="check-row"><input type="checkbox" name="browser-category" value="other"> <span data-i18n="cat.other">سایر</span></label>
+            </div>
+          </fieldset>
+          <label class="check-row bridge-cookie-row"><input type="checkbox" id="settings-browser-forward-cookies"> <span data-i18n="settings.browserCookies">ارسال کوکی‌های مرورگر</span></label>
+          <p class="field-hint" data-i18n="settings.browserCookiesHint">برای سایت‌هایی که ورود لازم دارند. کوکی‌ها رمزنگاری می‌شوند و بعد از کامل شدن دانلود پاک می‌شوند.</p>
+          <div class="bridge-facts">
+            <div class="bridge-fact"><span data-i18n="settings.bridgeAddress">نشانی</span><code id="bridge-address" dir="ltr">http://127.0.0.1:17872</code></div>
+            <div class="bridge-fact"><span data-i18n="settings.bridgeExtensionId">شناسه افزونه</span><code id="bridge-extension-id" dir="ltr"></code></div>
+            <div class="bridge-fact"><span data-i18n="settings.bridgeVersion">نسخه افزونه</span><code id="bridge-extension-version" dir="ltr"></code></div>
+            <div class="bridge-fact"><span data-i18n="settings.bridgeFolder">پوشه</span><code id="bridge-extension-folder" dir="ltr"></code></div>
           </div>
           <div class="bridge-meta">
-            <code dir="ltr">http://127.0.0.1:17872</code>
             <button type="button" class="btn btn-ghost btn-small" id="open-extension" data-i18n="settings.openExtension">پوشه افزونه</button>
+            <button type="button" class="btn btn-ghost btn-small" id="copy-extension-path" data-i18n="settings.copyExtensionPath">کپی مسیر</button>
           </div>
+          <p class="bridge-install" data-i18n="settings.bridgeInstall">در Chrome یا Edge صفحه chrome://extensions را باز کن، حالت توسعه‌دهنده را روشن کن، Load unpacked را بزن و پوشه بالا را انتخاب کن.</p>
           <p class="bridge-error" id="bridge-error" role="alert" hidden></p>
         </div>
         <label class="check-row field-wide"><input type="checkbox" id="settings-clipboard"> <span data-i18n="settings.clipboard">پایش کلیپ‌بورد</span></label>

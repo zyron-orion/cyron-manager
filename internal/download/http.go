@@ -375,15 +375,22 @@ func (m *Manager) newHTTPRequest(ctx context.Context, task types.Task, byteRange
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("User-Agent", browserUserAgent)
+	userAgent := strings.TrimSpace(task.UserAgent)
+	if userAgent == "" {
+		userAgent = browserUserAgent
+	}
+	req.Header.Set("User-Agent", userAgent)
 	req.Header.Set("Accept", "*/*")
 	req.Header.Set("Accept-Language", "en-US,en;q=0.9")
 	req.Header.Set("Accept-Encoding", "identity")
 	if task.Username != "" {
 		req.SetBasicAuth(task.Username, task.Password)
 	}
-	if cookies := strings.TrimSpace(task.Cookies); cookies != "" {
+	if cookies := cookiesFor(task); cookies != "" {
 		req.Header.Set("Cookie", cookies)
+	}
+	if referrer := strings.TrimSpace(task.Referrer); referrer != "" {
+		req.Header.Set("Referer", referrer)
 	}
 	if byteRange != "" {
 		req.Header.Set("Range", byteRange)
@@ -467,7 +474,10 @@ func (m *Manager) cleanupHTTPMeta(taskID, metaPath string) {
 }
 
 func httpFilename(task types.Task) string {
-	name := strings.TrimSpace(task.Title)
+	name := strings.TrimSpace(task.SuggestedName)
+	if name == "" {
+		name = strings.TrimSpace(task.Title)
+	}
 	if name == "" {
 		if parsed, err := url.Parse(task.URL); err == nil {
 			name = filepath.Base(parsed.Path)

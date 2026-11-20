@@ -213,25 +213,36 @@ func (m *Manager) AddChecked(req types.AddRequest) (types.Task, bool, error) {
 	if connections < 1 {
 		connections = 8
 	}
+	cookies := strings.TrimSpace(req.Cookies)
+	browserCookies := ""
+	if req.Browser {
+		browserCookies = cookies
+		cookies = ""
+	}
 	task := types.Task{
-		ID:          randomID(),
-		URL:         rawURL,
-		Title:       title,
-		Engine:      engine,
-		Kind:        kind,
-		Status:      types.StatusQueued,
-		Quality:     quality,
-		Category:    category,
-		Container:   container,
-		Subtitles:   req.Subtitles && engine == "ytdlp",
-		Playlist:    req.Playlist && engine == "ytdlp",
-		Connections: connections,
-		Username:    strings.TrimSpace(req.Username),
-		Password:    req.Password,
-		Cookies:     strings.TrimSpace(req.Cookies),
-		Source:      source,
-		CreatedAt:   now,
-		UpdatedAt:   now,
+		ID:             randomID(),
+		URL:            rawURL,
+		Title:          title,
+		Engine:         engine,
+		Kind:           kind,
+		Status:         types.StatusQueued,
+		Quality:        quality,
+		Category:       category,
+		Container:      container,
+		Subtitles:      req.Subtitles && engine == "ytdlp",
+		Playlist:       req.Playlist && engine == "ytdlp",
+		Connections:    connections,
+		Username:       strings.TrimSpace(req.Username),
+		Password:       req.Password,
+		Cookies:        cookies,
+		BrowserCookies: browserCookies,
+		Referrer:       strings.TrimSpace(req.Referrer),
+		UserAgent:      strings.TrimSpace(req.UserAgent),
+		MimeType:       strings.TrimSpace(req.MimeType),
+		SuggestedName:  strings.TrimSpace(req.SuggestedName),
+		Source:         source,
+		CreatedAt:      now,
+		UpdatedAt:      now,
 	}
 	task.Dir = settings.DownloadDir
 	if err := m.store.SaveTask(&task); err != nil {
@@ -492,7 +503,9 @@ func (m *Manager) startMediaTask(task types.Task) {
 		Playlist:    current.Playlist,
 		Username:    current.Username,
 		Password:    current.Password,
-		Cookies:     current.Cookies,
+		Cookies:     cookiesFor(current),
+		Referrer:    current.Referrer,
+		UserAgent:   current.UserAgent,
 		Proxy:       m.Settings().Proxy,
 	}, onProgress)
 
@@ -698,8 +711,14 @@ func (m *Manager) startAriaTask(task types.Task) {
 		options["http-passwd"] = current.Password
 		options["ftp-passwd"] = current.Password
 	}
-	if current.Cookies != "" {
-		options["header"] = "Cookie: " + current.Cookies
+	if cookies := cookiesFor(current); cookies != "" {
+		options["header"] = "Cookie: " + cookies
+	}
+	if current.Referrer != "" {
+		options["referer"] = current.Referrer
+	}
+	if current.UserAgent != "" {
+		options["user-agent"] = current.UserAgent
 	}
 	var gid string
 	if current.Kind == "torrent" && isLocalTorrentFile(current.URL) {
@@ -1543,6 +1562,13 @@ func normalizeContainer(container, quality string) string {
 	default:
 		return "mp4"
 	}
+}
+
+func cookiesFor(task types.Task) string {
+	if cookies := strings.TrimSpace(task.BrowserCookies); cookies != "" {
+		return cookies
+	}
+	return strings.TrimSpace(task.Cookies)
 }
 
 func (m *Manager) isDeleted(id string) bool {

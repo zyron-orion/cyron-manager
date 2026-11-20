@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Send to CYRON</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body class="popup">
+  <header class="top">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M16.59 5.45A8 8 0 1 0 16.59 18.55"/>
+        <path d="M12 7.2v6"/>
+        <path d="M9.5 10.7 12 13.2l2.5-2.5"/>
+        <path d="M9 16.3h6"/>
+      </svg>
+      <span>CYRON</span>
+    </div>
+    <div class="status" id="bridge-status" data-state="checking" role="status" aria-live="polite">
+      <span class="dot" aria-hidden="true"></span>
+      <span id="bridge-status-text" data-i18n="statusChecking">Checking connection</span>
+    </div>
+  </header>
+
+  <main>
+    <h1 data-i18n="sendTitle">Send a link</h1>
+    <form id="send-form">
+      <label for="download-url" data-i18n="urlLabel">Link</label>
+      <input id="download-url" type="text" dir="ltr" inputmode="url" autocomplete="url" spellcheck="false" placeholder="https://example.com/file">
+      <div class="field">
+        <label for="download-engine" data-i18n="engineLabel">Type</label>
+        <select id="download-engine">
+          <option value="auto" data-i18n="engineAuto">Detect automatically</option>
+          <option value="ytdlp" data-i18n="engineVideo">Video page</option>
+          <option value="http" data-i18n="engineDirect">Direct link</option>
+        </select>
+      </div>
+      <button type="submit" id="send-button" data-i18n="sendButton">Add to CYRON</button>
+    </form>
+    <p class="feedback" id="feedback" role="status" aria-live="polite" hidden></p>
+
+    <section class="section" aria-labelledby="capture-heading">
+      <div class="section-head">
+        <h2 id="capture-heading" data-i18n="captureTitle">Download capture</h2>
+        <span class="mode-value" id="capture-mode" data-i18n="unknown">Unknown</span>
+      </div>
+      <p class="hint" id="capture-hint" data-i18n="connectionLoading">Reading CYRON settings.</p>
+      <div class="site-row" id="site-row" hidden>
+        <div class="site-copy">
+          <span class="site-host" id="site-host" dir="ltr"></span>
+          <span class="hint" data-i18n="excludeHint">Manual sends still work on this site.</span>
+        </div>
+        <label class="switch" for="exclude-site">
+          <input type="checkbox" id="exclude-site">
+          <span data-i18n="excludeLabel">Do not capture this site</span>
+        </label>
+      </div>
+      <p class="site-note" id="site-note" role="status" hidden></p>
+    </section>
+
+    <section class="section" aria-labelledby="recent-heading">
+      <div class="section-head">
+        <h2 id="recent-heading" data-i18n="recentTitle">Recent downloads</h2>
+      </div>
+      <p class="state" id="recent-state" data-i18n="recentLoading">Reading downloads</p>
+      <ul class="recent-list" id="recent-list"></ul>
+      <button type="button" class="quiet" id="recent-retry" data-i18n="retry" hidden>Try again</button>
+    </section>
+  </main>
+
+  <footer>
+    <button type="button" class="quiet" id="open-options" data-i18n="optionsButton">Extension settings</button>
+  </footer>
+
+  <script src="lib.js"></script>
+  <script src="shared.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -7,10 +7,12 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	_ "modernc.org/sqlite"
 
+	"cyronmanager/internal/secure"
 	"cyronmanager/internal/types"
 )
 
@@ -68,6 +70,11 @@ func (s *Store) migrate() error {
 			retries INTEGER NOT NULL DEFAULT 0,
 			sha256 TEXT NOT NULL DEFAULT '',
 			md5 TEXT NOT NULL DEFAULT '',
+			referrer TEXT NOT NULL DEFAULT '',
+			user_agent TEXT NOT NULL DEFAULT '',
+			mime_type TEXT NOT NULL DEFAULT '',
+			suggested_name TEXT NOT NULL DEFAULT '',
+			browser_cookies TEXT NOT NULL DEFAULT '',
 			created_at INTEGER NOT NULL,
 			started_at INTEGER NOT NULL DEFAULT 0,
 			completed_at INTEGER NOT NULL DEFAULT 0,
@@ -92,20 +99,25 @@ func (s *Store) migrate() error {
 		}
 	}
 	columns := map[string]string{
-		"category":     "TEXT NOT NULL DEFAULT ''",
-		"priority":     "INTEGER NOT NULL DEFAULT 0",
-		"container":    "TEXT NOT NULL DEFAULT ''",
-		"subtitles":    "INTEGER NOT NULL DEFAULT 0",
-		"playlist":     "INTEGER NOT NULL DEFAULT 0",
-		"connections":  "INTEGER NOT NULL DEFAULT 0",
-		"retries":      "INTEGER NOT NULL DEFAULT 0",
-		"username":     "TEXT NOT NULL DEFAULT ''",
-		"password":     "TEXT NOT NULL DEFAULT ''",
-		"cookies":      "TEXT NOT NULL DEFAULT ''",
-		"sha256":       "TEXT NOT NULL DEFAULT ''",
-		"md5":          "TEXT NOT NULL DEFAULT ''",
-		"started_at":   "INTEGER NOT NULL DEFAULT 0",
-		"completed_at": "INTEGER NOT NULL DEFAULT 0",
+		"category":        "TEXT NOT NULL DEFAULT ''",
+		"priority":        "INTEGER NOT NULL DEFAULT 0",
+		"container":       "TEXT NOT NULL DEFAULT ''",
+		"subtitles":       "INTEGER NOT NULL DEFAULT 0",
+		"playlist":        "INTEGER NOT NULL DEFAULT 0",
+		"connections":     "INTEGER NOT NULL DEFAULT 0",
+		"retries":         "INTEGER NOT NULL DEFAULT 0",
+		"username":        "TEXT NOT NULL DEFAULT ''",
+		"password":        "TEXT NOT NULL DEFAULT ''",
+		"cookies":         "TEXT NOT NULL DEFAULT ''",
+		"sha256":          "TEXT NOT NULL DEFAULT ''",
+		"md5":             "TEXT NOT NULL DEFAULT ''",
+		"referrer":        "TEXT NOT NULL DEFAULT ''",
+		"user_agent":      "TEXT NOT NULL DEFAULT ''",
+		"mime_type":       "TEXT NOT NULL DEFAULT ''",
+		"suggested_name":  "TEXT NOT NULL DEFAULT ''",
+		"browser_cookies": "TEXT NOT NULL DEFAULT ''",
+		"started_at":      "INTEGER NOT NULL DEFAULT 0",
+		"completed_at":    "INTEGER NOT NULL DEFAULT 0",
 	}
 	for name, definition := range columns {
 		exists, err := s.hasColumn("tasks", name)
@@ -145,12 +157,16 @@ func (s *Store) hasColumn(table, column string) (bool, error) {
 }
 
 func (s *Store) SaveTask(t *types.Task) error {
-	_, err := s.db.Exec(`INSERT INTO tasks (
+	browserCookies, err := protectBrowserCookies(t.BrowserCookies)
+	if err != nil {
+		return err
+	}
+	_, err = s.db.Exec(`INSERT INTO tasks (
 		id,url,title,engine,kind,status,quality,category,priority,source,gid,file_path,dir,error,
 		progress,downloaded,total,speed,eta,container,subtitles,playlist,connections,retries,
-		username,password,cookies,sha256,md5,
+		username,password,cookies,sha256,md5,referrer,user_agent,mime_type,suggested_name,browser_cookies,
 		created_at,started_at,completed_at,updated_at
-	) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+	) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
 	ON CONFLICT(id) DO UPDATE SET
 		url=excluded.url, title=excluded.title, engine=excluded.engine, kind=excluded.kind,
 		status=excluded.status, quality=excluded.quality, category=excluded.category,
@@ -161,26 +177,35 @@ func (s *Store) SaveTask(t *types.Task) error {
 		subtitles=excluded.subtitles, playlist=excluded.playlist, connections=excluded.connections,
 		retries=excluded.retries, username=excluded.username, password=excluded.password,
 		cookies=excluded.cookies, sha256=excluded.sha256, md5=excluded.md5,
+		referrer=excluded.referrer, user_agent=excluded.user_agent, mime_type=excluded.mime_type,
+		suggested_name=excluded.suggested_name, browser_cookies=excluded.browser_cookies,
 		started_at=excluded.started_at, completed_at=excluded.completed_at, updated_at=excluded.updated_at`,
 		t.ID, t.URL, t.Title, t.Engine, t.Kind, t.Status, t.Quality, t.Category, t.Priority,
 		t.Source, t.GID, t.FilePath, t.Dir, t.Error, t.Progress, t.Downloaded, t.Total, t.Speed, t.ETA,
 		t.Container, t.Subtitles, t.Playlist, t.Connections, t.Retries,
 		t.Username, t.Password, t.Cookies, t.SHA256, t.MD5,
+		t.Referrer, t.UserAgent, t.MimeType, t.SuggestedName, browserCookies,
 		t.CreatedAt, t.StartedAt, t.CompletedAt, t.UpdatedAt)
 	return err
 }
 
 func (s *Store) UpdateTask(t *types.Task) error {
-	_, err := s.db.Exec(`UPDATE tasks SET
+	browserCookies, err := protectBrowserCookies(t.BrowserCookies)
+	if err != nil {
+		return err
+	}
+	_, err = s.db.Exec(`UPDATE tasks SET
 		url=?, title=?, engine=?, kind=?, status=?, quality=?, category=?, priority=?,
 		source=?, gid=?, file_path=?, dir=?, error=?, progress=?, downloaded=?, total=?, speed=?, eta=?,
 		container=?, subtitles=?, playlist=?, connections=?, retries=?,
-		username=?, password=?, cookies=?, sha256=?, md5=?,
+		username=?, password=?, cookies=?, sha256=?, md5=?, referrer=?, user_agent=?, mime_type=?,
+		suggested_name=?, browser_cookies=?,
 		started_at=?, completed_at=?, updated_at=? WHERE id=?`,
 		t.URL, t.Title, t.Engine, t.Kind, t.Status, t.Quality, t.Category, t.Priority,
 		t.Source, t.GID, t.FilePath, t.Dir, t.Error, t.Progress, t.Downloaded, t.Total, t.Speed, t.ETA,
 		t.Container, t.Subtitles, t.Playlist, t.Connections, t.Retries,
 		t.Username, t.Password, t.Cookies, t.SHA256, t.MD5,
+		t.Referrer, t.UserAgent, t.MimeType, t.SuggestedName, browserCookies,
 		t.StartedAt, t.CompletedAt, t.UpdatedAt, t.ID)
 	return err
 }
@@ -225,7 +250,7 @@ func (s *Store) MarkActive(id, gid string, updatedAt int64) (bool, error) {
 
 func (s *Store) CompleteTask(id, filePath string, downloaded, total, updatedAt int64) (bool, error) {
 	res, err := s.db.Exec(`UPDATE tasks SET status=?, progress=100, speed=0, eta=0, error='', file_path=?,
-		downloaded=?, total=?, completed_at=?, updated_at=? WHERE id=? AND status=?`,
+		downloaded=?, total=?, completed_at=?, updated_at=?, browser_cookies='' WHERE id=? AND status=?`,
 		types.StatusCompleted, filePath, downloaded, total, updatedAt, updatedAt, id, types.StatusActive)
 	if err != nil {
 		return false, err
@@ -240,25 +265,28 @@ func (s *Store) CompleteTask(id, filePath string, downloaded, total, updatedAt i
 func (s *Store) GetTask(id string) (types.Task, error) {
 	var t types.Task
 	var subtitles, playlist int
+	var browserCookies string
 	err := s.db.QueryRow(`SELECT id,url,title,engine,kind,status,quality,category,priority,source,gid,file_path,dir,error,
 		progress,downloaded,total,speed,eta,container,subtitles,playlist,connections,retries,
-		username,password,cookies,sha256,md5,
+		username,password,cookies,sha256,md5,referrer,user_agent,mime_type,suggested_name,browser_cookies,
 		created_at,started_at,completed_at,updated_at FROM tasks WHERE id=?`, id).
 		Scan(&t.ID, &t.URL, &t.Title, &t.Engine, &t.Kind, &t.Status, &t.Quality, &t.Category, &t.Priority,
 			&t.Source, &t.GID,
 			&t.FilePath, &t.Dir, &t.Error, &t.Progress, &t.Downloaded, &t.Total, &t.Speed, &t.ETA,
 			&t.Container, &subtitles, &playlist, &t.Connections, &t.Retries,
 			&t.Username, &t.Password, &t.Cookies, &t.SHA256, &t.MD5,
+			&t.Referrer, &t.UserAgent, &t.MimeType, &t.SuggestedName, &browserCookies,
 			&t.CreatedAt, &t.StartedAt, &t.CompletedAt, &t.UpdatedAt)
 	t.Subtitles = subtitles == 1
 	t.Playlist = playlist == 1
+	t.BrowserCookies = revealBrowserCookies(browserCookies)
 	return t, err
 }
 
 func (s *Store) ListTasks(limit int) ([]types.Task, error) {
 	query := `SELECT id,url,title,engine,kind,status,quality,category,priority,source,gid,file_path,dir,error,
 		progress,downloaded,total,speed,eta,container,subtitles,playlist,connections,retries,
-		username,password,cookies,sha256,md5,
+		username,password,cookies,sha256,md5,referrer,user_agent,mime_type,suggested_name,browser_cookies,
 		created_at,started_at,completed_at,updated_at FROM tasks ORDER BY created_at DESC`
 	args := make([]any, 0, 1)
 	if limit > 0 {
@@ -275,15 +303,18 @@ func (s *Store) ListTasks(limit int) ([]types.Task, error) {
 	for rows.Next() {
 		var t types.Task
 		var subtitles, playlist int
+		var browserCookies string
 		if err := rows.Scan(&t.ID, &t.URL, &t.Title, &t.Engine, &t.Kind, &t.Status, &t.Quality,
 			&t.Category, &t.Priority, &t.Source, &t.GID, &t.FilePath, &t.Dir, &t.Error,
 			&t.Progress, &t.Downloaded, &t.Total, &t.Speed, &t.ETA, &t.Container, &subtitles,
 			&playlist, &t.Connections, &t.Retries, &t.Username, &t.Password, &t.Cookies,
-			&t.SHA256, &t.MD5, &t.CreatedAt, &t.StartedAt, &t.CompletedAt, &t.UpdatedAt); err != nil {
+			&t.SHA256, &t.MD5, &t.Referrer, &t.UserAgent, &t.MimeType, &t.SuggestedName,
+			&browserCookies, &t.CreatedAt, &t.StartedAt, &t.CompletedAt, &t.UpdatedAt); err != nil {
 			return nil, err
 		}
 		t.Subtitles = subtitles == 1
 		t.Playlist = playlist == 1
+		t.BrowserCookies = revealBrowserCookies(browserCookies)
 		tasks = append(tasks, t)
 	}
 	return tasks, rows.Err()
@@ -386,15 +417,30 @@ func (s *Store) DailySpeeds(from, to int64) ([]types.SpeedPoint, error) {
 
 func defaultSettings(downloadDir string) types.Settings {
 	return types.Settings{
-		DownloadDir:          downloadDir,
-		MaxConcurrent:        2,
-		Connections:          8,
-		ClipboardWatch:       true,
-		AutoAddClipboard:     false,
-		AutoStart:            true,
-		AutoRetry:            true,
-		NotifyOnComplete:     true,
-		BrowserBridgeEnabled: true,
+		DownloadDir:              downloadDir,
+		MaxConcurrent:            2,
+		Connections:              8,
+		ClipboardWatch:           true,
+		AutoAddClipboard:         false,
+		AutoStart:                true,
+		AutoRetry:                true,
+		NotifyOnComplete:         true,
+		BrowserBridgeEnabled:     true,
+		BrowserPort:              DefaultBrowserPort,
+		BrowserCaptureMode:       "auto",
+		BrowserCaptureCategories: defaultBrowserCategories(),
+	}
+}
+
+const DefaultBrowserPort = 17872
+
+func defaultBrowserCategories() []string {
+	return []string{
+		types.CategoryVideo,
+		types.CategoryAudio,
+		types.CategoryArchive,
+		types.CategoryProgram,
+		types.CategoryOther,
 	}
 }
 
@@ -441,8 +487,14 @@ func (s *Store) GetSettings(downloadDir string) (types.Settings, error) {
 			_ = json.Unmarshal([]byte(value), &settings.NotifyOnComplete)
 		case "browserBridgeEnabled":
 			_ = json.Unmarshal([]byte(value), &settings.BrowserBridgeEnabled)
-		case "browserToken":
-			settings.BrowserToken = value
+		case "browserPort":
+			_ = json.Unmarshal([]byte(value), &settings.BrowserPort)
+		case "browserCaptureMode":
+			settings.BrowserCaptureMode = value
+		case "browserCaptureCategories":
+			_ = json.Unmarshal([]byte(value), &settings.BrowserCaptureCategories)
+		case "browserForwardCookies":
+			_ = json.Unmarshal([]byte(value), &settings.BrowserForwardCookies)
 		}
 	}
 	if settings.DownloadDir == "" {
@@ -453,22 +505,25 @@ func (s *Store) GetSettings(downloadDir string) (types.Settings, error) {
 
 func (s *Store) SaveSettings(settings types.Settings) error {
 	values := map[string]string{
-		"downloadDir":          settings.DownloadDir,
-		"maxConcurrent":        mustJSON(settings.MaxConcurrent),
-		"connections":          mustJSON(settings.Connections),
-		"proxy":                settings.Proxy,
-		"clipboardWatch":       mustJSON(settings.ClipboardWatch),
-		"autoAddClipboard":     mustJSON(settings.AutoAddClipboard),
-		"autoStart":            mustJSON(settings.AutoStart),
-		"autoRetry":            mustJSON(settings.AutoRetry),
-		"shutdownOnComplete":   mustJSON(settings.ShutdownOnComplete),
-		"scheduleEnabled":      mustJSON(settings.ScheduleEnabled),
-		"scheduleStart":        settings.ScheduleStart,
-		"scheduleStop":         settings.ScheduleStop,
-		"githubToken":          settings.GitHubToken,
-		"notifyOnComplete":     mustJSON(settings.NotifyOnComplete),
-		"browserBridgeEnabled": mustJSON(settings.BrowserBridgeEnabled),
-		"browserToken":         settings.BrowserToken,
+		"downloadDir":              settings.DownloadDir,
+		"maxConcurrent":            mustJSON(settings.MaxConcurrent),
+		"connections":              mustJSON(settings.Connections),
+		"proxy":                    settings.Proxy,
+		"clipboardWatch":           mustJSON(settings.ClipboardWatch),
+		"autoAddClipboard":         mustJSON(settings.AutoAddClipboard),
+		"autoStart":                mustJSON(settings.AutoStart),
+		"autoRetry":                mustJSON(settings.AutoRetry),
+		"shutdownOnComplete":       mustJSON(settings.ShutdownOnComplete),
+		"scheduleEnabled":          mustJSON(settings.ScheduleEnabled),
+		"scheduleStart":            settings.ScheduleStart,
+		"scheduleStop":             settings.ScheduleStop,
+		"githubToken":              settings.GitHubToken,
+		"notifyOnComplete":         mustJSON(settings.NotifyOnComplete),
+		"browserBridgeEnabled":     mustJSON(settings.BrowserBridgeEnabled),
+		"browserPort":              mustJSON(settings.BrowserPort),
+		"browserCaptureMode":       settings.BrowserCaptureMode,
+		"browserCaptureCategories": mustJSON(settings.BrowserCaptureCategories),
+		"browserForwardCookies":    mustJSON(settings.BrowserForwardCookies),
 	}
 	tx, err := s.db.Begin()
 	if err != nil {
@@ -486,6 +541,25 @@ func (s *Store) SaveSettings(settings types.Settings) error {
 func mustJSON(v any) string {
 	b, _ := json.Marshal(v)
 	return string(b)
+}
+
+func protectBrowserCookies(value string) (string, error) {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return "", nil
+	}
+	return secure.Protect(value)
+}
+
+func revealBrowserCookies(value string) string {
+	if strings.TrimSpace(value) == "" {
+		return ""
+	}
+	plain, err := secure.Unprotect(value)
+	if err != nil {
+		return ""
+	}
+	return plain
 }
 
 func IsNotFound(err error) bool { return errors.Is(err, sql.ErrNoRows) }

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CYRON Browser Bridge</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body class="options">
+  <main class="panel">
+    <header class="page-head">
+      <div class="brand">
+        <svg class="mark" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M16.59 5.45A8 8 0 1 0 16.59 18.55"/>
+          <path d="M12 7.2v6"/>
+          <path d="M9.5 10.7 12 13.2l2.5-2.5"/>
+          <path d="M9 16.3h6"/>
+        </svg>
+        <span>CYRON</span>
+      </div>
+      <h1 data-i18n="optionsHeading">Connect the extension to CYRON</h1>
+      <p data-i18n="optionsIntro">Connect Chrome or Edge to CYRON Manager. Links and downloads stay on this computer.</p>
+    </header>
+
+    <form id="options-form" class="form-block">
+      <fieldset>
+        <legend data-i18n="connectionTitle">Connection</legend>
+        <label for="server-url" data-i18n="serverLabel">CYRON address</label>
+        <input id="server-url" type="text" dir="ltr" inputmode="url" autocomplete="url" spellcheck="false" placeholder="http://127.0.0.1:17872">
+        <p class="hint" data-i18n="serverHint">Keep the port equal to the Browser Integration port in CYRON.</p>
+        <div class="actions">
+          <button type="submit" data-i18n="saveButton">Save</button>
+          <button type="button" class="secondary" id="test-button" data-i18n="testButton">Test connection</button>
+        </div>
+        <p class="feedback" id="feedback" role="status" aria-live="polite" hidden></p>
+      </fieldset>
+    </form>
+
+    <section class="panel-section" aria-labelledby="connection-heading">
+      <div class="section-head">
+        <h2 id="connection-heading" data-i18n="connectionStatusTitle">Connection status</h2>
+        <div class="status" id="connection-status" data-state="checking" role="status" aria-live="polite">
+          <span class="dot" aria-hidden="true"></span>
+          <span id="connection-status-text" data-i18n="statusChecking">Checking connection</span>
+        </div>
+      </div>
+      <dl class="facts">
+        <div>
+          <dt data-i18n="modeLabel">Capture mode</dt>
+          <dd id="capture-mode" data-i18n="unknown">Unknown</dd>
+        </div>
+        <div>
+          <dt data-i18n="appVersionLabel">CYRON version</dt>
+          <dd id="app-version" data-i18n="unknown">Unknown</dd>
+        </div>
+        <div>
+          <dt data-i18n="extensionVersionLabel">Extension version</dt>
+          <dd id="extension-version">1.1.0</dd>
+        </div>
+      </dl>
+      <p class="hint" data-i18n="captureModeHelp">This value comes from CYRON settings.</p>
+      <p class="state" id="connection-note" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="panel-section" aria-labelledby="cookie-heading">
+      <h2 id="cookie-heading" data-i18n="cookieLabel">Send site cookies</h2>
+      <p class="hint" data-i18n="cookieHintOptions">Cookies are read only for links you send to CYRON yourself.</p>
+      <div class="cookie-row">
+        <span class="permission" id="cookie-status" data-i18n="cookiePermissionOff">Access not granted</span>
+        <button type="button" class="secondary" id="cookie-button" data-i18n="cookieGrant">Allow cookie access</button>
+      </div>
+      <p class="hint" id="cookie-note" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="panel-section" aria-labelledby="excluded-heading">
+      <h2 id="excluded-heading" data-i18n="excludedTitle">Sites not captured</h2>
+      <p class="hint" data-i18n="excludedHint">Add or remove sites from the extension popup.</p>
+      <ul class="excluded-list" id="excluded-list"></ul>
+      <p class="state" id="excluded-empty" data-i18n="excludedEmpty">No sites are excluded.</p>
+      <p class="state" id="excluded-feedback" role="status" aria-live="polite" hidden></p>
+    </section>
+
+    <section class="panel-section note" aria-labelledby="reload-heading">
+      <h2 id="reload-heading" data-i18n="reloadTitle">After updating CYRON</h2>
+      <p data-i18n="reloadHint">After updating CYRON, open chrome://extensions and reload this extension.</p>
+    </section>
+  </main>
+
+  <script src="lib.js"></script>
+  <script src="shared.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>

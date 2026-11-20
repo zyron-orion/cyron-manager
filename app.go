@@ -2,8 +2,6 @@ package main
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"os"
@@ -28,7 +26,10 @@ import (
 	"cyronmanager/internal/types"
 )
 
-const toastAppID = "CYRON Manager"
+const (
+	toastAppID = "CYRON Manager"
+	appVersion = "1.1.0"
+)
 
 type App struct {
 	ctx      context.Context
@@ -47,7 +48,7 @@ type App struct {
 	notified        sync.Map
 	bridgeMu        sync.Mutex
 	bridge          *bridge.Server
-	bridgeToken     string
+	bridgeKey       string
 	bridgeErr       string
 }
 
@@ -85,24 +86,14 @@ func (a *App) startup(ctx context.Context) {
 		settings.DownloadDir = defaultDir
 	}
 	settings.GitHubToken = decodeToken(settings.GitHubToken)
-	generatedBridgeToken := false
-	settings.BrowserToken = decodeToken(settings.BrowserToken)
-	if settings.BrowserToken == "" {
-		settings.BrowserToken = randomToken()
-		generatedBridgeToken = true
-	}
+	settings = sanitizeBrowserSettings(settings)
 	if err := os.MkdirAll(settings.DownloadDir, 0o755); err != nil {
 		settings.DownloadDir = defaultDir
 		_ = os.MkdirAll(settings.DownloadDir, 0o755)
 	}
 	a.settings = settings
 	a.settingsValue.Store(settings)
-	if generatedBridgeToken {
-		stored := settings
-		stored.GitHubToken, _ = encodeToken(settings.GitHubToken)
-		stored.BrowserToken, _ = encodeToken(settings.BrowserToken)
-		_ = st.SaveSettings(stored)
-	}
+	_, _ = extractExtension(dataDir)
 	_ = toast.SetAppData(toast.AppData{AppID: toastAppID})
 	a.repairMediaTaskSizes()
 	a.tools = tools.New(dataDir)
@@ -350,9 +341,19 @@ func (a *App) AddTorrentPath(path string) (types.Task, error) {
 }
 
 func (a *App) GetBridgeInfo() types.BridgeInfo {
+	port := a.settings.BrowserPort
+	if port < 1024 || port > 65535 {
+		port = bridge.DefaultPort
+	}
 	info := types.BridgeInfo{
-		Enabled: a.settings.BrowserBridgeEnabled,
-		Address: "http://" + bridge.Address,
+		Enabled:          a.settings.BrowserBridgeEnabled,
+		Address:          "http://" + bridge.Address(port),
+		Port:             port,
+		ExtensionID:      bridge.ExtensionID,
+		ExtensionVersion: extensionVersion,
+	}
+	if a.dataDir != "" {
+		info.ExtensionFolder = filepath.Join(a.dataDir, "browser-extension")
 	}
 	a.bridgeMu.Lock()
 	if a.bridge != nil {
@@ -390,7 +391,6 @@ func (a *App) GetSettings() (types.Settings, error) {
 		return settings, err
 	}
 	settings.GitHubToken = decodeToken(settings.GitHubToken)
-	settings.BrowserToken = decodeToken(settings.BrowserToken)
 	return settings, nil
 }
 
@@ -435,9 +435,9 @@ func (a *App) SaveSettings(settings types.Settings) (types.Settings, error) {
 		settings.ScheduleStart = ""
 		settings.ScheduleStop = ""
 	}
-	settings.BrowserToken = strings.TrimSpace(settings.BrowserToken)
-	if settings.BrowserToken == "" {
-		settings.BrowserToken = randomToken()
+	settings, err := normalizeBrowserSettings(settings)
+	if err != nil {
+		return settings, err
 	}
 	stored := settings
 	encodedToken, err := encodeToken(settings.GitHubToken)
@@ -445,11 +445,6 @@ func (a *App) SaveSettings(settings types.Settings) (types.Settings, error) {
 		return settings, fmt.Errorf("cannot protect GitHub token: %w", err)
 	}
 	stored.GitHubToken = encodedToken
-	encodedBridgeToken, err := encodeToken(settings.BrowserToken)
-	if err != nil {
-		return settings, fmt.Errorf("cannot protect browser bridge token: %w", err)
-	}
-	stored.BrowserToken = encodedBridgeToken
 	previous := a.settings
 	if err := a.manager.UpdateSettings(settings); err != nil {
 		_ = a.manager.UpdateSettings(previous)
@@ -470,31 +465,38 @@ func (a *App) SaveSettings(settings types.Settings) (types.Settings, error) {
 func (a *App) configureBridge() {
 	a.bridgeMu.Lock()
 	defer a.bridgeMu.Unlock()
-	token := strings.TrimSpace(a.settings.BrowserToken)
-	if a.bridge != nil && a.bridge.Running() && a.bridgeToken == token && a.settings.BrowserBridgeEnabled {
+	settings := a.settings
+	key := browserBridgeKey(settings)
+	if a.bridge != nil && a.bridge.Running() && a.bridgeKey == key && settings.BrowserBridgeEnabled {
 		a.bridgeErr = ""
 		return
 	}
 	if a.bridge != nil {
 		_ = a.bridge.Close()
 		a.bridge = nil
-		a.bridgeToken = ""
+		a.bridgeKey = ""
 	}
 	a.bridgeErr = ""
-	if !a.settings.BrowserBridgeEnabled {
+	if !settings.BrowserBridgeEnabled {
 		return
 	}
-	if a.manager == nil {
+	if a.manager == nil || a.store == nil {
 		a.bridgeErr = "download manager is not ready"
 		return
 	}
-	server := bridge.New(token, a.manager)
+	server := bridge.New(bridge.Config{
+		Port:           settings.BrowserPort,
+		CaptureMode:    settings.BrowserCaptureMode,
+		Categories:     settings.BrowserCaptureCategories,
+		ForwardCookies: settings.BrowserForwardCookies,
+		AppVersion:     appVersion,
+	}, a.manager, a.store)
 	if err := server.Start(); err != nil {
 		a.bridgeErr = err.Error()
 		return
 	}
 	a.bridge = server
-	a.bridgeToken = token
+	a.bridgeKey = key
 }
 
 func (a *App) notifyCompleted(task types.Task) {
@@ -703,6 +705,69 @@ func (a *App) AddTorrentFile(title string) (types.Task, error) {
 	return a.manager.AddTorrentFile(path, title)
 }
 
+func browserBridgeKey(settings types.Settings) string {
+	return fmt.Sprintf("%t|%d|%s|%s|%t",
+		settings.BrowserBridgeEnabled,
+		settings.BrowserPort,
+		settings.BrowserCaptureMode,
+		strings.Join(settings.BrowserCaptureCategories, ","),
+		settings.BrowserForwardCookies,
+	)
+}
+
+func sanitizeBrowserSettings(settings types.Settings) types.Settings {
+	if settings.BrowserPort < 1024 || settings.BrowserPort > 65535 {
+		settings.BrowserPort = bridge.DefaultPort
+	}
+	settings.BrowserCaptureMode = normalizeCaptureMode(settings.BrowserCaptureMode)
+	settings.BrowserCaptureCategories = normalizeCaptureCategories(settings.BrowserCaptureCategories)
+	return settings
+}
+
+func normalizeBrowserSettings(settings types.Settings) (types.Settings, error) {
+	if settings.BrowserPort == 0 {
+		settings.BrowserPort = bridge.DefaultPort
+	}
+	if settings.BrowserPort < 1024 || settings.BrowserPort > 65535 {
+		return settings, errors.New("browser bridge port must be between 1024 and 65535")
+	}
+	settings.BrowserCaptureMode = normalizeCaptureMode(settings.BrowserCaptureMode)
+	settings.BrowserCaptureCategories = normalizeCaptureCategories(settings.BrowserCaptureCategories)
+	return settings, nil
+}
+
+func normalizeCaptureMode(value string) string {
+	switch strings.ToLower(strings.TrimSpace(value)) {
+	case "auto":
+		return "auto"
+	case "ask":
+		return "ask"
+	case "off":
+		return "off"
+	default:
+		return "auto"
+	}
+}
+
+func normalizeCaptureCategories(values []string) []string {
+	seen := make(map[string]bool, len(values))
+	out := make([]string, 0, 5)
+	for _, value := range values {
+		value = strings.ToLower(strings.TrimSpace(value))
+		switch value {
+		case types.CategoryVideo, types.CategoryAudio, types.CategoryArchive, types.CategoryProgram, types.CategoryOther:
+			if !seen[value] {
+				seen[value] = true
+				out = append(out, value)
+			}
+		}
+	}
+	if len(out) == 0 {
+		return []string{types.CategoryVideo, types.CategoryAudio, types.CategoryArchive, types.CategoryProgram, types.CategoryOther}
+	}
+	return out
+}
+
 func normalizeProxy(value string) (string, error) {
 	value = strings.TrimSpace(value)
 	if value == "" {
@@ -806,14 +871,6 @@ func fitWindow(ctx context.Context) {
 		}
 		return
 	}
-}
-
-func randomToken() string {
-	raw := make([]byte, 32)
-	if _, err := rand.Read(raw); err != nil {
-		return fmt.Sprintf("%d", time.Now().UnixNano())
-	}
-	return base64.RawURLEncoding.EncodeToString(raw)
 }
 
 func decodeToken(value string) string {

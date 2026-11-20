@@ -9,7 +9,7 @@ Unicode true
   !define APP_NAME "CYRON Manager"
 !endif
 !ifndef APP_VERSION
-  !define APP_VERSION "1.0.0"
+  !define APP_VERSION "1.1.0"
 !endif
 !ifndef APP_PUBLISHER
   !define APP_PUBLISHER "CYRON"

@@ -1,0 +1,335 @@
+{
+  "extName": {
+    "message": "پل مرورگر CYRON"
+  },
+  "extDescription": {
+    "message": "دانلودها و لینک‌ها را بدون خروج از مرورگر به CYRON Manager بفرست."
+  },
+  "actionTitle": {
+    "message": "ارسال به CYRON"
+  },
+  "commandSend": {
+    "message": "ارسال صفحه فعلی به CYRON"
+  },
+  "statusChecking": {
+    "message": "در حال بررسی اتصال"
+  },
+  "bridgeOn": {
+    "message": "CYRON آماده است"
+  },
+  "bridgeOff": {
+    "message": "CYRON در دسترس نیست"
+  },
+  "modeLabel": {
+    "message": "حالت دریافت"
+  },
+  "modeAuto": {
+    "message": "خودکار"
+  },
+  "modeAsk": {
+    "message": "با تأیید"
+  },
+  "modeOff": {
+    "message": "خاموش"
+  },
+  "captureTitle": {
+    "message": "دریافت دانلود"
+  },
+  "captureHint": {
+    "message": "دانلودهای جدید می‌توانند خودکار به CYRON بروند."
+  },
+  "excludeLabel": {
+    "message": "این سایت دریافت نشود"
+  },
+  "excludeHint": {
+    "message": "ارسال دستی در این سایت همچنان کار می‌کند."
+  },
+  "sendTitle": {
+    "message": "ارسال لینک"
+  },
+  "urlLabel": {
+    "message": "لینک"
+  },
+  "engineLabel": {
+    "message": "نوع"
+  },
+  "engineAuto": {
+    "message": "تشخیص خودکار"
+  },
+  "engineVideo": {
+    "message": "صفحه ویدیو"
+  },
+  "engineDirect": {
+    "message": "لینک مستقیم"
+  },
+  "sendButton": {
+    "message": "افزودن به CYRON"
+  },
+  "sendingButton": {
+    "message": "در حال ارسال"
+  },
+  "recentTitle": {
+    "message": "دانلودهای اخیر"
+  },
+  "noRecent": {
+    "message": "هنوز دانلودی در CYRON نیست."
+  },
+  "optionsButton": {
+    "message": "تنظیمات افزونه"
+  },
+  "feedbackSent": {
+    "message": "به CYRON اضافه شد."
+  },
+  "feedbackDuplicate": {
+    "message": "این دانلود از قبل در CYRON هست."
+  },
+  "feedbackInvalid": {
+    "message": "یک لینک http یا https معتبر وارد کن."
+  },
+  "errorOffline": {
+    "message": "CYRON باز نیست یا پل مرورگر خاموش است."
+  },
+  "errorRejected": {
+    "message": "CYRON این لینک را نپذیرفت."
+  },
+  "errorGeneric": {
+    "message": "ارتباط با CYRON برقرار نشد."
+  },
+  "errorPermissions": {
+    "message": "برای خواندن کوکی این سایت اجازه لازم است."
+  },
+  "statusQueued": {
+    "message": "در صف"
+  },
+  "statusActive": {
+    "message": "در حال دانلود"
+  },
+  "statusPaused": {
+    "message": "متوقف"
+  },
+  "statusCompleted": {
+    "message": "کامل"
+  },
+  "statusError": {
+    "message": "خطا"
+  },
+  "statusCanceled": {
+    "message": "لغو شده"
+  },
+  "askTitle": {
+    "message": "این دانلود به CYRON برود؟"
+  },
+  "askMessage": {
+    "message": "دانلود در مرورگر متوقف شده است."
+  },
+  "askAdd": {
+    "message": "ارسال به CYRON"
+  },
+  "askKeep": {
+    "message": "نگه‌داشتن در مرورگر"
+  },
+  "notifyAdded": {
+    "message": "به CYRON فرستاده شد"
+  },
+  "notifyAddedBody": {
+    "message": "دانلود در صف CYRON قرار گرفت."
+  },
+  "notifyKept": {
+    "message": "در مرورگر ماند"
+  },
+  "notifyKeptBody": {
+    "message": "دانلود در مرورگر ادامه پیدا می‌کند."
+  },
+  "notifyErrorTitle": {
+    "message": "CYRON نتوانست دانلود را بگیرد"
+  },
+  "notifyErrorBody": {
+    "message": "دانلود مرورگر ادامه یافت."
+  },
+  "optionsTitle": {
+    "message": "پل مرورگر CYRON"
+  },
+  "optionsIntro": {
+    "message": "Chrome یا Edge را به CYRON Manager وصل کن. لینک‌ها و دانلودها روی همین کامپیوتر می‌مانند."
+  },
+  "serverLabel": {
+    "message": "آدرس CYRON"
+  },
+  "serverHint": {
+    "message": "پورت را با پورت «یکپارچه‌سازی مرورگر» در CYRON یکی نگه دار."
+  },
+  "saveButton": {
+    "message": "ذخیره"
+  },
+  "saved": {
+    "message": "ذخیره شد."
+  },
+  "testButton": {
+    "message": "بررسی اتصال"
+  },
+  "testingButton": {
+    "message": "در حال بررسی"
+  },
+  "connected": {
+    "message": "اتصال به CYRON برقرار است."
+  },
+  "disconnected": {
+    "message": "CYRON پاسخ نداد."
+  },
+  "captureModeLabel": {
+    "message": "حالت دریافت در CYRON"
+  },
+  "cookieLabel": {
+    "message": "ارسال کوکی سایت"
+  },
+  "cookieHint": {
+    "message": "فقط وقتی CYRON برای یک دانلود مرورگر کوکی می‌خواهد استفاده می‌شود. CYRON آن‌ها را روی دیسک رمزنگاری می‌کند و پس از کامل شدن دانلود پاک می‌کند."
+  },
+  "cookieGrant": {
+    "message": "اجازه دسترسی به کوکی"
+  },
+  "cookieGranted": {
+    "message": "دسترسی به کوکی داده شد."
+  },
+  "cookieRevoke": {
+    "message": "حذف دسترسی کوکی"
+  },
+  "cookieRevoked": {
+    "message": "دسترسی کوکی حذف شد."
+  },
+  "cookiePermissionMissing": {
+    "message": "دسترسی به کوکی داده نشده است."
+  },
+  "cookieNotNeeded": {
+    "message": "ارسال کوکی در CYRON خاموش است."
+  },
+  "cookiePermissionNeeded": {
+    "message": "CYRON کوکی می‌خواهد، اما افزونه اجازه ندارد."
+  },
+  "excludedTitle": {
+    "message": "سایت‌های کنارگذاشته"
+  },
+  "excludedEmpty": {
+    "message": "هیچ سایتی کنار گذاشته نشده."
+  },
+  "removeButton": {
+    "message": "حذف"
+  },
+  "reloadHint": {
+    "message": "بعد از به‌روزرسانی CYRON، در chrome://extensions این افزونه را Reload کن."
+  },
+  "versionLabel": {
+    "message": "نسخه"
+  },
+  "statusOk": {
+    "message": "افزونه وصل است"
+  },
+  "captureOff": {
+    "message": "دریافت در CYRON خاموش است"
+  },
+  "captureAsk": {
+    "message": "CYRON قبل از هر دانلود می‌پرسد"
+  },
+  "captureAuto": {
+    "message": "CYRON دانلودهای جدید را خودکار می‌گیرد"
+  },
+  "openOptions": {
+    "message": "تنظیمات"
+  },
+  "close": {
+    "message": "بستن"
+  },
+  "errorServer": {
+    "message": "آدرس CYRON معتبر نیست."
+  },
+  "errorForbidden": {
+    "message": "CYRON این افزونه را نپذیرفت. افزونه را Reload کن و آدرس را بررسی کن."
+  },
+  "errorBusy": {
+    "message": "CYRON درخواست‌های زیادی دریافت می‌کند. کمی بعد دوباره تلاش کن."
+  },
+  "menuLink": {
+    "message": "ارسال لینک به CYRON"
+  },
+  "menuPage": {
+    "message": "ارسال این صفحه به CYRON"
+  },
+  "unknown": {
+    "message": "نامشخص"
+  },
+  "retry": {
+    "message": "تلاش دوباره"
+  },
+  "recentLoading": {
+    "message": "در حال خواندن دانلودها"
+  },
+  "recentError": {
+    "message": "سیاهه دانلودها خوانده نشد."
+  },
+  "bridgeRejected": {
+    "message": "CYRON این افزونه را نپذیرفت"
+  },
+  "connectionStatusTitle": {
+    "message": "وضعیت اتصال"
+  },
+  "connectionLoading": {
+    "message": "در حال خواندن تنظیمات CYRON."
+  },
+  "connectionOffline": {
+    "message": "CYRON را باز کن و یکپارچه‌سازی مرورگر را روشن نگه دار."
+  },
+  "appVersionLabel": {
+    "message": "نسخه CYRON"
+  },
+  "extensionVersionLabel": {
+    "message": "نسخه افزونه"
+  },
+  "siteUnavailable": {
+    "message": "این صفحه نشانی وب ندارد."
+  },
+  "feedbackExcluded": {
+    "message": "دریافت از این سایت خاموش شد."
+  },
+  "feedbackIncluded": {
+    "message": "دریافت از این سایت روشن شد."
+  },
+  "progressLabel": {
+    "message": "پیشرفت دانلود"
+  },
+  "captureModeHelp": {
+    "message": "این مقدار از تنظیمات CYRON خوانده می‌شود."
+  },
+  "cookieReady": {
+    "message": "دسترسی کوکی فعال است."
+  },
+  "cookiePermissionOn": {
+    "message": "دسترسی داده شده"
+  },
+  "cookiePermissionOff": {
+    "message": "دسترسی داده نشده"
+  },
+  "cookieHintOptions": {
+    "message": "کوکی‌ها فقط وقتی خوانده می‌شوند که CYRON برای افزودن دانلود مرورگر آن‌ها را بخواهد."
+  },
+  "excludedHint": {
+    "message": "سایت‌ها را از popup افزونه اضافه یا حذف کن."
+  },
+  "siteRemoved": {
+    "message": "سایت از فهرست حذف شد."
+  },
+  "untitled": {
+    "message": "بدون نام"
+  },
+  "optionsHeading": {
+    "message": "اتصال افزونه به CYRON"
+  },
+  "connectionTitle": {
+    "message": "اتصال"
+  },
+  "reloadTitle": {
+    "message": "بعد از به‌روزرسانی CYRON"
+  },
+  "testUnsaved": {
+    "message": "اتصال برقرار است. برای استفاده، این آدرس را ذخیره کن."
+  }
+}
