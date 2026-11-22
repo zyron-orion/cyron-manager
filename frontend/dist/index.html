@@ -129,7 +129,7 @@
         <button type="button" class="side-tool lang-toggle" id="language-toggle" aria-label="تغییر زبان به انگلیسی" title="تغییر زبان به انگلیسی">
           <span id="language-code" dir="ltr">EN</span>
         </button>
-        <button type="button" class="side-tool" id="settings-toggle" aria-label="تنظیمات" title="تنظیمات">
+        <button type="button" class="side-tool" id="settings-toggle" aria-label="تنظیمات" title="تنظیمات" data-i18n-aria-label="settings.title" data-i18n-title="settings.title">
           <svg class="icon" aria-hidden="true"><use href="#i-settings"></use></svg>
         </button>
       </div>
@@ -380,6 +380,18 @@
       <label class="check-row"><input type="checkbox" id="download-subtitles"> <span data-i18n="dialog.subtitles">زیرنویس فارسی/انگلیسی</span></label>
       <label class="check-row"><input type="checkbox" id="download-playlist"> <span data-i18n="dialog.playlist">دانلود کل Playlist</span></label>
 
+      <div class="field">
+        <label for="download-proxy" data-i18n="dialog.proxy">پروکسی</label>
+        <div class="select-wrap select-wrap-block">
+          <select id="download-proxy">
+            <option value="inherit" data-i18n="dialog.proxyInherit">مثل تنظیمات کلی</option>
+            <option value="direct" data-i18n="dialog.proxyDirect">بدون پروکسی</option>
+          </select>
+          <svg class="icon select-chevron" aria-hidden="true"><use href="#i-chevron"></use></svg>
+        </div>
+        <p class="field-hint" data-i18n="dialog.proxyHint">پیش‌فرض از تنظیمات کلی استفاده می‌کند؛ می‌توانی برای همین دانلود پروکسی دیگری انتخاب کنی.</p>
+      </div>
+
       <p class="field-sec-label" data-i18n="dialog.authTitle">احراز هویت و کوکی (اختیاری)</p>
       <div class="field">
         <label for="download-username" data-i18n="dialog.username">نام کاربری</label>
@@ -443,10 +455,91 @@
           <label for="settings-connections" data-i18n="settings.connections">اتصال هر فایل</label>
           <input id="settings-connections" name="connections" type="number" min="1" max="16" step="1" inputmode="numeric">
         </div>
-        <div class="field field-wide">
-          <label for="settings-proxy" data-i18n="settings.proxy">پروکسی (اختیاری)</label>
-          <input id="settings-proxy" name="proxy" type="text" dir="ltr" autocomplete="off" spellcheck="false" placeholder="http://127.0.0.1:8888">
-          <p class="field-hint" data-i18n="settings.proxyHint">برای همه دانلودها اعمال می‌شود؛ مثل http://127.0.0.1:8888 یا socks5://127.0.0.1:1080. خالی یعنی بدون پروکسی.</p>
+        <div class="field field-wide proxy-block">
+          <div class="proxy-heading">
+            <div class="proxy-heading-copy">
+              <span class="field-label" data-i18n="proxy.title">پروکسی</span>
+              <p class="field-hint" data-i18n="proxy.hint">پروفایل پروکسی بساز و انتخاب کن کدام دانلود از کدام پروکسی رد شود. پروکسی مستقیم HTTP/HTTPS یا SOCKS5 پشتیبانی می‌شود.</p>
+            </div>
+          </div>
+          <div class="proxy-config">
+            <div class="field">
+              <label for="settings-proxy-default" data-i18n="proxy.default">پروکسی پیش‌فرض</label>
+              <div class="select-wrap select-wrap-block">
+                <select id="settings-proxy-default"></select>
+                <svg class="icon select-chevron" aria-hidden="true"><use href="#i-chevron"></use></svg>
+              </div>
+              <p class="field-hint" data-i18n="proxy.defaultHint">برای همهٔ دانلودهایی که پروکسی اختصاصی ندارند اعمال می‌شود.</p>
+            </div>
+            <div class="field">
+              <label for="settings-proxy-test-url" data-i18n="proxy.testUrl">آدرس تست اتصال</label>
+              <input id="settings-proxy-test-url" type="text" dir="ltr" autocomplete="off" spellcheck="false" placeholder="https://api.ipify.org?format=json">
+              <p class="field-hint" data-i18n="proxy.testUrlHint">هنگام تست پروکسی، آی‌پی خروجی از این نشانی خوانده می‌شود.</p>
+            </div>
+            <div class="field field-wide">
+              <label for="settings-proxy-bypass" data-i18n="proxy.bypass">استثناها</label>
+              <input id="settings-proxy-bypass" type="text" dir="ltr" autocomplete="off" spellcheck="false" placeholder="localhost, 127.0.0.1, *.local">
+              <p class="field-hint" data-i18n="proxy.bypassHint">دامنه‌ها، آی‌پی‌ها یا CIDRهایی که بدون پروکسی دانلود می‌شوند؛ با ویرگول جدا کن.</p>
+            </div>
+            <label class="check-row field-wide"><input type="checkbox" id="settings-proxy-allow-direct"> <span data-i18n="proxy.allowDirect">اگر همهٔ پروکسی‌ها شکست خوردند مستقیم دانلود کن</span></label>
+            <div class="field field-wide">
+              <span class="field-label" data-i18n="proxy.fallback">پروکسی‌های پشتیبان</span>
+              <div class="proxy-fallback" id="proxy-fallback"></div>
+              <p class="field-hint" data-i18n="proxy.fallbackHint">اگر پروکسی پیش‌فرض جواب نداد، به‌ترتیب این‌ها امتحان می‌شوند.</p>
+            </div>
+          </div>
+
+          <div class="proxy-profiles-head">
+            <span class="field-label" data-i18n="proxy.profiles">پروفایل‌های پروکسی</span>
+            <button type="button" class="btn btn-ghost btn-small" id="proxy-add" data-i18n="proxy.add">افزودن پروفایل</button>
+          </div>
+          <ul class="proxy-profiles" id="proxy-profiles"></ul>
+          <p class="proxy-empty" id="proxy-empty" data-i18n="proxy.empty">هنوز پروفایلی نساخته‌ای.</p>
+
+          <div class="proxy-editor" id="proxy-editor" hidden>
+            <p class="proxy-editor-title" id="proxy-editor-title" data-i18n="proxy.newTitle">پروفایل جدید</p>
+            <div class="proxy-editor-grid">
+              <div class="field">
+                <label for="proxy-name" data-i18n="proxy.name">نام</label>
+                <input id="proxy-name" type="text" autocomplete="off" spellcheck="false">
+              </div>
+              <div class="field">
+                <label for="proxy-protocol" data-i18n="proxy.protocol">پروتکل</label>
+                <div class="select-wrap select-wrap-block">
+                  <select id="proxy-protocol">
+                    <option value="http">HTTP</option>
+                    <option value="https">HTTPS</option>
+                    <option value="socks5">SOCKS5</option>
+                    <option value="socks5h">SOCKS5H</option>
+                  </select>
+                  <svg class="icon select-chevron" aria-hidden="true"><use href="#i-chevron"></use></svg>
+                </div>
+              </div>
+              <div class="field">
+                <label for="proxy-host" data-i18n="proxy.host">آدرس</label>
+                <input id="proxy-host" type="text" dir="ltr" autocomplete="off" spellcheck="false" placeholder="127.0.0.1">
+              </div>
+              <div class="field">
+                <label for="proxy-port" data-i18n="proxy.port">پورت</label>
+                <input id="proxy-port" type="number" min="1" max="65535" step="1" inputmode="numeric" dir="ltr">
+              </div>
+              <div class="field">
+                <label for="proxy-username" data-i18n="proxy.username">نام کاربری (اختیاری)</label>
+                <input id="proxy-username" type="text" dir="ltr" autocomplete="off" spellcheck="false">
+              </div>
+              <div class="field">
+                <label for="proxy-password" data-i18n="proxy.password">رمز عبور (اختیاری)</label>
+                <input id="proxy-password" type="password" dir="ltr" autocomplete="off">
+              </div>
+            </div>
+            <p class="field-hint" id="proxy-editor-hint" data-i18n="proxy.passwordKeep" hidden>برای نگه داشتن رمز فعلی، این فیلد را خالی بگذار.</p>
+            <div class="proxy-editor-actions">
+              <button type="button" class="btn btn-primary btn-small" id="proxy-save" data-i18n="proxy.save">ذخیره پروفایل</button>
+              <button type="button" class="btn btn-ghost btn-small" id="proxy-test-new" data-i18n="proxy.test">تست اتصال</button>
+              <button type="button" class="btn btn-ghost btn-small" id="proxy-cancel" data-i18n="proxy.cancel">انصراف</button>
+              <span class="proxy-test-result" id="proxy-test-result" role="status" aria-live="polite"></span>
+            </div>
+          </div>
         </div>
         <div class="field field-wide">
           <span class="field-label" id="schedule-label" data-i18n="settings.schedule">زمان‌بندی دانلود</span>

@@ -5,17 +5,9 @@ const translations = {
     "skip": "رفتن به محتوای اصلی",
     "brand": "CYRON Manager",
     "brand.slogan": "Download Smarter",
-    "nav.primary": "ناوبری اصلی",
-    "nav.mobile": "ناوبری موبایل",
-    "nav.overview": "نمای کلی",
-    "nav.downloads": "دانلودها",
-    "nav.storage": "فضای ذخیره",
-    "nav.storageShort": "فضا",
     "search.aria": "جستجوی دانلودها",
     "search.label": "جستجو",
     "search.placeholder": "نام فایل یا منبع...",
-    "page.eyebrow": "وضعیت دانلودها",
-    "page.title": "نمای کلی دانلودها",
     "page.titleShort": "دانلودها",
     "side.library": "کتابخانه",
     "side.libraryAria": "فهرست کتابخانه دانلودها",
@@ -48,64 +40,34 @@ const translations = {
     "stats.aria": "خلاصه وضعیت دانلودها",
     "stat.speed": "سرعت فعلی",
     "unit.mbps": "مگابایت بر ثانیه",
-    "stat.speedMeta": "{count} دانلود در حال اجرا",
-    "stat.total": "کل دانلودها",
-    "unit.files": "فایل",
-    "stat.totalMeta": "کل صف: {count}",
-    "stat.storage": "فضای مصرف‌شده",
     "unit.gb": "گیگابایت",
-    "stat.storageMeta": "از {total}",
-    "stat.error": "نرخ خطا",
-    "stat.errorMeta": "{count} خطا",
     "chart.peak": "بیشترین سرعت",
-    "chart.y20": "۲۰",
-    "chart.y15": "۱۵",
-    "chart.y10": "۱۰",
-    "chart.y5": "۵",
-    "chart.y0": "۰",
     "chart.titleWeek": "سرعت دانلود در این هفته",
     "chart.titleLast": "سرعت دانلود در هفته گذشته",
     "chart.caption": "سرعت دانلود روزانه از {start} تا {end}. بیشترین سرعت {peak} مگابایت بر ثانیه در {day} ثبت شده است.",
     "chart.empty": "هنوز نمونه‌ای از سرعت ثبت نشده است.",
-    "storage.title": "فضای ذخیره‌سازی",
-    "storage.sub": "از {total}",
-    "storage.used": "مصرف‌شده",
-    "storage.usedLabel": "مصرف‌شده",
-    "storage.freeLabel": "آزاد",
     "storage.freeText": "{free} آزاد از {total}",
-    "downloads.title": "دانلودهای اخیر",
-    "downloads.sub": "وضعیت صف و فایل‌های تمام‌شده",
     "downloads.filtersAria": "فیلتر وضعیت دانلود",
-    "downloads.caption": "فهرست دانلودهای اخیر",
     "filter.all": "همه",
     "filter.active": "در حال دانلود",
     "filter.done": "تکمیل‌شده",
     "filter.error": "خطا",
     "table.file": "نام",
-    "table.size": "حجم",
-    "table.status": "وضعیت",
-    "table.added": "افزوده‌شده",
-    "table.actions": "عملیات",
     "status.active": "در حال دانلود",
     "status.queued": "در صف",
     "status.paused": "متوقف",
     "status.completed": "تکمیل‌شده",
-    "status.done": "تکمیل‌شده",
     "status.error": "خطا",
     "status.canceled": "لغو‌شده",
     "task.pause": "توقف",
     "task.resume": "ادامه",
-    "task.cancel": "لغو",
     "task.remove": "حذف",
     "task.open": "باز کردن",
     "task.retry": "تلاش دوباره",
     "task.confirmRemove": "این دانلود از فهرست حذف شود؟ فایل روی دیسک پاک نمی‌شود.",
-    "task.noFile": "مسیر فایل هنوز مشخص نیست.",
     "state.loadingText": "در حال دریافت فهرست دانلودها...",
-    "state.loadingAnnounce": "در حال دریافت فهرست دانلودها.",
     "state.errorTitle": "فهرست دانلودها دریافت نشد",
     "state.errorText": "اتصال موتور دانلود را بررسی کن و دوباره تلاش کن.",
-    "state.errorAnnounce": "دریافت فهرست دانلودها ممکن نشد.",
     "state.retry": "تلاش دوباره",
     "state.emptyTitle": "هنوز دانلودی ثبت نشده",
     "state.emptyText": "با «دانلود جدید» اولین لینک را اضافه کن تا اینجا نشان داده شود.",
@@ -113,7 +75,6 @@ const translations = {
     "state.filterText": "با این جستجو یا فیلتر چیزی پیدا نشد. عبارت را عوض کن یا فیلترها را پاک کن.",
     "state.clearFilters": "پاک کردن فیلترها",
     "announce.results": "تعداد دانلودهای نمایش‌داده‌شده: {count}.",
-    "progress.value": "{value}٪",
     "time.now": "همین حالا",
     "time.minutes": "{count} دقیقه پیش",
     "time.hours": "{count} ساعت پیش",
@@ -129,6 +90,10 @@ const translations = {
     "dialog.video": "ویدیو از سایت",
     "dialog.direct": "لینک مستقیم / فایل",
     "dialog.torrent": "تورنت یا Magnet",
+    "dialog.proxy": "پروکسی",
+    "dialog.proxyInherit": "مثل تنظیمات کلی",
+    "dialog.proxyDirect": "بدون پروکسی",
+    "dialog.proxyHint": "پیش‌فرض از تنظیمات کلی استفاده می‌کند؛ می‌توانی برای همین دانلود پروکسی دیگری انتخاب کنی.",
     "dialog.authTitle": "احراز هویت و کوکی (اختیاری)",
     "dialog.username": "نام کاربری",
     "dialog.password": "رمز عبور",
@@ -155,9 +120,51 @@ const translations = {
     "settings.choose": "انتخاب",
     "settings.concurrent": "دانلود هم‌زمان",
     "settings.connections": "اتصال هر فایل",
-    "settings.proxy": "پروکسی (اختیاری)",
-    "settings.proxyHint": "برای همه دانلودها اعمال می‌شود؛ مثل http://127.0.0.1:8888 یا socks5://127.0.0.1:1080. خالی یعنی بدون پروکسی.",
-    "settings.proxyError": "پروکسی معتبر نیست. مثل http://127.0.0.1:8888 یا socks5://127.0.0.1:1080 وارد کن.",
+    "proxy.title": "پروکسی",
+    "proxy.hint": "پروفایل پروکسی بساز و انتخاب کن کدام دانلود از کدام پروکسی رد شود. پروتکل‌های HTTP، HTTPS و SOCKS5 پشتیبانی می‌شوند.",
+    "proxy.default": "پروکسی پیش‌فرض",
+    "proxy.defaultHint": "برای همهٔ دانلودهایی که پروکسی اختصاصی ندارند اعمال می‌شود.",
+    "proxy.defaultNone": "بدون پروکسی",
+    "proxy.testUrl": "آدرس تست اتصال",
+    "proxy.testUrlHint": "هنگام تست پروکسی، آی‌پی خروجی از این نشانی خوانده می‌شود.",
+    "proxy.bypass": "استثناها",
+    "proxy.bypassHint": "دامنه‌ها، آی‌پی‌ها یا CIDRهایی که بدون پروکسی دانلود می‌شوند؛ با ویرگول جدا کن.",
+    "proxy.allowDirect": "اگر همهٔ پروکسی‌ها شکست خوردند مستقیم دانلود کن",
+    "proxy.fallback": "پروکسی‌های پشتیبان",
+    "proxy.fallbackHint": "اگر پروکسی پیش‌فرض جواب نداد، به‌ترتیب این‌ها امتحان می‌شوند.",
+    "proxy.fallbackEmpty": "پروکسی پشتیبانی انتخاب نشده.",
+    "proxy.profiles": "پروفایل‌های پروکسی",
+    "proxy.add": "افزودن پروفایل",
+    "proxy.empty": "هنوز پروفایلی نساخته‌ای.",
+    "proxy.newTitle": "پروفایل جدید",
+    "proxy.editTitle": "ویرایش پروفایل",
+    "proxy.name": "نام",
+    "proxy.protocol": "پروتکل",
+    "proxy.host": "آدرس",
+    "proxy.port": "پورت",
+    "proxy.username": "نام کاربری (اختیاری)",
+    "proxy.password": "رمز عبور (اختیاری)",
+    "proxy.passwordKeep": "برای نگه داشتن رمز فعلی، این فیلد را خالی بگذار.",
+    "proxy.save": "ذخیره پروفایل",
+    "proxy.test": "تست اتصال",
+    "proxy.cancel": "انصراف",
+    "proxy.edit": "ویرایش",
+    "proxy.delete": "حذف",
+    "proxy.confirmDelete": "پروفایل «{name}» حذف شود؟",
+    "proxy.saved": "پروفایل پروکسی ذخیره شد.",
+    "proxy.deleted": "پروفایل پروکسی حذف شد.",
+    "proxy.saveError": "ذخیرهٔ پروفایل ممکن نشد.",
+    "proxy.deleteError": "حذف پروفایل ممکن نشد.",
+    "proxy.nameRequired": "یک نام برای پروفایل وارد کن.",
+    "proxy.hostRequired": "آدرس پروکسی را وارد کن.",
+    "proxy.portInvalid": "پورت باید عددی بین ۱ تا ۶۵۵۳۵ باشد.",
+    "proxy.testing": "در حال تست...",
+    "proxy.testOk": "اتصال برقرار شد ({latency} میلی‌ثانیه){ip}",
+    "proxy.testOkIp": " · آی‌پی خروجی: {ip}",
+    "proxy.testFailed": "تست ناموفق: {error}",
+    "proxy.loadError": "رمز ذخیره‌شدهٔ این پروفایل خوانده نشد؛ آن را دوباره وارد کن.",
+    "proxy.passwordSet": "رمز ذخیره شده",
+    "proxy.inUse": "پیش‌فرض",
     "settings.schedule": "زمان‌بندی دانلود",
     "settings.scheduleEnable": "فعال‌سازی بازه دانلود",
     "settings.scheduleStart": "شروع",
@@ -203,26 +210,21 @@ const translations = {
     "github.validation": "GitHub درخواست جست‌وجو را رد کرد (Validation Failed)؛ توکن تازه‌ساخته باید دسترسی Public repositories (read-only) داشته باشد.",
     "github.releases": "ریلیزها",
     "github.zip": "ZIP",
-    "github.assets": "فایل‌های Release",
     "github.noAssets": "این ریلیز فایل قابل دانلود ندارد.",
     "github.noReleases": "ریلیزی برای این مخزن پیدا نشد.",
-    "github.releaseError": "دریافت ریلیزها ممکن نشد.",
     "github.added": "دانلود GitHub به صف اضافه شد.",
     "github.stars": "ستاره",
     "github.open": "باز کردن در GitHub",
     "clipboard.found": "لینک در کلیپ‌بورد پیدا شد",
     "clipboard.add": "افزودن",
     "clipboard.dismiss": "بستن",
-    "app.status": "وضعیت موتور",
     "app.openFolder": "پوشه دانلود",
-    "app.settings": "تنظیمات",
     "app.ready": "آماده",
     "app.partial": "ابزارها ناقص",
     "app.missing": "ابزار پیدا نشد",
     "app.starting": "در حال آماده‌سازی...",
     "app.bootError": "رابط کاربری باید داخل اپ دسکتاپ اجرا شود.",
     "app.loadError": "بارگذاری وضعیت اولیه ممکن نشد.",
-    "toast.added": "دانلود اضافه شد.",
     "toast.paused": "دانلود متوقف شد.",
     "toast.resumed": "دانلود ادامه پیدا کرد.",
     "toast.canceled": "دانلود لغو شد.",
@@ -268,7 +270,6 @@ const translations = {
     "settings.palette": "پالت رنگ",
     "settings.paletteHint": "پالت، پس‌زمینه و رنگ لهجه را با هم عوض می‌کند. رنگ دستی فقط لهجه را تغییر می‌دهد.",
     "palette.ember": "نعنایی",
-    "palette.graphite": "گرافیت",
     "palette.forest": "جنگل",
     "palette.ocean": "اقیانوس",
     "palette.clay": "خاک رس",
@@ -303,7 +304,6 @@ const translations = {
     "details.openFile": "باز کردن فایل",
     "details.verify": "بررسی سلامت",
     "details.empty": "—",
-    "details.error": "خطا",
     "details.errorCause": "سبب توقف",
     "details.errorRaw": "جزئیات فنی",
     "error.expired": "دسترسی به این لینک منقضی شده یا سایت آن را رد کرده است.",
@@ -387,17 +387,9 @@ const translations = {
     "skip": "Skip to main content",
     "brand": "CYRON Manager",
     "brand.slogan": "Download Smarter",
-    "nav.primary": "Primary navigation",
-    "nav.mobile": "Mobile navigation",
-    "nav.overview": "Overview",
-    "nav.downloads": "Downloads",
-    "nav.storage": "Storage",
-    "nav.storageShort": "Storage",
     "search.aria": "Search downloads",
     "search.label": "Search",
     "search.placeholder": "File or source...",
-    "page.eyebrow": "Download activity",
-    "page.title": "Downloads overview",
     "page.titleShort": "Downloads",
     "side.library": "Library",
     "side.libraryAria": "Download library",
@@ -430,64 +422,34 @@ const translations = {
     "stats.aria": "Download activity summary",
     "stat.speed": "Current speed",
     "unit.mbps": "MB/s",
-    "stat.speedMeta": "{count} downloads running",
-    "stat.total": "Total downloads",
-    "unit.files": "files",
-    "stat.totalMeta": "Queue total: {count}",
-    "stat.storage": "Storage used",
     "unit.gb": "GB",
-    "stat.storageMeta": "of {total}",
-    "stat.error": "Error rate",
-    "stat.errorMeta": "{count} errors",
     "chart.peak": "Peak speed",
-    "chart.y20": "20",
-    "chart.y15": "15",
-    "chart.y10": "10",
-    "chart.y5": "5",
-    "chart.y0": "0",
     "chart.titleWeek": "Download speed this week",
     "chart.titleLast": "Download speed last week",
     "chart.caption": "Daily download speed from {start} to {end}. Peak speed was {peak} MB/s on {day}.",
     "chart.empty": "No speed samples yet.",
-    "storage.title": "Storage",
-    "storage.sub": "of {total}",
-    "storage.used": "used",
-    "storage.usedLabel": "Used",
-    "storage.freeLabel": "Free",
     "storage.freeText": "{free} free of {total}",
-    "downloads.title": "Recent downloads",
-    "downloads.sub": "Queue status and completed files",
     "downloads.filtersAria": "Filter downloads by status",
-    "downloads.caption": "List of recent downloads",
     "filter.all": "All",
     "filter.active": "Active",
     "filter.done": "Done",
     "filter.error": "Error",
     "table.file": "Name",
-    "table.size": "Size",
-    "table.status": "Status",
-    "table.added": "Added",
-    "table.actions": "Actions",
     "status.active": "Downloading",
     "status.queued": "Queued",
     "status.paused": "Paused",
     "status.completed": "Completed",
-    "status.done": "Completed",
     "status.error": "Error",
     "status.canceled": "Canceled",
     "task.pause": "Pause",
     "task.resume": "Resume",
-    "task.cancel": "Cancel",
     "task.remove": "Remove",
     "task.open": "Open",
     "task.retry": "Retry",
     "task.confirmRemove": "Remove this download from the list? The file on disk is kept.",
-    "task.noFile": "File path is not known yet.",
     "state.loadingText": "Fetching download list...",
-    "state.loadingAnnounce": "Fetching the download list.",
     "state.errorTitle": "Download list unavailable",
     "state.errorText": "Check the download engine and try again.",
-    "state.errorAnnounce": "Could not fetch the download list.",
     "state.retry": "Try again",
     "state.emptyTitle": "No downloads yet",
     "state.emptyText": "Use “New download” to add your first link and see it here.",
@@ -495,7 +457,6 @@ const translations = {
     "state.filterText": "Nothing matched this search or filter. Try another term or clear the filters.",
     "state.clearFilters": "Clear filters",
     "announce.results": "Downloads shown: {count}.",
-    "progress.value": "{value}%",
     "time.now": "Just now",
     "time.minutes": "{count} minutes ago",
     "time.hours": "{count} hours ago",
@@ -511,6 +472,10 @@ const translations = {
     "dialog.video": "Video from a site",
     "dialog.direct": "Direct link / file",
     "dialog.torrent": "Torrent or Magnet",
+    "dialog.proxy": "Proxy",
+    "dialog.proxyInherit": "Use global settings",
+    "dialog.proxyDirect": "No proxy",
+    "dialog.proxyHint": "Defaults to the global setting; you can pick a different proxy just for this download.",
     "dialog.authTitle": "Sign-in and cookies (optional)",
     "dialog.username": "Username",
     "dialog.password": "Password",
@@ -537,9 +502,51 @@ const translations = {
     "settings.choose": "Choose",
     "settings.concurrent": "Concurrent downloads",
     "settings.connections": "Connections per file",
-    "settings.proxy": "Proxy (optional)",
-    "settings.proxyHint": "Applies to every download; like http://127.0.0.1:8888 or socks5://127.0.0.1:1080. Empty means no proxy.",
-    "settings.proxyError": "The proxy is not valid. Use http://127.0.0.1:8888 or socks5://127.0.0.1:1080.",
+    "proxy.title": "Proxy",
+    "proxy.hint": "Create proxy profiles and choose which download uses which proxy. HTTP, HTTPS, and SOCKS5 are supported.",
+    "proxy.default": "Default proxy",
+    "proxy.defaultHint": "Applies to every download that has no proxy of its own.",
+    "proxy.defaultNone": "No proxy",
+    "proxy.testUrl": "Test URL",
+    "proxy.testUrlHint": "When testing a proxy, the exit IP is read from this address.",
+    "proxy.bypass": "Bypass list",
+    "proxy.bypassHint": "Domains, IPs, or CIDRs that download without a proxy; separate with commas.",
+    "proxy.allowDirect": "Download directly if every proxy fails",
+    "proxy.fallback": "Fallback proxies",
+    "proxy.fallbackHint": "Tried in order when the default proxy does not work.",
+    "proxy.fallbackEmpty": "No fallback proxy selected.",
+    "proxy.profiles": "Proxy profiles",
+    "proxy.add": "Add profile",
+    "proxy.empty": "No profiles yet.",
+    "proxy.newTitle": "New profile",
+    "proxy.editTitle": "Edit profile",
+    "proxy.name": "Name",
+    "proxy.protocol": "Protocol",
+    "proxy.host": "Host",
+    "proxy.port": "Port",
+    "proxy.username": "Username (optional)",
+    "proxy.password": "Password (optional)",
+    "proxy.passwordKeep": "Leave this empty to keep the current password.",
+    "proxy.save": "Save profile",
+    "proxy.test": "Test connection",
+    "proxy.cancel": "Cancel",
+    "proxy.edit": "Edit",
+    "proxy.delete": "Delete",
+    "proxy.confirmDelete": "Delete the profile \"{name}\"?",
+    "proxy.saved": "Proxy profile saved.",
+    "proxy.deleted": "Proxy profile deleted.",
+    "proxy.saveError": "Could not save the profile.",
+    "proxy.deleteError": "Could not delete the profile.",
+    "proxy.nameRequired": "Enter a name for the profile.",
+    "proxy.hostRequired": "Enter the proxy host.",
+    "proxy.portInvalid": "The port must be a number between 1 and 65535.",
+    "proxy.testing": "Testing...",
+    "proxy.testOk": "Connected ({latency} ms){ip}",
+    "proxy.testOkIp": " · exit IP: {ip}",
+    "proxy.testFailed": "Test failed: {error}",
+    "proxy.loadError": "The stored password for this profile could not be read; enter it again.",
+    "proxy.passwordSet": "Password stored",
+    "proxy.inUse": "Default",
     "settings.schedule": "Download schedule",
     "settings.scheduleEnable": "Enable download window",
     "settings.scheduleStart": "Start",
@@ -585,26 +592,21 @@ const translations = {
     "github.validation": "GitHub rejected the search request (Validation Failed). A new token needs Public repositories (read-only) access.",
     "github.releases": "Releases",
     "github.zip": "ZIP",
-    "github.assets": "Release assets",
     "github.noAssets": "This release has no downloadable assets.",
     "github.noReleases": "No releases found for this repository.",
-    "github.releaseError": "Could not load releases.",
     "github.added": "GitHub download added to the queue.",
     "github.stars": "stars",
     "github.open": "Open on GitHub",
     "clipboard.found": "Link found in clipboard",
     "clipboard.add": "Add",
     "clipboard.dismiss": "Dismiss",
-    "app.status": "Engine status",
     "app.openFolder": "Download folder",
-    "app.settings": "Settings",
     "app.ready": "Ready",
     "app.partial": "Tools incomplete",
     "app.missing": "Tools missing",
     "app.starting": "Starting...",
     "app.bootError": "This interface must run inside the desktop app.",
     "app.loadError": "Could not load the initial state.",
-    "toast.added": "Download added.",
     "toast.paused": "Download paused.",
     "toast.resumed": "Download resumed.",
     "toast.canceled": "Download canceled.",
@@ -650,7 +652,6 @@ const translations = {
     "settings.palette": "Color palette",
     "settings.paletteHint": "A palette changes the background and accent together. A custom color changes only the accent.",
     "palette.ember": "Mint",
-    "palette.graphite": "Graphite",
     "palette.forest": "Forest",
     "palette.ocean": "Ocean",
     "palette.clay": "Clay",
@@ -685,7 +686,6 @@ const translations = {
     "details.openFile": "Open file",
     "details.verify": "Check health",
     "details.empty": "—",
-    "details.error": "Error",
     "details.errorCause": "Why it stopped",
     "details.errorRaw": "Technical details",
     "error.expired": "The link expired or the site rejected access.",
@@ -944,7 +944,9 @@ const state = {
   visibleCount: 0,
   clipboardURL: "",
   selected: new Set(),
-  chartPeriod: "week"
+  chartPeriod: "week",
+  proxyProfiles: [],
+  proxyEditingID: ""
 };
 
 const metaDescription = $('meta[name="description"]');
@@ -1016,11 +1018,28 @@ const githubFeedback = $("#github-feedback");
 const githubResults = $("#github-results");
 const detailsDialog = $("#details-dialog");
 const detailsBody = $("#details-body");
-const connectionStatus = $("#connection-status");
 const dropOverlay = $("#drop-overlay");
 const bridgeStatus = $("#bridge-status");
 const bridgeStatusText = $("#bridge-status-text");
 const bridgeError = $("#bridge-error");
+const downloadProxy = $("#download-proxy");
+const proxyDefaultSelect = $("#settings-proxy-default");
+const proxyTestURL = $("#settings-proxy-test-url");
+const proxyBypass = $("#settings-proxy-bypass");
+const proxyAllowDirect = $("#settings-proxy-allow-direct");
+const proxyFallbackBox = $("#proxy-fallback");
+const proxyProfilesList = $("#proxy-profiles");
+const proxyEmpty = $("#proxy-empty");
+const proxyEditor = $("#proxy-editor");
+const proxyEditorTitle = $("#proxy-editor-title");
+const proxyEditorHint = $("#proxy-editor-hint");
+const proxyName = $("#proxy-name");
+const proxyProtocol = $("#proxy-protocol");
+const proxyHost = $("#proxy-host");
+const proxyPort = $("#proxy-port");
+const proxyUsername = $("#proxy-username");
+const proxyPassword = $("#proxy-password");
+const proxyTestResult = $("#proxy-test-result");
 
 const api = () => window.go?.main?.App;
 const hasAPI = () => Boolean(api());
@@ -1644,10 +1663,6 @@ function renderLiveTrace() {
 
 function renderConnectionStatus() {
   const online = navigator.onLine !== false;
-  if (connectionStatus) {
-    connectionStatus.textContent = t(online ? "net.online" : "net.offline");
-    connectionStatus.classList.toggle("is-offline", !online);
-  }
   const quickInternet = $("#quick-internet");
   if (quickInternet) {
     quickInternet.textContent = t(online ? "net.online" : "net.offline");
@@ -1817,10 +1832,11 @@ function applyLanguage(nextLang) {
   $$("[data-i18n]").forEach((element) => { element.textContent = t(element.dataset.i18n); });
   $$("[data-i18n-placeholder]").forEach((element) => { element.placeholder = t(element.dataset.i18nPlaceholder); });
   $$("[data-i18n-aria-label]").forEach((element) => { element.setAttribute("aria-label", t(element.dataset.i18nAriaLabel)); });
-  $$("[data-label-key]").forEach((element) => { element.dataset.label = t(element.dataset.labelKey); });
+  $$("[data-i18n-title]").forEach((element) => { element.setAttribute("title", t(element.dataset.i18nTitle)); });
   updatePreferenceControls();
   renderConnectionStatus();
   renderAll();
+  renderProxyPanel();
   updateSortLabel();
   if (Object.keys(state.bridge || {}).length) renderBridgeInfo(state.bridge);
 }
@@ -1927,10 +1943,317 @@ function openDownloadDialog(prefill = "") {
   feedback.hidden = true;
   urlInput.removeAttribute("aria-invalid");
   if (prefill) urlInput.value = prefill;
+  renderDownloadProxyOptions();
   syncDownloadFields();
   openDialog(downloadDialog);
   window.setTimeout(() => urlInput.focus(), 30);
 }
+
+function proxyProfileLabel(profile) {
+  const host = `${profile.host}:${profile.port}`;
+  return `${profile.name} — ${profile.protocol}://${host}`;
+}
+
+function proxyByID(id) {
+  return state.proxyProfiles.find((profile) => profile.id === id) || null;
+}
+
+// Fills the per-download proxy selector from the known profiles.
+function renderDownloadProxyOptions() {
+  if (!downloadProxy) return;
+  const previous = downloadProxy.value || "inherit";
+  const profiles = Array.isArray(state.proxyProfiles) ? state.proxyProfiles : [];
+  downloadProxy.textContent = "";
+  const inherit = document.createElement("option");
+  inherit.value = "inherit";
+  inherit.textContent = t("dialog.proxyInherit");
+  downloadProxy.appendChild(inherit);
+  const direct = document.createElement("option");
+  direct.value = "direct";
+  direct.textContent = t("dialog.proxyDirect");
+  downloadProxy.appendChild(direct);
+  profiles.forEach((profile) => {
+    const option = document.createElement("option");
+    option.value = `profile:${profile.id}`;
+    option.textContent = proxyProfileLabel(profile);
+    downloadProxy.appendChild(option);
+  });
+  const known = Array.from(downloadProxy.options).some((option) => option.value === previous);
+  downloadProxy.value = known ? previous : "inherit";
+}
+
+// Fills the default-proxy selector inside Settings.
+function renderProxyDefaultOptions() {
+  if (!proxyDefaultSelect) return;
+  const settings = state.settings || {};
+  const current = String(settings.proxyDefaultId || "");
+  const profiles = Array.isArray(state.proxyProfiles) ? state.proxyProfiles : [];
+  proxyDefaultSelect.textContent = "";
+  const none = document.createElement("option");
+  none.value = "";
+  none.textContent = t("proxy.defaultNone");
+  proxyDefaultSelect.appendChild(none);
+  profiles.forEach((profile) => {
+    const option = document.createElement("option");
+    option.value = profile.id;
+    option.textContent = proxyProfileLabel(profile);
+    proxyDefaultSelect.appendChild(option);
+  });
+  const known = Array.from(proxyDefaultSelect.options).some((option) => option.value === current);
+  proxyDefaultSelect.value = known ? current : "";
+}
+
+// Renders the fallback checkbox list. When `preserve` is set, the boxes that
+// are already on screen keep their checked state (used when the default proxy
+// changes and the list has to be rebuilt). `defaultID` overrides the saved
+// default so a not-yet-saved choice in the dialog is reflected right away.
+function renderProxyFallbacks(preserve = false, defaultID = undefined) {
+  if (!proxyFallbackBox) return;
+  const settings = state.settings || {};
+  if (defaultID === undefined) defaultID = String(settings.proxyDefaultId || "");
+  defaultID = String(defaultID || "");
+  const existing = preserve ? $$('[data-proxy-fallback="1"]') : [];
+  const chosen = existing.length
+    ? new Set(existing.filter((box) => box.checked).map((box) => box.value))
+    : new Set((settings.proxyFallbackIds || []).map(String));
+  const profiles = (state.proxyProfiles || []).filter((profile) => profile.id !== defaultID);
+  proxyFallbackBox.textContent = "";
+  if (!profiles.length) {
+    const empty = document.createElement("p");
+    empty.className = "field-hint";
+    empty.textContent = t("proxy.fallbackEmpty");
+    proxyFallbackBox.appendChild(empty);
+    return;
+  }
+  profiles.forEach((profile) => {
+    const row = document.createElement("label");
+    row.className = "check-row";
+    const box = document.createElement("input");
+    box.type = "checkbox";
+    box.value = profile.id;
+    box.dataset.proxyFallback = "1";
+    box.checked = chosen.has(profile.id);
+    const text = document.createElement("span");
+    text.textContent = proxyProfileLabel(profile);
+    row.appendChild(box);
+    row.appendChild(text);
+    proxyFallbackBox.appendChild(row);
+  });
+}
+
+// Renders the profile list with edit/delete/default actions. `defaultID`
+// overrides the saved default so an unsaved selection is shown as default.
+function renderProxyProfiles(defaultID = undefined) {
+  if (!proxyProfilesList) return;
+  const settings = state.settings || {};
+  if (defaultID === undefined) defaultID = String(settings.proxyDefaultId || "");
+  defaultID = String(defaultID || "");
+  const profiles = Array.isArray(state.proxyProfiles) ? state.proxyProfiles : [];
+  proxyProfilesList.textContent = "";
+  if (proxyEmpty) proxyEmpty.hidden = profiles.length > 0;
+  profiles.forEach((profile) => {
+    const item = document.createElement("li");
+    item.className = "proxy-profile";
+    item.dataset.proxyId = profile.id;
+
+    const main = document.createElement("div");
+    main.className = "proxy-profile-main";
+
+    const title = document.createElement("div");
+    title.className = "proxy-profile-title";
+    const name = document.createElement("strong");
+    name.textContent = profile.name;
+    title.appendChild(name);
+    if (profile.id === defaultID) {
+      const badge = document.createElement("span");
+      badge.className = "proxy-badge";
+      badge.textContent = t("proxy.inUse");
+      title.appendChild(badge);
+    }
+    main.appendChild(title);
+
+    const meta = document.createElement("span");
+    meta.className = "proxy-profile-meta";
+    meta.dir = "ltr";
+    const auth = profile.username ? `${profile.username}@` : "";
+    const password = profile.hasPassword ? ` · ${t("proxy.passwordSet")}` : "";
+    meta.textContent = `${profile.protocol}://${auth}${profile.host}:${profile.port}${password}`;
+    main.appendChild(meta);
+
+    if (profile.loadError) {
+      const warn = document.createElement("span");
+      warn.className = "proxy-profile-warn";
+      warn.textContent = t("proxy.loadError");
+      main.appendChild(warn);
+    }
+
+    const actions = document.createElement("div");
+    actions.className = "proxy-profile-actions";
+    const testButton = document.createElement("button");
+    testButton.type = "button";
+    testButton.className = "btn btn-ghost btn-small";
+    testButton.dataset.proxyAction = "test";
+    testButton.textContent = t("proxy.test");
+    const editButton = document.createElement("button");
+    editButton.type = "button";
+    editButton.className = "btn btn-ghost btn-small";
+    editButton.dataset.proxyAction = "edit";
+    editButton.textContent = t("proxy.edit");
+    const deleteButton = document.createElement("button");
+    deleteButton.type = "button";
+    deleteButton.className = "btn btn-ghost btn-small proxy-danger";
+    deleteButton.dataset.proxyAction = "delete";
+    deleteButton.textContent = t("proxy.delete");
+    const testResult = document.createElement("span");
+    testResult.className = "proxy-test-result";
+    testResult.setAttribute("role", "status");
+    testResult.setAttribute("aria-live", "polite");
+
+    actions.appendChild(testButton);
+    actions.appendChild(editButton);
+    actions.appendChild(deleteButton);
+    actions.appendChild(testResult);
+
+    item.appendChild(main);
+    item.appendChild(actions);
+    proxyProfilesList.appendChild(item);
+  });
+}
+
+function renderProxyPanel() {
+  renderProxyDefaultOptions();
+  renderProxyFallbacks();
+  renderProxyProfiles();
+  renderDownloadProxyOptions();
+}
+
+// Re-reads the profiles from the backend so the panel never shows stale data.
+async function refreshProxyProfiles() {
+  if (!hasAPI()) return;
+  try {
+    const profiles = await api().GetProxyProfiles();
+    state.proxyProfiles = Array.isArray(profiles) ? profiles : [];
+    renderProxyPanel();
+  } catch (error) {
+    showToast(`${t("proxy.loadError")} ${error?.message || error || ""}`.trim(), "error");
+  }
+}
+
+function openProxyEditor(profile) {
+  if (!proxyEditor) return;
+  state.proxyEditingID = profile?.id || "";
+  proxyEditor.hidden = false;
+  proxyEditorTitle.textContent = t(profile?.id ? "proxy.editTitle" : "proxy.newTitle");
+  proxyName.value = profile?.name || "";
+  proxyProtocol.value = profile?.protocol || "http";
+  proxyHost.value = profile?.host || "";
+  proxyPort.value = profile?.port ? String(profile.port) : "";
+  proxyUsername.value = profile?.username || "";
+  proxyPassword.value = "";
+  proxyEditorHint.hidden = !profile?.hasPassword;
+  proxyTestResult.textContent = "";
+  proxyTestResult.dataset.state = "";
+  proxyName.focus();
+}
+
+function closeProxyEditor() {
+  if (!proxyEditor) return;
+  proxyEditor.hidden = true;
+  state.proxyEditingID = "";
+  proxyTestResult.textContent = "";
+  proxyTestResult.dataset.state = "";
+}
+
+function proxyInputFromEditor() {
+  const name = proxyName.value.trim();
+  if (!name) {
+    showToast(t("proxy.nameRequired"), "error");
+    proxyName.focus();
+    return null;
+  }
+  const host = proxyHost.value.trim();
+  if (!host) {
+    showToast(t("proxy.hostRequired"), "error");
+    proxyHost.focus();
+    return null;
+  }
+  const port = Number(proxyPort.value);
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    showToast(t("proxy.portInvalid"), "error");
+    proxyPort.focus();
+    return null;
+  }
+  return {
+    id: state.proxyEditingID || "",
+    name,
+    protocol: proxyProtocol.value,
+    host,
+    port,
+    username: proxyUsername.value.trim(),
+    password: proxyPassword.value
+  };
+}
+
+async function saveProxyProfile() {
+  const input = proxyInputFromEditor();
+  if (!input) return;
+  try {
+    await api().SaveProxyProfile(input);
+    state.proxyProfiles = await api().GetProxyProfiles();
+    closeProxyEditor();
+    renderProxyPanel();
+    showToast(t("proxy.saved"), "success");
+  } catch (error) {
+    showToast(`${t("proxy.saveError")} ${error?.message || error || ""}`.trim(), "error");
+  }
+}
+
+async function deleteProxyProfile(id) {
+  const profile = proxyByID(id);
+  if (!profile) return;
+  if (!window.confirm(t("proxy.confirmDelete", { name: profile.name }))) return;
+  try {
+    await api().DeleteProxyProfile(id);
+    state.proxyProfiles = await api().GetProxyProfiles();
+    state.settings = await api().GetSettings();
+    if (state.proxyEditingID === id) closeProxyEditor();
+    renderProxyPanel();
+    showToast(t("proxy.deleted"), "success");
+  } catch (error) {
+    showToast(`${t("proxy.deleteError")} ${error?.message || error || ""}`.trim(), "error");
+  }
+}
+
+async function testProxyProfile(id, input, target = proxyTestResult) {
+  if (!target) return;
+  target.dataset.state = "pending";
+  target.textContent = t("proxy.testing");
+  try {
+    const url = proxyTestURL?.value.trim() || "";
+    const result = id
+      ? await api().TestProxyProfile(id, url)
+      : await api().TestProxyInput(input, url);
+    if (result?.ok) {
+      const ip = result.exitIp ? t("proxy.testOkIp", { ip: result.exitIp }) : "";
+      target.dataset.state = "ok";
+      target.textContent = t("proxy.testOk", {
+        latency: formatInteger(result.latencyMs || 0),
+        ip
+      });
+    } else {
+      target.dataset.state = "error";
+      target.textContent = t("proxy.testFailed", {
+        error: result?.error || t("proxy.saveError")
+      });
+    }
+  } catch (error) {
+    target.dataset.state = "error";
+    target.textContent = t("proxy.testFailed", {
+      error: String(error?.message || error || "")
+    });
+  }
+}
+
 
 function renderBridgeInfo(info) {
   state.bridge = info || {};
@@ -1997,7 +2320,12 @@ function openSettingsDialog() {
   $("#settings-folder").value = s.downloadDir || "";
   $("#settings-concurrent").value = s.maxConcurrent || 2;
   $("#settings-connections").value = s.connections || 8;
-  $("#settings-proxy").value = s.proxy || "";
+  if (proxyTestURL) proxyTestURL.value = s.proxyTestUrl || "";
+  if (proxyBypass) proxyBypass.value = s.proxyBypass || "";
+  if (proxyAllowDirect) proxyAllowDirect.checked = Boolean(s.proxyAllowDirectFallback);
+  closeProxyEditor();
+  renderProxyPanel();
+  refreshProxyProfiles();
   $("#settings-schedule").checked = Boolean(s.scheduleEnabled);
   $("#settings-schedule-start").value = s.scheduleStart || "";
   $("#settings-schedule-stop").value = s.scheduleStop || "";
@@ -2100,6 +2428,9 @@ async function submitDownload(event) {
   feedback.hidden = true;
   try {
     const useMedia = !downloadQuality.disabled;
+    const proxyChoice = downloadProxy?.value || "inherit";
+    const proxyMode = proxyChoice === "inherit" ? "inherit"
+      : proxyChoice === "direct" ? "direct" : "profile";
     const payload = {
       url: value,
       engine: selectedEngine(),
@@ -2110,7 +2441,9 @@ async function submitDownload(event) {
       playlist: useMedia ? downloadPlaylist.checked : false,
       username: downloadUsername.value.trim(),
       password: downloadPassword.value,
-      cookies: downloadCookies.value.trim()
+      cookies: downloadCookies.value.trim(),
+      proxyMode,
+      proxyProfileId: proxyMode === "profile" ? proxyChoice.slice("profile:".length) : ""
     };
     let result = await api().AddDownloadChecked(payload);
     if (result.duplicate) {
@@ -2403,7 +2736,6 @@ async function saveSettings(event) {
     settingsFeedback.hidden = false;
     return;
   }
-  const proxy = $("#settings-proxy").value.trim();
   const scheduleEnabled = $("#settings-schedule").checked;
   const scheduleStart = $("#settings-schedule-start").value;
   const scheduleStop = $("#settings-schedule-stop").value;
@@ -2414,11 +2746,6 @@ async function saveSettings(event) {
   }
   if (scheduleEnabled && scheduleStart === scheduleStop) {
     settingsFeedback.textContent = t("settings.scheduleEqual");
-    settingsFeedback.hidden = false;
-    return;
-  }
-  if (proxy && !/^(https?|socks[45]?):\/\/.+:\d+/.test(proxy) && !/^[^/]+:\d+$/.test(proxy)) {
-    settingsFeedback.textContent = t("settings.proxyError");
     settingsFeedback.hidden = false;
     return;
   }
@@ -2441,7 +2768,11 @@ async function saveSettings(event) {
     downloadDir: folder,
     maxConcurrent: Math.max(1, Math.min(8, Number($("#settings-concurrent").value) || 2)),
     connections: Math.max(1, Math.min(16, Number($("#settings-connections").value) || 8)),
-    proxy,
+    proxyDefaultId: proxyDefaultSelect?.value || "",
+    proxyTestUrl: proxyTestURL?.value.trim() || "",
+    proxyBypass: proxyBypass?.value.trim() || "",
+    proxyAllowDirectFallback: Boolean(proxyAllowDirect?.checked),
+    proxyFallbackIds: $$('[data-proxy-fallback="1"]:checked').map((input) => input.value),
     clipboardWatch: $("#settings-clipboard").checked,
     autoAddClipboard: $("#settings-auto-clipboard").checked,
     autoStart: $("#settings-autostart").checked,
@@ -2460,11 +2791,13 @@ async function saveSettings(event) {
   };
   try {
     state.settings = await api().SaveSettings(settings);
+    state.proxyProfiles = await api().GetProxyProfiles().catch(() => state.proxyProfiles);
     $("#settings-browser-port").value = state.settings.browserPort || browserPort;
     accent = $("#settings-accent").value;
     storage.set("dm-accent", accent);
     applyAccent(accent);
     refreshBridgeInfo();
+    renderProxyPanel();
     closeDialog(settingsDialog);
     showToast(t("settings.saved"), "success");
   } catch (error) {
@@ -2919,6 +3252,38 @@ function bindEvents() {
   $("#settings-schedule").addEventListener("change", syncScheduleFields);
   settingsDialog.addEventListener("close", () => document.body.classList.remove("dialog-open"));
 
+  $("#settings-toggle")?.addEventListener("click", openSettingsDialog);
+  $("#proxy-add")?.addEventListener("click", () => openProxyEditor(null));
+  $("#proxy-cancel")?.addEventListener("click", closeProxyEditor);
+  $("#proxy-save")?.addEventListener("click", saveProxyProfile);
+  $("#proxy-test-new")?.addEventListener("click", () => {
+    const input = proxyInputFromEditor();
+    if (input) testProxyProfile("", input);
+  });
+  proxyProfilesList?.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-proxy-action]");
+    if (!button) return;
+    const id = button.closest("[data-proxy-id]")?.dataset.proxyId || "";
+    if (!id) return;
+    if (button.dataset.proxyAction === "delete") {
+      deleteProxyProfile(id);
+      return;
+    }
+    if (button.dataset.proxyAction === "edit") {
+      openProxyEditor(proxyByID(id));
+      return;
+    }
+    if (button.dataset.proxyAction === "test") {
+      const target = button.closest("[data-proxy-id]")?.querySelector(".proxy-test-result");
+      testProxyProfile(id, null, target);
+    }
+  });
+  proxyDefaultSelect?.addEventListener("change", () => {
+    // Only the dialog state changes here; nothing is persisted until Save.
+    renderProxyFallbacks(true, proxyDefaultSelect.value);
+    renderProxyProfiles(proxyDefaultSelect.value);
+  });
+
   $("#close-github").addEventListener("click", () => closeDialog(githubDialog));
   $("#github-search-form").addEventListener("submit", searchGitHub);
   githubDialog.addEventListener("close", () => document.body.classList.remove("dialog-open"));
@@ -3009,15 +3374,15 @@ function wireWailsEvents() {
     pushSpeedSample(stats?.speed || 0);
     scheduleRender("stats");
   });
-  runtime.EventsOn("settings:update", (settings) => { state.settings = settings; });
+  runtime.EventsOn("settings:update", (settings) => {
+    state.settings = settings;
+    renderProxyPanel();
+  });
   runtime.EventsOn("schedule:update", (payload) => {
     showToast(payload?.paused ? t("toast.schedulePaused") : t("toast.scheduleResumed"));
   });
   runtime.EventsOn("shutdown:notify", () => {
     showToast(t("toast.shutdownPlanned"));
-  });
-  runtime.EventsOn("toast", (payload) => {
-    if (payload?.message) showToast(payload.message, payload.kind || "info");
   });
   runtime.EventsOn("clipboard:added", () => {
     showToast(t("toast.clipboard"), "success");
@@ -3061,6 +3426,7 @@ async function boot(isRetry = false) {
     const initial = await api().GetInitialState();
     if (initial.error) throw new Error(initial.error);
     state.settings = initial.settings || {};
+    state.proxyProfiles = Array.isArray(initial.proxyProfiles) ? initial.proxyProfiles : [];
     state.tasks = initial.tasks || [];
     state.stats = initial.stats || state.stats;
     state.speedHistory = initial.speedHistory || [];
@@ -3068,6 +3434,8 @@ async function boot(isRetry = false) {
     state.booted = true;
     pushSpeedSample(state.stats?.speed || 0);
     renderAll();
+    renderProxyPanel();
+    if (initial.warning) showToast(initial.warning, "error");
     refreshTools();
   } catch (error) {
     state.booted = true;

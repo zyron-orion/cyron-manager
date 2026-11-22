@@ -18,6 +18,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"cyronmanager/internal/proxy"
 )
 
 type Options struct {
@@ -25,6 +27,9 @@ type Options struct {
 	MaxConcurrent int
 	Connections   int
 	Proxy         string
+	ProxyUser     string
+	ProxyPassword string
+	ProxyMethod   string
 	DataDir       string
 }
 
@@ -104,43 +109,11 @@ func Start(ctx context.Context, bin string, opts Options) (*Client, error) {
 	if connections < 1 {
 		connections = 8
 	}
-	args := []string{
-		"--no-conf=true",
-		"--enable-rpc=true",
-		fmt.Sprintf("--rpc-listen-port=%d", port),
-		"--rpc-listen-all=false",
-		"--rpc-allow-origin-all=false",
-		"--rpc-secret=" + secret,
-		"--dir=" + opts.DownloadDir,
-		fmt.Sprintf("--max-concurrent-downloads=%d", maxConcurrent),
-		fmt.Sprintf("--max-connection-per-server=%d", connections),
-		fmt.Sprintf("--split=%d", connections),
-		"--min-split-size=1M",
-		"--max-overall-download-limit=0",
-		"--max-download-limit=0",
-		"--continue=true",
-		"--file-allocation=none",
-		"--auto-file-renaming=true",
-		"--allow-overwrite=false",
-		"--max-tries=5",
-		"--retry-wait=3",
-		"--timeout=30",
-		"--connect-timeout=15",
-		"--disk-cache=32M",
-		"--async-dns=true",
-		"--seed-time=0",
-		"--bt-stop-timeout=0",
-		"--summary-interval=0",
-		"--console-log-level=warn",
-		"--log=" + logPath,
-		"--log-level=warn",
-	}
-	if opts.Proxy != "" {
-		args = append(args, "--all-proxy="+opts.Proxy)
-	}
+	args := buildArgs(port, secret, logPath, maxConcurrent, connections, opts)
 
 	cmd := exec.Command(bin, args...)
 	cmd.Dir = opts.DownloadDir
+	cmd.Env = proxy.CleanEnv(os.Environ())
 	cmd.Stdout = logFile
 	cmd.Stderr = logFile
 	hideConsole(cmd)
@@ -174,12 +147,62 @@ func Start(ctx context.Context, bin string, opts Options) (*Client, error) {
 		default:
 		}
 		if _, err := c.call("aria2.getVersion"); err == nil {
+			if opts.Proxy != "" && (opts.ProxyUser != "" || opts.ProxyPassword != "") {
+				optionErr := c.ProxyAuth(opts.ProxyUser, opts.ProxyPassword)
+				if optionErr != nil {
+					c.Stop()
+					return nil, fmt.Errorf("aria2 proxy credentials rejected: %w", optionErr)
+				}
+			}
 			return c, nil
 		}
 		time.Sleep(200 * time.Millisecond)
 	}
 	c.Stop()
 	return nil, fmt.Errorf("aria2 did not become ready; see %s", logPath)
+}
+
+func buildArgs(port int, secret, logPath string, maxConcurrent, connections int, opts Options) []string {
+	args := []string{
+		"--no-conf=true",
+		"--enable-rpc=true",
+		fmt.Sprintf("--rpc-listen-port=%d", port),
+		"--rpc-listen-all=false",
+		"--rpc-allow-origin-all=false",
+		"--rpc-secret=" + secret,
+		"--dir=" + opts.DownloadDir,
+		fmt.Sprintf("--max-concurrent-downloads=%d", maxConcurrent),
+		fmt.Sprintf("--max-connection-per-server=%d", connections),
+		fmt.Sprintf("--split=%d", connections),
+		"--min-split-size=1M",
+		"--max-overall-download-limit=0",
+		"--max-download-limit=0",
+		"--continue=true",
+		"--file-allocation=none",
+		"--auto-file-renaming=true",
+		"--allow-overwrite=false",
+		"--max-tries=5",
+		"--retry-wait=3",
+		"--timeout=30",
+		"--connect-timeout=15",
+		"--disk-cache=32M",
+		"--async-dns=true",
+		"--seed-time=0",
+		"--bt-stop-timeout=0",
+		"--summary-interval=0",
+		"--console-log-level=warn",
+		"--log=" + logPath,
+		"--log-level=warn",
+	}
+	if opts.Proxy != "" {
+		args = append(args, "--all-proxy="+opts.Proxy)
+		method := strings.TrimSpace(opts.ProxyMethod)
+		if method == "" {
+			method = "tunnel"
+		}
+		args = append(args, "--proxy-method="+method)
+	}
+	return args
 }
 
 func freePort() (int, error) {
@@ -298,8 +321,15 @@ func (c *Client) ChangeGlobalOption(options map[string]string) error {
 	return err
 }
 
-func (c *Client) SetProxy(proxy string) error {
-	return c.ChangeGlobalOption(map[string]string{"all-proxy": proxy})
+func (c *Client) ProxyAuth(user, password string) error {
+	options := map[string]string{}
+	if user != "" {
+		options["all-proxy-user"] = user
+	}
+	if password != "" {
+		options["all-proxy-passwd"] = password
+	}
+	return c.ChangeGlobalOption(options)
 }
 
 func (c *Client) SetConnections(connections int) error {
@@ -321,7 +351,9 @@ func (c *Client) Stop() {
 	}
 	c.mu.Unlock()
 
-	_, _ = c.call("aria2.shutdown")
+	if c.http != nil {
+		_, _ = c.call("aria2.shutdown")
+	}
 
 	c.mu.Lock()
 	if c.closed {
@@ -330,15 +362,17 @@ func (c *Client) Stop() {
 	}
 	c.closed = true
 	c.mu.Unlock()
-	select {
-	case <-c.waitCh:
-	case <-time.After(2500 * time.Millisecond):
-		if c.cmd != nil && c.cmd.Process != nil {
-			_ = c.cmd.Process.Kill()
-		}
+	if c.waitCh != nil {
 		select {
 		case <-c.waitCh:
-		case <-time.After(time.Second):
+		case <-time.After(2500 * time.Millisecond):
+			if c.cmd != nil && c.cmd.Process != nil {
+				_ = c.cmd.Process.Kill()
+			}
+			select {
+			case <-c.waitCh:
+			case <-time.After(time.Second):
+			}
 		}
 	}
 	if c.logFile != nil {

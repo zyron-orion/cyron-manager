@@ -34,7 +34,7 @@ func TestRemoveWithFileDeletesTaskFilesAndSidecars(t *testing.T) {
 	if err := st.SaveTask(&task); err != nil {
 		t.Fatal(err)
 	}
-	m := New(t.Context(), st, nil, types.Settings{DownloadDir: dataDir, MaxConcurrent: 1}, dir, nil)
+	m := New(t.Context(), st, nil, nil, types.Settings{DownloadDir: dataDir, MaxConcurrent: 1}, dir, nil)
 	defer m.Close()
 	if err := m.RemoveWithFile(task.ID, true); err != nil {
 		t.Fatal(err)
@@ -71,7 +71,7 @@ func TestRemoveWithFileNeverDeletesOutsideTaskDir(t *testing.T) {
 	if err := st.SaveTask(&task); err != nil {
 		t.Fatal(err)
 	}
-	m := New(t.Context(), st, nil, types.Settings{DownloadDir: dataDir, MaxConcurrent: 1}, dir, nil)
+	m := New(t.Context(), st, nil, nil, types.Settings{DownloadDir: dataDir, MaxConcurrent: 1}, dir, nil)
 	defer m.Close()
 	if err := m.RemoveWithFile(task.ID, true); err != nil {
 		t.Fatal(err)

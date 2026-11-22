@@ -25,7 +25,7 @@ func newResumeTestTask(t *testing.T, serverURL string) (*Manager, *store.Store, 
 	}
 	t.Cleanup(func() { _ = st.Close() })
 	settings := types.Settings{DownloadDir: filepath.Join(dir, "downloads"), MaxConcurrent: 2, Connections: 4}
-	m := New(context.Background(), st, tools.New(dir), settings, dir, func(string, any) {})
+	m := New(context.Background(), st, tools.New(dir), nil, settings, dir, func(string, any) {})
 	t.Cleanup(m.Close)
 	now := time.Now().UnixMilli()
 	task := types.Task{

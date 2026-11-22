@@ -7,40 +7,6 @@ import (
 	"testing"
 )
 
-func TestNormalizeProxy(t *testing.T) {
-	cases := []struct {
-		in    string
-		want  string
-		isErr bool
-	}{
-		{"", "", false},
-		{"   ", "", false},
-		{"http://1.2.3.4:8080", "http://1.2.3.4:8080", false},
-		{"https://proxy.corp:3128", "https://proxy.corp:3128", false},
-		{"SOCKS5://host:1080", "SOCKS5://host:1080", false},
-		{"socks4://host:1080", "socks4://host:1080", false},
-		{" 1.2.3.4:8080 ", "http://1.2.3.4:8080", false},
-		{"localhost:9050", "http://localhost:9050", false},
-		{"ftp://host:21", "", true},
-		{"noport", "", true},
-	}
-	for _, c := range cases {
-		got, err := normalizeProxy(c.in)
-		if c.isErr {
-			if err == nil {
-				t.Errorf("normalizeProxy(%q): expected error, got %q", c.in, got)
-			}
-			continue
-		}
-		if err != nil {
-			t.Errorf("normalizeProxy(%q): unexpected error %v", c.in, err)
-		}
-		if got != c.want {
-			t.Errorf("normalizeProxy(%q) = %q, want %q", c.in, got, c.want)
-		}
-	}
-}
-
 func TestParseClock(t *testing.T) {
 	cases := []struct {
 		in     string

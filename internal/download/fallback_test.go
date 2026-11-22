@@ -32,7 +32,7 @@ func TestAriaTLSFailureFallsBackToHTTP(t *testing.T) {
 	}
 	defer st.Close()
 	settings := types.Settings{DownloadDir: filepath.Join(dir, "downloads"), MaxConcurrent: 2, Connections: 4}
-	m := New(context.Background(), st, tools.New(dir), settings, dir, func(string, any) {})
+	m := New(context.Background(), st, tools.New(dir), nil, settings, dir, func(string, any) {})
 	defer m.Close()
 
 	task := types.Task{

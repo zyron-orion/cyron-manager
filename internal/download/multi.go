@@ -14,6 +14,7 @@ import (
 	"sync"
 	"time"
 
+	"cyronmanager/internal/proxy"
 	"cyronmanager/internal/types"
 )
 
@@ -128,7 +129,7 @@ func httpSegmentCount(connections int, total int64) int {
 	return connections
 }
 
-func (m *Manager) tryHTTPMulti(ctx context.Context, task types.Task, settings types.Settings, partPath, finalPath string) (bool, error) {
+func (m *Manager) tryHTTPMulti(ctx context.Context, task types.Task, route *proxy.RoutePlan, partPath, finalPath string) (bool, error) {
 	multiPath := partPath + ".multi"
 	statePath := multiPath + httpMultiStateSuffix
 
@@ -136,7 +137,7 @@ func (m *Manager) tryHTTPMulti(ctx context.Context, task types.Task, settings ty
 	if stateExists {
 		if stateOK && validHTTPMultiState(state, task.URL, multiPath) {
 			_ = os.Remove(partPath)
-			return m.runHTTPMulti(ctx, task, settings, state, multiPath, statePath, finalPath)
+			return m.runHTTPMulti(ctx, task, route, state, multiPath, statePath, finalPath)
 		}
 		_ = os.Remove(multiPath)
 		_ = os.Remove(statePath)
@@ -152,7 +153,7 @@ func (m *Manager) tryHTTPMulti(ctx context.Context, task types.Task, settings ty
 	if connections < 2 {
 		return false, nil
 	}
-	total, validator, ok, err := m.probeHTTPRange(ctx, task)
+	total, validator, ok, err := m.probeHTTPRange(ctx, task, route)
 	if err != nil {
 		if ctx.Err() != nil || m.isDeleted(task.ID) {
 			return true, errHTTPMultiCanceled
@@ -169,15 +170,15 @@ func (m *Manager) tryHTTPMulti(ctx context.Context, task types.Task, settings ty
 
 	_ = os.Remove(partPath)
 	state = newHTTPMultiState(task.URL, total, validator, segments)
-	return m.runHTTPMulti(ctx, task, settings, state, multiPath, statePath, finalPath)
+	return m.runHTTPMulti(ctx, task, route, state, multiPath, statePath, finalPath)
 }
 
-func (m *Manager) probeHTTPRange(ctx context.Context, task types.Task) (int64, string, bool, error) {
+func (m *Manager) probeHTTPRange(ctx context.Context, task types.Task, route *proxy.RoutePlan) (int64, string, bool, error) {
 	req, err := m.newHTTPRequest(ctx, task, "bytes=0-0", "")
 	if err != nil {
 		return 0, "", false, err
 	}
-	client := m.newHTTPClient(m.Settings())
+	client := m.newHTTPClient(route)
 	resp, err := client.Do(req)
 	if err != nil {
 		return 0, "", false, err
@@ -194,7 +195,7 @@ func (m *Manager) probeHTTPRange(ctx context.Context, task types.Task) (int64, s
 	return total, httpRangeValidator(resp.Header), true, nil
 }
 
-func (m *Manager) runHTTPMulti(ctx context.Context, task types.Task, settings types.Settings, state httpMultiState, multiPath, statePath, finalPath string) (bool, error) {
+func (m *Manager) runHTTPMulti(ctx context.Context, task types.Task, route *proxy.RoutePlan, state httpMultiState, multiPath, statePath, finalPath string) (bool, error) {
 	file, err := os.OpenFile(multiPath, os.O_CREATE|os.O_RDWR, 0o644)
 	if err != nil {
 		return true, err
@@ -209,7 +210,7 @@ func (m *Manager) runHTTPMulti(ctx context.Context, task types.Task, settings ty
 		return true, err
 	}
 
-	client := m.newHTTPClient(settings)
+	client := m.newHTTPClient(route)
 	base := session.completed()
 	started := time.Now()
 	runCtx, cancel := context.WithCancel(ctx)

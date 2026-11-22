@@ -17,6 +17,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"cyronmanager/internal/proxy"
 	"cyronmanager/internal/tools"
 	"cyronmanager/internal/types"
 )
@@ -24,21 +25,6 @@ import (
 type Downloader struct {
 	tools   *tools.Manager
 	dataDir string
-
-	mu    sync.Mutex
-	proxy string
-}
-
-func (d *Downloader) SetProxy(proxy string) {
-	d.mu.Lock()
-	d.proxy = proxy
-	d.mu.Unlock()
-}
-
-func (d *Downloader) Proxy() string {
-	d.mu.Lock()
-	defer d.mu.Unlock()
-	return d.proxy
 }
 
 type Info struct {
@@ -75,7 +61,7 @@ func (d *Downloader) Available() bool {
 	return d.tools.Find("yt-dlp") != ""
 }
 
-func (d *Downloader) Probe(ctx context.Context, url string) (Info, error) {
+func (d *Downloader) Probe(ctx context.Context, url, proxyURL string) (Info, error) {
 	bin := d.tools.Find("yt-dlp")
 	if bin == "" {
 		return Info{}, errors.New("yt-dlp.exe not found")
@@ -89,11 +75,15 @@ func (d *Downloader) Probe(ctx context.Context, url string) (Info, error) {
 		"--skip-download",
 		"--no-colors",
 	}
-	if proxy := d.Proxy(); proxy != "" {
-		probeArgs = append(probeArgs, "--proxy", proxy)
+	proxyConfig, cleanupProxyConfig, err := writeProxyConfig(d.dataDir, "probe-"+sanitizeID(url), proxyURL)
+	if err != nil {
+		return Info{}, err
 	}
+	defer cleanupProxyConfig()
+	probeArgs = appendProxyConfig(probeArgs, proxyConfig)
 	probeArgs = append(probeArgs, url)
 	cmd := exec.CommandContext(probeCtx, bin, probeArgs...)
+	cmd.Env = proxy.CleanEnv(os.Environ())
 	hideConsole(cmd)
 	out, err := cmd.Output()
 	if err != nil {
@@ -143,6 +133,11 @@ func (d *Downloader) Download(ctx context.Context, task types.Task, opts Options
 		connections = 4
 	}
 	format := formatFor(opts.Quality, container, ffmpegDir != "")
+	proxyConfig, cleanupProxyConfig, err := writeProxyConfig(d.dataDir, task.ID, opts.Proxy)
+	if err != nil {
+		return "", 0, err
+	}
+	defer cleanupProxyConfig()
 	args := []string{
 		"--ignore-config",
 		"--newline",
@@ -180,9 +175,7 @@ func (d *Downloader) Download(ctx context.Context, task types.Task, opts Options
 			args = append(args, "--embed-subs")
 		}
 	}
-	if opts.Proxy != "" {
-		args = append(args, "--proxy", opts.Proxy)
-	}
+	args = appendProxyConfig(args, proxyConfig)
 	if opts.Username != "" {
 		args = append(args, "--username", opts.Username)
 	}
@@ -201,6 +194,7 @@ func (d *Downloader) Download(ctx context.Context, task types.Task, opts Options
 	args = append(args, task.URL)
 
 	cmd := exec.CommandContext(ctx, bin, args...)
+	cmd.Env = proxy.CleanEnv(os.Environ())
 	hideConsole(cmd)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -365,6 +359,52 @@ func (d *Downloader) Download(ctx context.Context, task types.Task, opts Options
 		return opts.DownloadDir, totalSize, nil
 	}
 	return paths[0], totalSize, nil
+}
+
+func appendProxyConfig(args []string, configPath string) []string {
+	configPath = strings.TrimSpace(configPath)
+	if configPath == "" {
+		return args
+	}
+	return append(args, "--config-locations", configPath)
+}
+
+const proxyConfigName = "proxy.conf"
+
+func writeProxyConfig(dir, id, proxyURL string) (string, func(), error) {
+	proxyURL = strings.TrimSpace(proxyURL)
+	if proxyURL == "" {
+		return "", func() {}, nil
+	}
+	configDir := filepath.Join(dir, "proxycfg")
+	if err := os.MkdirAll(configDir, 0o700); err != nil {
+		return "", func() {}, err
+	}
+	path := filepath.Join(configDir, sanitizeID(id)+"-"+proxyConfigName)
+	content := "--proxy " + proxyURL + "\n"
+	if err := os.WriteFile(path, []byte(content), 0o600); err != nil {
+		return "", func() {}, err
+	}
+	cleanup := func() { _ = os.Remove(path) }
+	return path, cleanup, nil
+}
+
+func sanitizeID(id string) string {
+	safe := strings.Map(func(r rune) rune {
+		switch {
+		case r >= 'a' && r <= 'z', r >= 'A' && r <= 'Z', r >= '0' && r <= '9', r == '-', r == '_':
+			return r
+		default:
+			return -1
+		}
+	}, id)
+	if safe == "" {
+		return "task"
+	}
+	if len(safe) > 48 {
+		safe = safe[:48]
+	}
+	return safe
 }
 
 func formatFor(quality, container string, hasFFmpeg bool) string {

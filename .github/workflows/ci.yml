@@ -33,6 +33,20 @@ jobs:
       - name: Vet
         run: go vet ./...
 
+  extension:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Test browser extension
+        run: node --test "browser-extension/tests/*.test.js"
+
   build:
     runs-on: windows-latest
     steps:
@@ -54,4 +68,4 @@ jobs:
 
       - name: Build
         shell: pwsh
-        run: wails build -platform windows/amd64 -skipbindings -s
+        run: wails build -platform windows/amd64 -s

@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"cyronmanager/internal/proxy"
 	"cyronmanager/internal/types"
 )
 
@@ -69,6 +70,11 @@ func (m *Manager) startHTTPTask(task types.Task) {
 	if !ok {
 		return
 	}
+	route, routeErr := m.routeFor(current)
+	if routeErr != nil {
+		m.fail(current, routeErr.Error())
+		return
+	}
 	current.Status = types.StatusActive
 	current.Error = ""
 	current.Speed = 0
@@ -77,7 +83,6 @@ func (m *Manager) startHTTPTask(task types.Task) {
 	m.emitTask(current)
 	m.emitStats()
 
-	settings := m.Settings()
 	if err := os.MkdirAll(current.Dir, 0o755); err != nil {
 		m.fail(current, err.Error())
 		return
@@ -88,7 +93,7 @@ func (m *Manager) startHTTPTask(task types.Task) {
 	if _, statErr := os.Stat(partPath); errors.Is(statErr, os.ErrNotExist) {
 		_ = os.Remove(metaPath)
 	}
-	multiHandled, multiErr := m.tryHTTPMulti(ctx, current, settings, partPath, finalPath)
+	multiHandled, multiErr := m.tryHTTPMulti(ctx, current, route, partPath, finalPath)
 	if multiHandled {
 		if multiErr == nil || errors.Is(multiErr, errHTTPMultiCanceled) {
 			return
@@ -118,7 +123,7 @@ func (m *Manager) startHTTPTask(task types.Task) {
 
 	requestCtx, requestCancel := context.WithCancel(ctx)
 	defer requestCancel()
-	client := m.newHTTPClient(settings)
+	client := m.newHTTPClient(route)
 	restarted := false
 	var resp *http.Response
 	for {
@@ -365,8 +370,8 @@ func (m *Manager) completeHTTPTask(task types.Task, filePath string, downloaded,
 	m.maybeShutdown()
 }
 
-func (m *Manager) newHTTPClient(settings types.Settings) *http.Client {
-	return &http.Client{Transport: m.httpTransport(settings)}
+func (m *Manager) newHTTPClient(route *proxy.RoutePlan) *http.Client {
+	return &http.Client{Transport: m.httpTransport(route)}
 }
 
 func (m *Manager) newHTTPRequest(ctx context.Context, task types.Task, byteRange, ifRange string) (*http.Request, error) {
@@ -404,19 +409,16 @@ func (m *Manager) newHTTPRequest(ctx context.Context, task types.Task, byteRange
 	return req, nil
 }
 
-func (m *Manager) httpTransport(settings types.Settings) *http.Transport {
+func (m *Manager) httpTransport(route *proxy.RoutePlan) *http.Transport {
+	if route == nil {
+		route = proxy.DirectPlan()
+	}
 	transport := http.DefaultTransport.(*http.Transport).Clone()
+	transport.Proxy = nil
+	transport.DialContext = route.DialContext
 	transport.TLSHandshakeTimeout = 20 * time.Second
 	transport.ResponseHeaderTimeout = 45 * time.Second
 	transport.MaxIdleConnsPerHost = 16
-	if proxy := strings.TrimSpace(settings.Proxy); proxy != "" {
-		if !strings.Contains(proxy, "://") {
-			proxy = "http://" + proxy
-		}
-		if parsed, err := url.Parse(proxy); err == nil {
-			transport.Proxy = http.ProxyURL(parsed)
-		}
-	}
 	return transport
 }
 

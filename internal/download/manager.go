@@ -23,6 +23,7 @@ import (
 	"cyronmanager/internal/aria2"
 	"cyronmanager/internal/disk"
 	"cyronmanager/internal/media"
+	"cyronmanager/internal/proxy"
 	"cyronmanager/internal/store"
 	"cyronmanager/internal/tools"
 	"cyronmanager/internal/types"
@@ -34,12 +35,14 @@ type Manager struct {
 	store    *store.Store
 	tools    *tools.Manager
 	media    *media.Downloader
+	proxy    *proxy.Manager
 	dataDir  string
 	emit     func(string, any)
 	settings types.Settings
 
 	mu             sync.Mutex
 	ariaMu         sync.Mutex
+	ariaStartMu    sync.Mutex
 	stallMu        sync.Mutex
 	stalls         map[string]*stallState
 	running        map[string]context.CancelFunc
@@ -48,7 +51,12 @@ type Manager struct {
 	activeSlots    map[string]bool
 	schedulePaused map[string]bool
 	schedulerOff   bool
-	aria           *aria2.Client
+	ariaClients    map[string]ariaEngine
+	ariaBridges    map[string]*proxy.Bridge
+	ariaTask       map[string]string
+	ariaIdle       map[string]time.Time
+	ariaIdleTTL    time.Duration
+	ariaStart      func(context.Context, string, aria2.Options) (ariaEngine, error)
 	closed         bool
 	mediaGate      *limiter
 	dispatchWake   chan struct{}
@@ -58,7 +66,7 @@ type Manager struct {
 	taskWG         sync.WaitGroup
 }
 
-func New(ctx context.Context, st *store.Store, tm *tools.Manager, settings types.Settings, dataDir string, emit func(string, any)) *Manager {
+func New(ctx context.Context, st *store.Store, tm *tools.Manager, proxyMgr *proxy.Manager, settings types.Settings, dataDir string, emit func(string, any)) *Manager {
 	maxConcurrent := settings.MaxConcurrent
 	if maxConcurrent < 1 {
 		maxConcurrent = 2
@@ -70,6 +78,7 @@ func New(ctx context.Context, st *store.Store, tm *tools.Manager, settings types
 		store:          st,
 		tools:          tm,
 		media:          media.New(tm, dataDir),
+		proxy:          proxyMgr,
 		dataDir:        dataDir,
 		emit:           emit,
 		settings:       settings,
@@ -79,6 +88,12 @@ func New(ctx context.Context, st *store.Store, tm *tools.Manager, settings types
 		pending:        make(map[string]bool),
 		activeSlots:    make(map[string]bool),
 		schedulePaused: make(map[string]bool),
+		ariaClients:    make(map[string]ariaEngine),
+		ariaBridges:    make(map[string]*proxy.Bridge),
+		ariaTask:       make(map[string]string),
+		ariaIdle:       make(map[string]time.Time),
+		ariaIdleTTL:    defaultAriaIdleTTL,
+		ariaStart:      startAriaEngine,
 		mediaGate:      newLimiter(maxConcurrent),
 		dispatchWake:   make(chan struct{}, 1),
 	}
@@ -149,25 +164,68 @@ func (m *Manager) Settings() types.Settings {
 func (m *Manager) UpdateSettings(settings types.Settings) error {
 	m.mu.Lock()
 	m.settings = settings
-	aria := m.aria
 	m.mu.Unlock()
 
-	m.media.SetProxy(settings.Proxy)
 	m.mediaGate.setLimit(settings.MaxConcurrent)
 	m.wakeDispatcher()
-	if aria != nil {
-		if err := aria.SetProxy(settings.Proxy); err != nil {
-			return err
+	var errs []error
+	for _, client := range m.ariaSnapshot() {
+		if err := client.SetConnections(settings.Connections); err != nil {
+			errs = append(errs, err)
 		}
-		if err := aria.SetConnections(settings.Connections); err != nil {
-			return err
-		}
-		if err := aria.SetMaxConcurrent(settings.MaxConcurrent); err != nil {
-			return err
+		if err := client.SetMaxConcurrent(settings.MaxConcurrent); err != nil {
+			errs = append(errs, err)
 		}
 	}
 	go m.applySchedule()
-	return nil
+	return errors.Join(errs...)
+}
+
+func (m *Manager) routeFor(task types.Task) (*proxy.RoutePlan, error) {
+	if m.proxy == nil {
+		return proxy.DirectPlan(), nil
+	}
+	if task.Kind == "torrent" {
+		return proxy.DirectPlan(), nil
+	}
+	return m.proxy.Resolve(task, m.Settings())
+}
+
+func (m *Manager) applyProxySelection(task *types.Task, mode, profileID string) error {
+	if task == nil {
+		return nil
+	}
+	mode = strings.ToLower(strings.TrimSpace(mode))
+	profileID = strings.TrimSpace(profileID)
+	switch mode {
+	case "", types.ProxyModeInherit:
+		task.ProxyMode = types.ProxyModeInherit
+		task.ProxyProfileID = ""
+		task.ProxyProfileName = ""
+		return nil
+	case types.ProxyModeDirect:
+		task.ProxyMode = types.ProxyModeDirect
+		task.ProxyProfileID = ""
+		task.ProxyProfileName = ""
+		return nil
+	case types.ProxyModeProfile:
+		if profileID == "" {
+			return errors.New("پروفایل پروکسی انتخاب نشده است")
+		}
+		task.ProxyMode = types.ProxyModeProfile
+		task.ProxyProfileID = profileID
+		task.ProxyProfileName = ""
+		if m.proxy != nil {
+			profile, ok := m.proxy.Get(profileID)
+			if !ok {
+				return errors.New("پروفایل پروکسی انتخاب‌شده پیدا نشد")
+			}
+			task.ProxyProfileName = profile.Name
+		}
+		return nil
+	default:
+		return errors.New("حالت پروکسی معتبر نیست")
+	}
 }
 
 func (m *Manager) Add(req types.AddRequest) (types.Task, error) {
@@ -244,6 +302,9 @@ func (m *Manager) AddChecked(req types.AddRequest) (types.Task, bool, error) {
 		CreatedAt:      now,
 		UpdatedAt:      now,
 	}
+	if err := m.applyProxySelection(&task, req.ProxyMode, req.ProxyProfileID); err != nil {
+		return types.Task{}, false, err
+	}
 	task.Dir = settings.DownloadDir
 	if err := m.store.SaveTask(&task); err != nil {
 		return types.Task{}, false, err
@@ -285,6 +346,7 @@ func (m *Manager) AddTorrentFile(filePath, title string) (types.Task, error) {
 		Category:    detectCategory("aria2", "torrent", "best", "", title),
 		Connections: connections,
 		Source:      "Torrent",
+		ProxyMode:   types.ProxyModeDirect,
 		CreatedAt:   now,
 		UpdatedAt:   now,
 	}
@@ -442,6 +504,22 @@ func (m *Manager) startMediaTask(task types.Task) {
 		m.fail(current, "yt-dlp.exe not found")
 		return
 	}
+	route, routeErr := m.routeFor(current)
+	if routeErr != nil {
+		m.fail(current, routeErr.Error())
+		return
+	}
+	proxyURL := ""
+	var mediaBridge *proxy.Bridge
+	if !route.DirectOnly() {
+		mediaBridge, routeErr = proxy.StartBridge(route)
+		if routeErr != nil {
+			m.fail(current, routeErr.Error())
+			return
+		}
+		defer mediaBridge.Close()
+		proxyURL = mediaBridge.URL()
+	}
 	ctx, cancel := context.WithCancel(m.ctx)
 	m.mu.Lock()
 	if m.closed {
@@ -468,7 +546,7 @@ func (m *Manager) startMediaTask(task types.Task) {
 	current.UpdatedAt = now
 	m.emitTask(current)
 
-	if info, err := m.media.Probe(ctx, current.URL); err == nil && info.Title != "" && !m.isDeleted(current.ID) {
+	if info, err := m.media.Probe(ctx, current.URL, proxyURL); err == nil && info.Title != "" && !m.isDeleted(current.ID) {
 		updatedAt := time.Now().UnixMilli()
 		_ = m.store.UpdateTitle(current.ID, info.Title, updatedAt)
 		if latest, getErr := m.store.GetTask(current.ID); getErr == nil {
@@ -506,7 +584,7 @@ func (m *Manager) startMediaTask(task types.Task) {
 		Cookies:     cookiesFor(current),
 		Referrer:    current.Referrer,
 		UserAgent:   current.UserAgent,
-		Proxy:       m.Settings().Proxy,
+		Proxy:       proxyURL,
 	}, onProgress)
 
 	if m.isDeleted(current.ID) {
@@ -629,7 +707,7 @@ func (m *Manager) startAriaTask(task types.Task) {
 	if err != nil || initial.Status != types.StatusQueued {
 		return
 	}
-	aria, err := m.ensureAria()
+	aria, err := m.ensureAriaFor(initial)
 	if err != nil {
 		if m.ctx.Err() != nil {
 			return
@@ -680,6 +758,7 @@ func (m *Manager) startAriaTask(task types.Task) {
 						current = fresh
 					}
 					m.releaseSlot(current.ID)
+					m.forgetAriaTask(current.ID)
 					m.emitTask(current)
 					m.emitStats()
 					m.maybeShutdown()
@@ -763,15 +842,54 @@ func (m *Manager) startAriaTask(task types.Task) {
 	m.emitTask(current)
 }
 
-func (m *Manager) ensureAria() (*aria2.Client, error) {
-	m.ariaMu.Lock()
-	defer m.ariaMu.Unlock()
-	m.mu.Lock()
-	if m.aria != nil {
-		aria := m.aria
-		m.mu.Unlock()
-		return aria, nil
+func ariaKey(plan *proxy.RoutePlan) string {
+	if plan.DirectOnly() {
+		return "direct"
 	}
+	var signature strings.Builder
+	signature.WriteString("bypass=")
+	if plan.ApplyBypass && plan.Bypass != nil {
+		signature.WriteString(plan.Bypass.String())
+	}
+	for _, route := range plan.Routes {
+		signature.WriteString("\x00route=")
+		if route.Direct {
+			signature.WriteString("direct")
+			continue
+		}
+		profile := route.Profile
+		signature.WriteString(profile.ID)
+		signature.WriteString("\x00")
+		signature.WriteString(profile.Protocol)
+		signature.WriteString("\x00")
+		signature.WriteString(profile.Host)
+		signature.WriteString("\x00")
+		signature.WriteString(strconv.Itoa(profile.Port))
+		signature.WriteString("\x00")
+		signature.WriteString(profile.Username)
+		signature.WriteString("\x00")
+		signature.WriteString(profile.Password)
+	}
+	sum := sha256.Sum256([]byte(signature.String()))
+	return "route:" + hex.EncodeToString(sum[:12])
+}
+
+func (m *Manager) ensureAriaFor(task types.Task) (ariaEngine, error) {
+	plan, err := m.routeFor(task)
+	if err != nil {
+		return nil, err
+	}
+	key := ariaKey(plan)
+	if client := m.ariaLookup(key, task.ID); client != nil {
+		return client, nil
+	}
+	m.ariaStartMu.Lock()
+	defer m.ariaStartMu.Unlock()
+	if client := m.ariaLookup(key, task.ID); client != nil {
+		return client, nil
+	}
+
+	m.mu.Lock()
 	if m.closed {
 		m.mu.Unlock()
 		return nil, errors.New("manager is closed")
@@ -783,27 +901,230 @@ func (m *Manager) ensureAria() (*aria2.Client, error) {
 	if bin == "" {
 		return nil, errors.New("aria2c.exe not found; put it in the bin folder")
 	}
+	proxyURL := ""
+	proxyUser := ""
+	proxyPassword := ""
+	var bridge *proxy.Bridge
+	if !plan.DirectOnly() {
+		bridge, err = proxy.StartBridge(plan)
+		if err != nil {
+			return nil, err
+		}
+		proxyURL = bridge.Endpoint()
+		proxyUser, proxyPassword = bridge.Auth()
+	}
+	poolDir, err := m.ariaDataDir(key)
+	if err != nil {
+		if bridge != nil {
+			bridge.Close()
+		}
+		return nil, err
+	}
 	startCtx, cancel := context.WithTimeout(m.ctx, 20*time.Second)
 	defer cancel()
-	client, err := aria2.Start(startCtx, bin, aria2.Options{
+	starter := m.ariaStart
+	if starter == nil {
+		starter = startAriaEngine
+	}
+	client, err := starter(startCtx, bin, aria2.Options{
 		DownloadDir:   settings.DownloadDir,
 		MaxConcurrent: settings.MaxConcurrent,
 		Connections:   settings.Connections,
-		Proxy:         settings.Proxy,
-		DataDir:       m.dataDir,
+		Proxy:         proxyURL,
+		ProxyUser:     proxyUser,
+		ProxyPassword: proxyPassword,
+		ProxyMethod:   "tunnel",
+		DataDir:       poolDir,
 	})
 	if err != nil {
+		if bridge != nil {
+			bridge.Close()
+		}
 		return nil, err
 	}
 	m.mu.Lock()
-	if m.closed {
-		m.mu.Unlock()
+	closed := m.closed
+	m.mu.Unlock()
+	if closed {
 		client.Stop()
+		if bridge != nil {
+			bridge.Close()
+		}
 		return nil, errors.New("manager is closed")
 	}
-	m.aria = client
-	m.mu.Unlock()
+	m.ariaMu.Lock()
+	if m.ariaClients == nil {
+		m.ariaClients = make(map[string]ariaEngine)
+	}
+	if m.ariaBridges == nil {
+		m.ariaBridges = make(map[string]*proxy.Bridge)
+	}
+	if m.ariaTask == nil {
+		m.ariaTask = make(map[string]string)
+	}
+	m.ariaClients[key] = client
+	m.ariaTask[task.ID] = key
+	delete(m.ariaIdle, key)
+	if bridge != nil {
+		m.ariaBridges[key] = bridge
+	}
+	m.ariaMu.Unlock()
 	return client, nil
+}
+
+func (m *Manager) ariaLookup(key, taskID string) ariaEngine {
+	m.ariaMu.Lock()
+	defer m.ariaMu.Unlock()
+	client := m.ariaClients[key]
+	if client != nil && taskID != "" {
+		if m.ariaTask == nil {
+			m.ariaTask = make(map[string]string)
+		}
+		m.ariaTask[taskID] = key
+	}
+	return client
+}
+
+func (m *Manager) ariaDataDir(key string) (string, error) {
+	sum := sha256.Sum256([]byte(key))
+	dir := filepath.Join(m.dataDir, "aria2", hex.EncodeToString(sum[:8]))
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return "", err
+	}
+	return dir, nil
+}
+
+func (m *Manager) ariaClientFor(task types.Task) ariaEngine {
+	m.ariaMu.Lock()
+	defer m.ariaMu.Unlock()
+	if key := m.ariaTask[task.ID]; key != "" {
+		if client := m.ariaClients[key]; client != nil {
+			return client
+		}
+	}
+	return nil
+}
+
+func (m *Manager) ariaClientForTask(task types.Task) ariaEngine {
+	if client := m.ariaClientFor(task); client != nil {
+		return client
+	}
+	if task.GID == "" {
+		return nil
+	}
+	m.ariaMu.Lock()
+	clients := make(map[string]ariaEngine, len(m.ariaClients))
+	for key, client := range m.ariaClients {
+		clients[key] = client
+	}
+	m.ariaMu.Unlock()
+	for key, client := range clients {
+		if _, err := client.TellStatus(task.GID); err == nil {
+			m.ariaMu.Lock()
+			if m.ariaTask == nil {
+				m.ariaTask = make(map[string]string)
+			}
+			if m.ariaClients[key] == client {
+				m.ariaTask[task.ID] = key
+			}
+			m.ariaMu.Unlock()
+			return client
+		}
+	}
+	return nil
+}
+
+func (m *Manager) ariaSnapshot() []ariaEngine {
+	m.ariaMu.Lock()
+	defer m.ariaMu.Unlock()
+	out := make([]ariaEngine, 0, len(m.ariaClients))
+	for _, client := range m.ariaClients {
+		out = append(out, client)
+	}
+	return out
+}
+
+func (m *Manager) forgetAriaTask(id string) {
+	m.ariaMu.Lock()
+	delete(m.ariaTask, id)
+	m.ariaMu.Unlock()
+}
+
+func (m *Manager) reapIdleAria(now time.Time) {
+	ttl := m.ariaIdleTTL
+	if ttl <= 0 {
+		ttl = defaultAriaIdleTTL
+	}
+	if !m.ariaStartMu.TryLock() {
+		return
+	}
+	defer m.ariaStartMu.Unlock()
+	m.ariaMu.Lock()
+	if m.ariaIdle == nil {
+		m.ariaIdle = make(map[string]time.Time)
+	}
+	busy := make(map[string]bool, len(m.ariaTask))
+	for _, key := range m.ariaTask {
+		busy[key] = true
+	}
+	var clients []ariaEngine
+	var bridges []*proxy.Bridge
+	for key, client := range m.ariaClients {
+		if busy[key] {
+			delete(m.ariaIdle, key)
+			continue
+		}
+		since, seen := m.ariaIdle[key]
+		if !seen {
+			m.ariaIdle[key] = now
+			continue
+		}
+		if now.Sub(since) < ttl {
+			continue
+		}
+		clients = append(clients, client)
+		if bridge := m.ariaBridges[key]; bridge != nil {
+			bridges = append(bridges, bridge)
+			delete(m.ariaBridges, key)
+		}
+		delete(m.ariaClients, key)
+		delete(m.ariaIdle, key)
+	}
+	for key := range m.ariaIdle {
+		if _, ok := m.ariaClients[key]; !ok {
+			delete(m.ariaIdle, key)
+		}
+	}
+	m.ariaMu.Unlock()
+	for _, client := range clients {
+		client.Stop()
+	}
+	for _, bridge := range bridges {
+		bridge.Close()
+	}
+}
+
+func (m *Manager) closeAria() {
+	m.ariaMu.Lock()
+	clients := make([]ariaEngine, 0, len(m.ariaClients))
+	for _, client := range m.ariaClients {
+		clients = append(clients, client)
+	}
+	bridges := make([]*proxy.Bridge, 0, len(m.ariaBridges))
+	for _, bridge := range m.ariaBridges {
+		bridges = append(bridges, bridge)
+	}
+	m.ariaClients = make(map[string]ariaEngine)
+	m.ariaBridges = make(map[string]*proxy.Bridge)
+	m.ariaTask = make(map[string]string)
+	m.ariaIdle = make(map[string]time.Time)
+	m.ariaMu.Unlock()
+	for _, client := range clients {
+		client.Stop()
+	}
+	for _, bridge := range bridges {
+		bridge.Close()
+	}
 }
 
 type stallState struct {
@@ -818,7 +1139,7 @@ func (m *Manager) clearStall(id string) {
 	m.stallMu.Unlock()
 }
 
-func (m *Manager) stallTick(id string, done int64, speed int64, aria *aria2.Client, gid string) bool {
+func (m *Manager) stallTick(id string, done int64, speed int64, aria ariaEngine, gid string) bool {
 	m.stallMu.Lock()
 	s := m.stalls[id]
 	now := time.Now()
@@ -875,10 +1196,8 @@ func (m *Manager) loop() {
 }
 
 func (m *Manager) pollAria() {
-	m.mu.Lock()
-	aria := m.aria
-	m.mu.Unlock()
-	if aria == nil {
+	m.reapIdleAria(time.Now())
+	if len(m.ariaSnapshot()) == 0 {
 		return
 	}
 	tasks, err := m.store.ListTasks(0)
@@ -896,6 +1215,13 @@ func (m *Manager) pollAria() {
 					m.fail(current, "download engine did not start; try again")
 				}
 			}
+			continue
+		}
+		if listed.Status != types.StatusActive && listed.Status != types.StatusQueued {
+			continue
+		}
+		aria := m.ariaClientForTask(listed)
+		if aria == nil {
 			continue
 		}
 		t, err := m.store.GetTask(listed.ID)
@@ -963,6 +1289,7 @@ func (m *Manager) pollAria() {
 			t.Downloaded = done
 			t.Total = total
 			m.releaseSlot(t.ID)
+			m.forgetAriaTask(t.ID)
 		case "error":
 			if current, getErr := m.store.GetTask(t.ID); getErr != nil || current.Status != types.StatusActive {
 				continue
@@ -982,6 +1309,7 @@ func (m *Manager) pollAria() {
 			t.Status = types.StatusCanceled
 			t.Speed = 0
 			m.releaseSlot(t.ID)
+			m.forgetAriaTask(t.ID)
 		}
 		if st.Status == "active" && speed > 0 && total > done {
 			t.ETA = (total - done) / speed
@@ -1050,12 +1378,11 @@ func (m *Manager) Pause(id string) (types.Task, error) {
 	m.mu.Lock()
 	delete(m.pending, id)
 	cancel := m.running[id]
-	aria := m.aria
 	m.mu.Unlock()
 	if cancel != nil {
 		cancel()
 	}
-	if aria != nil && t.GID != "" {
+	if aria := m.ariaClientForTask(t); aria != nil && t.GID != "" {
 		_ = aria.Pause(t.GID)
 	}
 	m.releaseSlot(id)
@@ -1178,14 +1505,14 @@ func (m *Manager) Cancel(id string) (types.Task, error) {
 	m.mu.Lock()
 	delete(m.pending, id)
 	cancel := m.running[id]
-	aria := m.aria
 	m.mu.Unlock()
 	if cancel != nil {
 		cancel()
 	}
-	if aria != nil && t.GID != "" {
+	if aria := m.ariaClientForTask(t); aria != nil && t.GID != "" {
 		_ = aria.Remove(t.GID)
 	}
+	m.forgetAriaTask(id)
 	m.releaseSlot(id)
 	m.emitTask(t)
 	m.emitStats()
@@ -1206,14 +1533,14 @@ func (m *Manager) RemoveWithFile(id string, deleteFile bool) error {
 	m.deleted[id] = true
 	delete(m.pending, id)
 	cancel := m.running[id]
-	aria := m.aria
 	m.mu.Unlock()
 	if cancel != nil {
 		cancel()
 	}
-	if aria != nil && t.GID != "" {
+	if aria := m.ariaClientForTask(t); aria != nil && t.GID != "" {
 		_ = aria.Remove(t.GID)
 	}
+	m.forgetAriaTask(id)
 	if err := m.store.DeleteTask(id); err != nil {
 		m.mu.Lock()
 		delete(m.deleted, id)
@@ -1335,6 +1662,12 @@ func (m *Manager) fallbackToHTTP(t types.Task) bool {
 		return false
 	}
 	m.removeAriaPartial(t)
+	if t.GID != "" {
+		if aria := m.ariaClientForTask(t); aria != nil {
+			_ = aria.Remove(t.GID)
+		}
+	}
+	m.forgetAriaTask(t.ID)
 	now := time.Now().UnixMilli()
 	t.Engine = "http"
 	t.Status = types.StatusQueued
@@ -1391,7 +1724,7 @@ func (m *Manager) fail(t types.Task, message string) {
 	if strings.TrimSpace(message) == "" {
 		message = "download engine reported an error"
 	}
-	t.Error = message
+	t.Error = proxy.Redact(message)
 	t.Speed = 0
 	t.ETA = 0
 	t.UpdatedAt = time.Now().UnixMilli()
@@ -1413,6 +1746,7 @@ func (m *Manager) fail(t types.Task, message string) {
 		return
 	}
 	t.Status = types.StatusError
+	m.forgetAriaTask(t.ID)
 	_ = m.store.UpdateTask(&t)
 	m.emitTask(t)
 	m.emitStats()
@@ -1601,13 +1935,10 @@ func (m *Manager) Close() {
 	for _, cancel := range m.running {
 		cancel()
 	}
-	aria := m.aria
 	m.mu.Unlock()
 	m.taskWG.Wait()
 	m.wg.Wait()
-	if aria != nil {
-		aria.Stop()
-	}
+	m.closeAria()
 }
 
 func (m *Manager) SpeedHistory(period string) []types.SpeedPoint {

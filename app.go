@@ -20,6 +20,7 @@ import (
 	"cyronmanager/internal/download"
 	gh "cyronmanager/internal/github"
 	"cyronmanager/internal/power"
+	"cyronmanager/internal/proxy"
 	"cyronmanager/internal/secure"
 	"cyronmanager/internal/store"
 	"cyronmanager/internal/tools"
@@ -32,14 +33,16 @@ const (
 )
 
 type App struct {
-	ctx      context.Context
-	store    *store.Store
-	manager  *download.Manager
-	tools    *tools.Manager
-	github   *gh.Client
-	settings types.Settings
-	dataDir  string
-	initErr  string
+	ctx            context.Context
+	store          *store.Store
+	manager        *download.Manager
+	proxy          *proxy.Manager
+	tools          *tools.Manager
+	github         *gh.Client
+	settings       types.Settings
+	dataDir        string
+	initErr        string
+	startupWarning string
 
 	mu              sync.Mutex
 	lastClipboard   string
@@ -91,6 +94,26 @@ func (a *App) startup(ctx context.Context) {
 		settings.DownloadDir = defaultDir
 		_ = os.MkdirAll(settings.DownloadDir, 0o755)
 	}
+	a.proxy = proxy.NewManager(st)
+	if migrated, migrateErr := a.proxy.MigrateLegacy(&settings); migrateErr != nil {
+		// The legacy value cannot be used. Warn once, then drop it so it does not
+		// keep resurfacing on every start or block later settings saves.
+		a.startupWarning = "پروکسی قبلی قابل تبدیل نبود و استفاده نشد: " + migrateErr.Error()
+		settings.Proxy = ""
+		stored := settings
+		if encodedToken, tokenErr := encodeToken(settings.GitHubToken); tokenErr == nil {
+			stored.GitHubToken = encodedToken
+			_ = st.SaveSettings(stored)
+		}
+	} else if migrated {
+		stored := settings
+		if encodedToken, tokenErr := encodeToken(settings.GitHubToken); tokenErr == nil {
+			stored.GitHubToken = encodedToken
+			if saveErr := st.SaveSettings(stored); saveErr != nil {
+				a.startupWarning = "تنظیمات پروکسی مهاجرت شد اما ذخیره نشد: " + saveErr.Error()
+			}
+		}
+	}
 	a.settings = settings
 	a.settingsValue.Store(settings)
 	_, _ = extractExtension(dataDir)
@@ -98,7 +121,7 @@ func (a *App) startup(ctx context.Context) {
 	a.repairMediaTaskSizes()
 	a.tools = tools.New(dataDir)
 	a.github = gh.New(settings.GitHubToken)
-	a.manager = download.New(ctx, st, a.tools, settings, dataDir, a.emit)
+	a.manager = download.New(ctx, st, a.tools, a.proxy, settings, dataDir, a.emit)
 	a.manager.SetShutdownHook(func() {
 		_ = power.Shutdown(60)
 	})
@@ -199,6 +222,12 @@ func (a *App) GetInitialState() types.InitialState {
 		return state
 	}
 	state.Tasks = tasks
+	if a.proxy != nil {
+		state.ProxyProfiles = a.proxy.List()
+	}
+	if a.startupWarning != "" {
+		state.Warning = a.startupWarning
+	}
 	state.Stats = a.stats()
 	state.SpeedHistory = a.manager.SpeedHistory("week")
 	if a.tools != nil {
@@ -394,6 +423,101 @@ func (a *App) GetSettings() (types.Settings, error) {
 	return settings, nil
 }
 
+func (a *App) proxyManager() (*proxy.Manager, error) {
+	if a.proxy == nil {
+		if a.initErr != "" {
+			return nil, errors.New(a.initErr)
+		}
+		return nil, errors.New("proxy manager is not ready")
+	}
+	return a.proxy, nil
+}
+
+func (a *App) proxyTestContext() (context.Context, context.CancelFunc) {
+	base := a.ctx
+	if base == nil {
+		base = context.Background()
+	}
+	return context.WithTimeout(base, 45*time.Second)
+}
+
+func (a *App) GetProxyProfiles() ([]types.ProxyProfileView, error) {
+	manager, err := a.proxyManager()
+	if err != nil {
+		return []types.ProxyProfileView{}, err
+	}
+	return manager.List(), nil
+}
+
+func (a *App) SaveProxyProfile(input types.ProxyProfileInput) (types.ProxyProfileView, error) {
+	manager, err := a.proxyManager()
+	if err != nil {
+		return types.ProxyProfileView{}, err
+	}
+	return manager.Save(input)
+}
+
+func (a *App) DeleteProxyProfile(id string) error {
+	manager, err := a.proxyManager()
+	if err != nil {
+		return err
+	}
+	id = strings.TrimSpace(id)
+	next := a.settings
+	if strings.TrimSpace(next.ProxyDefaultID) == id {
+		next.ProxyDefaultID = ""
+	}
+	fallbacks := make([]string, 0, len(next.ProxyFallbackIDs))
+	for _, fallback := range next.ProxyFallbackIDs {
+		if strings.TrimSpace(fallback) != id {
+			fallbacks = append(fallbacks, fallback)
+		}
+	}
+	next.ProxyFallbackIDs = fallbacks
+	stored := next
+	encodedToken, err := encodeToken(stored.GitHubToken)
+	if err != nil {
+		return err
+	}
+	stored.GitHubToken = encodedToken
+	if err := manager.Delete(id); err != nil {
+		return err
+	}
+	if err := a.store.SaveSettings(stored); err != nil {
+		return err
+	}
+	if err := a.manager.UpdateSettings(next); err != nil {
+		return err
+	}
+	a.settings = next
+	a.settingsValue.Store(next)
+	return nil
+}
+
+func (a *App) TestProxyProfile(id, testURL string) (types.ProxyTestResult, error) {
+	manager, err := a.proxyManager()
+	if err != nil {
+		return types.ProxyTestResult{}, err
+	}
+	ctx, cancel := a.proxyTestContext()
+	defer cancel()
+	result, err := manager.Test(ctx, id, testURL)
+	if err != nil {
+		return result, errors.New("پروفایل پروکسی پیدا نشد")
+	}
+	return result, nil
+}
+
+func (a *App) TestProxyInput(input types.ProxyProfileInput, testURL string) (types.ProxyTestResult, error) {
+	manager, err := a.proxyManager()
+	if err != nil {
+		return types.ProxyTestResult{}, err
+	}
+	ctx, cancel := a.proxyTestContext()
+	defer cancel()
+	return manager.TestInput(ctx, input, testURL)
+}
+
 func (a *App) SaveSettings(settings types.Settings) (types.Settings, error) {
 	if !a.ready() {
 		return settings, errors.New(a.initErr)
@@ -414,11 +538,54 @@ func (a *App) SaveSettings(settings types.Settings) (types.Settings, error) {
 	if settings.Connections < 1 || settings.Connections > 16 {
 		settings.Connections = 8
 	}
-	proxy, proxyErr := normalizeProxy(settings.Proxy)
+	manager, proxyErr := a.proxyManager()
 	if proxyErr != nil {
 		return settings, proxyErr
 	}
-	settings.Proxy = proxy
+	// Validate everything that can fail before touching stored state.
+	testURL, testErr := proxy.ValidateTestURL(settings.ProxyTestURL)
+	if testErr != nil {
+		return settings, testErr
+	}
+	settings.ProxyTestURL = testURL
+	settings.ProxyDefaultID = strings.TrimSpace(settings.ProxyDefaultID)
+	if settings.ProxyDefaultID != "" {
+		if _, ok := manager.Get(settings.ProxyDefaultID); !ok {
+			return settings, errors.New("پروفایل پروکسی پیش‌فرض پیدا نشد")
+		}
+	}
+	seen := make(map[string]bool, len(settings.ProxyFallbackIDs))
+	fallbacks := make([]string, 0, len(settings.ProxyFallbackIDs))
+	for _, id := range settings.ProxyFallbackIDs {
+		id = strings.TrimSpace(id)
+		if id == "" || seen[id] || id == settings.ProxyDefaultID {
+			continue
+		}
+		if _, ok := manager.Get(id); !ok {
+			continue
+		}
+		seen[id] = true
+		fallbacks = append(fallbacks, id)
+	}
+	settings.ProxyFallbackIDs = fallbacks
+	settings.ProxyBypass = proxy.ParseBypass(settings.ProxyBypass).String()
+	// A legacy free-text proxy can only come from an older database, because the
+	// UI now edits profiles. Convert it into a real profile so it keeps working,
+	// then clear it so it is never stored again.
+	if legacy := strings.TrimSpace(settings.Proxy); legacy != "" {
+		if input, parseErr := proxy.ParseLegacyProxy(legacy); parseErr == nil {
+			view, found := manager.FindByEndpoint(input.Protocol, input.Host, input.Port, input.Username)
+			if !found {
+				if saved, saveErr := manager.Save(input); saveErr == nil {
+					view = saved
+				}
+			}
+			if view.ID != "" && settings.ProxyDefaultID == "" {
+				settings.ProxyDefaultID = view.ID
+			}
+		}
+	}
+	settings.Proxy = ""
 	if settings.ScheduleEnabled {
 		startMinutes, ok := parseClock(settings.ScheduleStart)
 		if !ok {
@@ -766,26 +933,6 @@ func normalizeCaptureCategories(values []string) []string {
 		return []string{types.CategoryVideo, types.CategoryAudio, types.CategoryArchive, types.CategoryProgram, types.CategoryOther}
 	}
 	return out
-}
-
-func normalizeProxy(value string) (string, error) {
-	value = strings.TrimSpace(value)
-	if value == "" {
-		return "", nil
-	}
-	lower := strings.ToLower(value)
-	for _, scheme := range []string{"http://", "https://", "socks4://", "socks5://", "socks://"} {
-		if strings.HasPrefix(lower, scheme) {
-			return value, nil
-		}
-	}
-	if strings.Contains(value, "://") {
-		return "", errors.New("proxy scheme is not supported (use http or socks5)")
-	}
-	if !strings.Contains(value, ":") {
-		return "", errors.New("proxy must include a port, like http://127.0.0.1:8888")
-	}
-	return "http://" + value, nil
 }
 
 func parseClock(value string) (int, bool) {

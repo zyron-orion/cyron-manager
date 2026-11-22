@@ -61,7 +61,7 @@ func TestAddReturnsExistingQueuedDuplicate(t *testing.T) {
 	if err := st.SaveTask(&existing); err != nil {
 		t.Fatal(err)
 	}
-	m := New(t.Context(), st, nil, types.Settings{DownloadDir: existing.Dir, MaxConcurrent: 2}, dir, nil)
+	m := New(t.Context(), st, nil, nil, types.Settings{DownloadDir: existing.Dir, MaxConcurrent: 2}, dir, nil)
 	defer m.Close()
 	task, err := m.Add(types.AddRequest{URL: existing.URL, Engine: "http", Title: "new title"})
 	if err != nil {
@@ -111,7 +111,7 @@ func TestAddCheckedAllowDuplicateCreatesNewTask(t *testing.T) {
 	if err := st.SaveTask(&existing); err != nil {
 		t.Fatal(err)
 	}
-	m := New(t.Context(), st, nil, types.Settings{DownloadDir: existing.Dir, MaxConcurrent: 1}, dir, nil)
+	m := New(t.Context(), st, nil, nil, types.Settings{DownloadDir: existing.Dir, MaxConcurrent: 1}, dir, nil)
 	defer m.Close()
 	task, duplicate, err := m.AddChecked(types.AddRequest{URL: existing.URL, Engine: "http", Title: "copy", AllowDuplicate: true})
 	if err != nil {

@@ -83,7 +83,7 @@ On first launch, open Settings and choose a download folder.
 - Direct HTTP/HTTPS downloads use the built-in multi-connection engine with resume. aria2 handles torrents and explicit aria2 requests.
 - Video and audio downloads through yt-dlp for YouTube and other supported sites.
 - Torrent and magnet links through aria2, including local `.torrent` files.
-- Optional proxy for downloads (HTTP or SOCKS), with username/password and cookie header support.
+- Proxy profiles for downloads: save multiple HTTP, HTTPS, or SOCKS5 proxies, pick a default, add fallbacks, and override the proxy per download. With optional bypass rules and a built-in connection test.
 - Queue with automatic dispatch, pause/resume/cancel, auto-retry of failed downloads, progress, speed history, and storage usage.
 - Manual queue order with move-up and move-down actions; the dispatcher follows that order.
 - Categories for video, audio, archive, program, and other files, with automatic detection and manual override.
@@ -147,6 +147,7 @@ Run the test suite on Windows:
 ```powershell
 go test ./...
 go vet ./...
+node --test browser-extension/tests/lib.test.js
 ```
 
 The full suite depends on the Windows-only package `internal/secure`, so it does not run as-is on Linux.
@@ -157,7 +158,7 @@ The full suite depends on the Windows-only package `internal/secure`, so it does
 | --- | --- |
 | `app.go` | Wails application API and window lifecycle |
 | `main.go` | Wails entry point and embedded frontend assets |
-| `internal/` | Download engines, store, bridge, aria2, tools, and platform helpers |
+| `internal/` | Download engines, store, proxy manager, bridge, aria2, tools, and platform helpers |
 | `frontend/dist/` | Static UI, translations, and styles |
 | `browser-extension/` | Chrome/Edge browser connection extension |
 | `scripts/` | Tool download and build scripts |
@@ -171,7 +172,9 @@ The full suite depends on the Windows-only package `internal/secure`, so it does
 - Default downloads: `%USERPROFILE%\Downloads\CYRON`
 - WebView2 profile: `%LOCALAPPDATA%\CYRON\WebView2`
 
-The optional GitHub token is encrypted with Windows DPAPI before it is written to SQLite. The browser connection has no pairing token: the bridge uses a fixed extension ID, validates the extension origin, and listens on loopback only. Forwarded browser cookies are also encrypted with DPAPI and are cleared when the download completes.
+The optional GitHub token is encrypted with Windows DPAPI before it is written to SQLite. Proxy profile passwords are encrypted the same way and never reach the UI. The browser connection has no pairing token: the bridge uses a fixed extension ID, validates the extension origin, and listens on loopback only. Forwarded browser cookies are also encrypted with DPAPI and are cleared when the download completes.
+
+For proxy setup and troubleshooting, see [docs/proxy.md](docs/proxy.md).
 
 The bundled extension is extracted to `%LOCALAPPDATA%\CYRON\browser-extension`. Open it from Settings, load that folder as an unpacked extension in Chrome or Edge, and keep the address and port in the extension options equal to the app settings. See [docs/browser-integration.md](docs/browser-integration.md) for the full setup and troubleshooting guide.
 

@@ -2,6 +2,36 @@
 
 All notable changes to CYRON Manager are documented here.
 
+## [Unreleased]
+
+### Added
+
+- Proxy profile manager in Settings: create, edit, delete, and test HTTP, HTTPS, SOCKS5, and SOCKS5H profiles.
+- Default proxy, ordered fallbacks, bypass rules, and an optional direct fallback when every proxy fails.
+- Per-download proxy choice in the new-download dialog (inherit, direct, or a specific profile).
+- Startup warning is now surfaced to the user when the legacy proxy setting cannot be migrated.
+- CI now runs the browser extension test suite and regenerates Wails bindings during build.
+
+### Changed
+
+- The single free-text proxy setting was replaced by proxy profiles. A legacy value still migrates automatically on first save.
+- Settings gain `proxyDefaultId`, `proxyBypass`, `proxyTestUrl`, `proxyFallbackIds`, and `proxyAllowDirectFallback`.
+
+### Fixed
+
+- The proxy box in Settings silently discarded whatever the user typed. Values are now saved as real profiles.
+- The sidebar settings button did nothing; it now opens Settings like the header button.
+- Bypass lists were stored with newline separators, which a single-line input strips, merging entries into one broken host. They now round-trip as comma-separated values.
+- The settings tooltip stayed in Persian after switching to English; `data-i18n-title` is now translated too.
+- An unsaved default-proxy choice in the Settings dialog leaked into app state and survived Cancel.
+
+### Removed
+
+- Dead "toast" runtime event listener with no backend emitter.
+- Empty `internal/clipboard` package directory.
+- Unused translation keys and ~2,100 lines of dead or duplicated CSS.
+- Stale `CYRON-Setup-1.0.0.exe` and `build/windows/icon.old.ico` artifacts.
+
 ## [1.1.0] - 2026-11-20
 
 Browser connection release.

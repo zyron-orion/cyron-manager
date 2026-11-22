@@ -41,6 +41,8 @@ func Open(dataDir string) (*Store, error) {
 
 func (s *Store) Close() error { return s.db.Close() }
 
+func (s *Store) RawDB() *sql.DB { return s.db }
+
 func (s *Store) migrate() error {
 	stmts := []string{
 		`CREATE TABLE IF NOT EXISTS tasks (
@@ -82,6 +84,18 @@ func (s *Store) migrate() error {
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_tasks_created ON tasks(created_at DESC)`,
 		`CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status)`,
+		`CREATE TABLE IF NOT EXISTS proxy_profiles (
+			id TEXT PRIMARY KEY,
+			name TEXT NOT NULL,
+			protocol TEXT NOT NULL,
+			host TEXT NOT NULL,
+			port INTEGER NOT NULL,
+			username TEXT NOT NULL DEFAULT '',
+			password_protected TEXT NOT NULL DEFAULT '',
+			enabled INTEGER NOT NULL DEFAULT 1,
+			created_at INTEGER NOT NULL,
+			updated_at INTEGER NOT NULL
+		)`,
 		`CREATE TABLE IF NOT EXISTS settings (
 			key TEXT PRIMARY KEY,
 			value TEXT NOT NULL
@@ -99,25 +113,28 @@ func (s *Store) migrate() error {
 		}
 	}
 	columns := map[string]string{
-		"category":        "TEXT NOT NULL DEFAULT ''",
-		"priority":        "INTEGER NOT NULL DEFAULT 0",
-		"container":       "TEXT NOT NULL DEFAULT ''",
-		"subtitles":       "INTEGER NOT NULL DEFAULT 0",
-		"playlist":        "INTEGER NOT NULL DEFAULT 0",
-		"connections":     "INTEGER NOT NULL DEFAULT 0",
-		"retries":         "INTEGER NOT NULL DEFAULT 0",
-		"username":        "TEXT NOT NULL DEFAULT ''",
-		"password":        "TEXT NOT NULL DEFAULT ''",
-		"cookies":         "TEXT NOT NULL DEFAULT ''",
-		"sha256":          "TEXT NOT NULL DEFAULT ''",
-		"md5":             "TEXT NOT NULL DEFAULT ''",
-		"referrer":        "TEXT NOT NULL DEFAULT ''",
-		"user_agent":      "TEXT NOT NULL DEFAULT ''",
-		"mime_type":       "TEXT NOT NULL DEFAULT ''",
-		"suggested_name":  "TEXT NOT NULL DEFAULT ''",
-		"browser_cookies": "TEXT NOT NULL DEFAULT ''",
-		"started_at":      "INTEGER NOT NULL DEFAULT 0",
-		"completed_at":    "INTEGER NOT NULL DEFAULT 0",
+		"category":           "TEXT NOT NULL DEFAULT ''",
+		"priority":           "INTEGER NOT NULL DEFAULT 0",
+		"container":          "TEXT NOT NULL DEFAULT ''",
+		"subtitles":          "INTEGER NOT NULL DEFAULT 0",
+		"playlist":           "INTEGER NOT NULL DEFAULT 0",
+		"connections":        "INTEGER NOT NULL DEFAULT 0",
+		"retries":            "INTEGER NOT NULL DEFAULT 0",
+		"username":           "TEXT NOT NULL DEFAULT ''",
+		"password":           "TEXT NOT NULL DEFAULT ''",
+		"cookies":            "TEXT NOT NULL DEFAULT ''",
+		"sha256":             "TEXT NOT NULL DEFAULT ''",
+		"md5":                "TEXT NOT NULL DEFAULT ''",
+		"referrer":           "TEXT NOT NULL DEFAULT ''",
+		"user_agent":         "TEXT NOT NULL DEFAULT ''",
+		"mime_type":          "TEXT NOT NULL DEFAULT ''",
+		"suggested_name":     "TEXT NOT NULL DEFAULT ''",
+		"browser_cookies":    "TEXT NOT NULL DEFAULT ''",
+		"started_at":         "INTEGER NOT NULL DEFAULT 0",
+		"completed_at":       "INTEGER NOT NULL DEFAULT 0",
+		"proxy_mode":         "TEXT NOT NULL DEFAULT 'inherit'",
+		"proxy_profile_id":   "TEXT NOT NULL DEFAULT ''",
+		"proxy_profile_name": "TEXT NOT NULL DEFAULT ''",
 	}
 	for name, definition := range columns {
 		exists, err := s.hasColumn("tasks", name)
@@ -132,7 +149,50 @@ func (s *Store) migrate() error {
 		}
 	}
 	_, err := s.db.Exec(`UPDATE tasks SET completed_at=updated_at WHERE status=? AND completed_at=0`, types.StatusCompleted)
-	return err
+	if err != nil {
+		return err
+	}
+	return s.encryptLegacySecrets()
+}
+
+func (s *Store) encryptLegacySecrets() error {
+	rows, err := s.db.Query(`SELECT id,password,cookies FROM tasks
+		WHERE (password<>'' AND password NOT LIKE 'dpapi:%' AND password NOT LIKE 'aes:%')
+		   OR (cookies<>'' AND cookies NOT LIKE 'dpapi:%' AND cookies NOT LIKE 'aes:%')`)
+	if err != nil {
+		return err
+	}
+	type pending struct {
+		id, password, cookies string
+	}
+	var updates []pending
+	for rows.Next() {
+		var p pending
+		if err := rows.Scan(&p.id, &p.password, &p.cookies); err != nil {
+			rows.Close()
+			return err
+		}
+		updates = append(updates, p)
+	}
+	if err := rows.Err(); err != nil {
+		rows.Close()
+		return err
+	}
+	rows.Close()
+	for _, p := range updates {
+		password, err := protectSecret(p.password)
+		if err != nil {
+			return err
+		}
+		cookies, err := protectSecret(p.cookies)
+		if err != nil {
+			return err
+		}
+		if _, err := s.db.Exec(`UPDATE tasks SET password=?, cookies=? WHERE id=?`, password, cookies, p.id); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (s *Store) hasColumn(table, column string) (bool, error) {
@@ -161,12 +221,21 @@ func (s *Store) SaveTask(t *types.Task) error {
 	if err != nil {
 		return err
 	}
+	password, err := protectSecret(t.Password)
+	if err != nil {
+		return err
+	}
+	cookies, err := protectSecret(t.Cookies)
+	if err != nil {
+		return err
+	}
 	_, err = s.db.Exec(`INSERT INTO tasks (
 		id,url,title,engine,kind,status,quality,category,priority,source,gid,file_path,dir,error,
 		progress,downloaded,total,speed,eta,container,subtitles,playlist,connections,retries,
+		proxy_mode,proxy_profile_id,proxy_profile_name,
 		username,password,cookies,sha256,md5,referrer,user_agent,mime_type,suggested_name,browser_cookies,
 		created_at,started_at,completed_at,updated_at
-	) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+	) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
 	ON CONFLICT(id) DO UPDATE SET
 		url=excluded.url, title=excluded.title, engine=excluded.engine, kind=excluded.kind,
 		status=excluded.status, quality=excluded.quality, category=excluded.category,
@@ -175,7 +244,9 @@ func (s *Store) SaveTask(t *types.Task) error {
 		progress=excluded.progress, downloaded=excluded.downloaded, total=excluded.total,
 		speed=excluded.speed, eta=excluded.eta, container=excluded.container,
 		subtitles=excluded.subtitles, playlist=excluded.playlist, connections=excluded.connections,
-		retries=excluded.retries, username=excluded.username, password=excluded.password,
+		retries=excluded.retries, proxy_mode=excluded.proxy_mode,
+		proxy_profile_id=excluded.proxy_profile_id, proxy_profile_name=excluded.proxy_profile_name,
+		username=excluded.username, password=excluded.password,
 		cookies=excluded.cookies, sha256=excluded.sha256, md5=excluded.md5,
 		referrer=excluded.referrer, user_agent=excluded.user_agent, mime_type=excluded.mime_type,
 		suggested_name=excluded.suggested_name, browser_cookies=excluded.browser_cookies,
@@ -183,7 +254,8 @@ func (s *Store) SaveTask(t *types.Task) error {
 		t.ID, t.URL, t.Title, t.Engine, t.Kind, t.Status, t.Quality, t.Category, t.Priority,
 		t.Source, t.GID, t.FilePath, t.Dir, t.Error, t.Progress, t.Downloaded, t.Total, t.Speed, t.ETA,
 		t.Container, t.Subtitles, t.Playlist, t.Connections, t.Retries,
-		t.Username, t.Password, t.Cookies, t.SHA256, t.MD5,
+		t.ProxyMode, t.ProxyProfileID, t.ProxyProfileName,
+		t.Username, password, cookies, t.SHA256, t.MD5,
 		t.Referrer, t.UserAgent, t.MimeType, t.SuggestedName, browserCookies,
 		t.CreatedAt, t.StartedAt, t.CompletedAt, t.UpdatedAt)
 	return err
@@ -194,17 +266,27 @@ func (s *Store) UpdateTask(t *types.Task) error {
 	if err != nil {
 		return err
 	}
+	password, err := protectSecret(t.Password)
+	if err != nil {
+		return err
+	}
+	cookies, err := protectSecret(t.Cookies)
+	if err != nil {
+		return err
+	}
 	_, err = s.db.Exec(`UPDATE tasks SET
 		url=?, title=?, engine=?, kind=?, status=?, quality=?, category=?, priority=?,
 		source=?, gid=?, file_path=?, dir=?, error=?, progress=?, downloaded=?, total=?, speed=?, eta=?,
 		container=?, subtitles=?, playlist=?, connections=?, retries=?,
+		proxy_mode=?, proxy_profile_id=?, proxy_profile_name=?,
 		username=?, password=?, cookies=?, sha256=?, md5=?, referrer=?, user_agent=?, mime_type=?,
 		suggested_name=?, browser_cookies=?,
 		started_at=?, completed_at=?, updated_at=? WHERE id=?`,
 		t.URL, t.Title, t.Engine, t.Kind, t.Status, t.Quality, t.Category, t.Priority,
 		t.Source, t.GID, t.FilePath, t.Dir, t.Error, t.Progress, t.Downloaded, t.Total, t.Speed, t.ETA,
 		t.Container, t.Subtitles, t.Playlist, t.Connections, t.Retries,
-		t.Username, t.Password, t.Cookies, t.SHA256, t.MD5,
+		t.ProxyMode, t.ProxyProfileID, t.ProxyProfileName,
+		t.Username, password, cookies, t.SHA256, t.MD5,
 		t.Referrer, t.UserAgent, t.MimeType, t.SuggestedName, browserCookies,
 		t.StartedAt, t.CompletedAt, t.UpdatedAt, t.ID)
 	return err
@@ -250,7 +332,8 @@ func (s *Store) MarkActive(id, gid string, updatedAt int64) (bool, error) {
 
 func (s *Store) CompleteTask(id, filePath string, downloaded, total, updatedAt int64) (bool, error) {
 	res, err := s.db.Exec(`UPDATE tasks SET status=?, progress=100, speed=0, eta=0, error='', file_path=?,
-		downloaded=?, total=?, completed_at=?, updated_at=?, browser_cookies='' WHERE id=? AND status=?`,
+		downloaded=?, total=?, completed_at=?, updated_at=?, browser_cookies='', password='', cookies=''
+		WHERE id=? AND status=?`,
 		types.StatusCompleted, filePath, downloaded, total, updatedAt, updatedAt, id, types.StatusActive)
 	if err != nil {
 		return false, err
@@ -265,27 +348,32 @@ func (s *Store) CompleteTask(id, filePath string, downloaded, total, updatedAt i
 func (s *Store) GetTask(id string) (types.Task, error) {
 	var t types.Task
 	var subtitles, playlist int
-	var browserCookies string
+	var browserCookies, password, cookies string
 	err := s.db.QueryRow(`SELECT id,url,title,engine,kind,status,quality,category,priority,source,gid,file_path,dir,error,
 		progress,downloaded,total,speed,eta,container,subtitles,playlist,connections,retries,
+		proxy_mode,proxy_profile_id,proxy_profile_name,
 		username,password,cookies,sha256,md5,referrer,user_agent,mime_type,suggested_name,browser_cookies,
 		created_at,started_at,completed_at,updated_at FROM tasks WHERE id=?`, id).
 		Scan(&t.ID, &t.URL, &t.Title, &t.Engine, &t.Kind, &t.Status, &t.Quality, &t.Category, &t.Priority,
 			&t.Source, &t.GID,
 			&t.FilePath, &t.Dir, &t.Error, &t.Progress, &t.Downloaded, &t.Total, &t.Speed, &t.ETA,
 			&t.Container, &subtitles, &playlist, &t.Connections, &t.Retries,
-			&t.Username, &t.Password, &t.Cookies, &t.SHA256, &t.MD5,
+			&t.ProxyMode, &t.ProxyProfileID, &t.ProxyProfileName,
+			&t.Username, &password, &cookies, &t.SHA256, &t.MD5,
 			&t.Referrer, &t.UserAgent, &t.MimeType, &t.SuggestedName, &browserCookies,
 			&t.CreatedAt, &t.StartedAt, &t.CompletedAt, &t.UpdatedAt)
 	t.Subtitles = subtitles == 1
 	t.Playlist = playlist == 1
 	t.BrowserCookies = revealBrowserCookies(browserCookies)
+	t.Password = revealSecret(password)
+	t.Cookies = revealSecret(cookies)
 	return t, err
 }
 
 func (s *Store) ListTasks(limit int) ([]types.Task, error) {
 	query := `SELECT id,url,title,engine,kind,status,quality,category,priority,source,gid,file_path,dir,error,
 		progress,downloaded,total,speed,eta,container,subtitles,playlist,connections,retries,
+		proxy_mode,proxy_profile_id,proxy_profile_name,
 		username,password,cookies,sha256,md5,referrer,user_agent,mime_type,suggested_name,browser_cookies,
 		created_at,started_at,completed_at,updated_at FROM tasks ORDER BY created_at DESC`
 	args := make([]any, 0, 1)
@@ -303,11 +391,13 @@ func (s *Store) ListTasks(limit int) ([]types.Task, error) {
 	for rows.Next() {
 		var t types.Task
 		var subtitles, playlist int
-		var browserCookies string
+		var browserCookies, password, cookies string
 		if err := rows.Scan(&t.ID, &t.URL, &t.Title, &t.Engine, &t.Kind, &t.Status, &t.Quality,
 			&t.Category, &t.Priority, &t.Source, &t.GID, &t.FilePath, &t.Dir, &t.Error,
 			&t.Progress, &t.Downloaded, &t.Total, &t.Speed, &t.ETA, &t.Container, &subtitles,
-			&playlist, &t.Connections, &t.Retries, &t.Username, &t.Password, &t.Cookies,
+			&playlist, &t.Connections, &t.Retries,
+			&t.ProxyMode, &t.ProxyProfileID, &t.ProxyProfileName,
+			&t.Username, &password, &cookies,
 			&t.SHA256, &t.MD5, &t.Referrer, &t.UserAgent, &t.MimeType, &t.SuggestedName,
 			&browserCookies, &t.CreatedAt, &t.StartedAt, &t.CompletedAt, &t.UpdatedAt); err != nil {
 			return nil, err
@@ -315,6 +405,8 @@ func (s *Store) ListTasks(limit int) ([]types.Task, error) {
 		t.Subtitles = subtitles == 1
 		t.Playlist = playlist == 1
 		t.BrowserCookies = revealBrowserCookies(browserCookies)
+		t.Password = revealSecret(password)
+		t.Cookies = revealSecret(cookies)
 		tasks = append(tasks, t)
 	}
 	return tasks, rows.Err()
@@ -420,6 +512,7 @@ func defaultSettings(downloadDir string) types.Settings {
 		DownloadDir:              downloadDir,
 		MaxConcurrent:            2,
 		Connections:              8,
+		ProxyTestURL:             types.DefaultProxyTestURL,
 		ClipboardWatch:           true,
 		AutoAddClipboard:         false,
 		AutoStart:                true,
@@ -465,6 +558,16 @@ func (s *Store) GetSettings(downloadDir string) (types.Settings, error) {
 			_ = json.Unmarshal([]byte(value), &settings.Connections)
 		case "proxy":
 			settings.Proxy = value
+		case "proxyDefaultId":
+			settings.ProxyDefaultID = value
+		case "proxyBypass":
+			settings.ProxyBypass = value
+		case "proxyTestUrl":
+			settings.ProxyTestURL = value
+		case "proxyFallbackIds":
+			_ = json.Unmarshal([]byte(value), &settings.ProxyFallbackIDs)
+		case "proxyAllowDirectFallback":
+			_ = json.Unmarshal([]byte(value), &settings.ProxyAllowDirectFallback)
 		case "clipboardWatch":
 			_ = json.Unmarshal([]byte(value), &settings.ClipboardWatch)
 		case "autoAddClipboard":
@@ -500,6 +603,9 @@ func (s *Store) GetSettings(downloadDir string) (types.Settings, error) {
 	if settings.DownloadDir == "" {
 		settings.DownloadDir = downloadDir
 	}
+	if strings.TrimSpace(settings.ProxyTestURL) == "" {
+		settings.ProxyTestURL = types.DefaultProxyTestURL
+	}
 	return settings, rows.Err()
 }
 
@@ -509,6 +615,11 @@ func (s *Store) SaveSettings(settings types.Settings) error {
 		"maxConcurrent":            mustJSON(settings.MaxConcurrent),
 		"connections":              mustJSON(settings.Connections),
 		"proxy":                    settings.Proxy,
+		"proxyDefaultId":           settings.ProxyDefaultID,
+		"proxyBypass":              settings.ProxyBypass,
+		"proxyTestUrl":             settings.ProxyTestURL,
+		"proxyFallbackIds":         mustJSON(settings.ProxyFallbackIDs),
+		"proxyAllowDirectFallback": mustJSON(settings.ProxyAllowDirectFallback),
 		"clipboardWatch":           mustJSON(settings.ClipboardWatch),
 		"autoAddClipboard":         mustJSON(settings.AutoAddClipboard),
 		"autoStart":                mustJSON(settings.AutoStart),
@@ -549,6 +660,30 @@ func protectBrowserCookies(value string) (string, error) {
 		return "", nil
 	}
 	return secure.Protect(value)
+}
+
+func protectSecret(value string) (string, error) {
+	if value == "" {
+		return "", nil
+	}
+	if secure.IsProtected(value) {
+		return value, nil
+	}
+	return secure.Protect(value)
+}
+
+func revealSecret(value string) string {
+	if value == "" {
+		return ""
+	}
+	if !secure.IsProtected(value) {
+		return value
+	}
+	plain, err := secure.Unprotect(value)
+	if err != nil {
+		return ""
+	}
+	return plain
 }
 
 func revealBrowserCookies(value string) string {
